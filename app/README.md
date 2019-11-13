@@ -30,8 +30,9 @@ Run everything in the `app` folder.
           LIMIT 100"
       python sparql.py ${KB_NODE}:${KB_PORT} "$query"
       ```
-
-5. Test Elastic Search Instance with `curl -X GET "localhost:9200/_cat/nodes?v&pretty"`
+5. Load the Elastic Search Data:
+   1. Run `./elasticsearch/load_sample_data.sh` to load all data
+6. Test Elastic Search Instance with `curl "http://localhost:9200/freebase/label/_search?q=obama"`
 
 ## Utils
 
