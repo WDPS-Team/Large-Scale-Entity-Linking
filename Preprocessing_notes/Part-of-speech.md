@@ -1,7 +1,7 @@
 #### 1. Rule-based POS Tagging — set of rules constructed manually
 
-* use dictionary or lexicon for getting possible tags for tagging each word
-* if a word has more than one possible tag, then use hand-written rules to identify the correct tag.
+* use **dictionary** or **lexicon** for getting possible tags for tagging each word
+* if a word has more than one possible tag, then use **hand-written rules** to identify the correct tag.
 * disambiguation can also be performed in rule-based tagging by analyzing the linguistic features of a word along with its preceding as well as following words.
 
 #### 2. Stochastic POS Tagging (HMM) — high accuracy

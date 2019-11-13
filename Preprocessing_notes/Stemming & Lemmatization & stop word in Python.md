@@ -27,7 +27,7 @@
 
 ##### running example
 
-![image-20191110142451111](/Users/yiizHeeen/Desktop/image-20191110142451111.png)
+![running example](/Users/yiizHeeen/Documents/GitHub/WDPS-2019/Preprocessing_notes/pics/pycharm.png)
 
 * Conlusion : porter is more precise than lancaster
 
@@ -100,7 +100,7 @@ for word in sentence_words:
 
 output:
 
-![image-20191110155033895](/Users/yiizHeeen/Desktop/image-20191110155033895.png)
+![image-20191110155033895](/Users/yiizHeeen/Documents/GitHub/WDPS-2019/Preprocessing_notes/pics/before.png)
 
 * need to provide the context : parts-of-speech (POS)
 
@@ -111,7 +111,7 @@ for word in sentence_words:
 
 output:
 
-![image-20191110155147751](/Users/yiizHeeen/Desktop/image-20191110155147751.png)
+![image-20191110155147751](/Users/yiizHeeen/Documents/GitHub/WDPS-2019/Preprocessing_notes/pics/after_le.png)
 
 
 

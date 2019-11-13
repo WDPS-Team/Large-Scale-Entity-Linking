@@ -1,16 +1,16 @@
-#### 1. Constituency parsing 
+1. Constituency parsing 
 
 breaks a text into sub-phrases. Non-terminals in the tree are types of phrases, the terminals are the words in the sentence, and the edges are unlabeled.
 
 ###### Example: "John sees Bill"
 
-![image-20191110202218463](/Users/yiizHeeen/Desktop/image-20191110202218463.png)
+![image-20191110202218463](/Users/yiizHeeen/Documents/GitHub/WDPS-2019/Preprocessing_notes/pics/constituency.png)
 
 #### 2. Dependency parsing
 
 connects words according to their relationships. Each vertex in the tree represents a word, child nodes are words that are dependent on the parent, and edges are labeled by the relationship.
 
-![image-20191110202250239](/Users/yiizHeeen/Desktop/image-20191110202250239.png)
+![Dependency parsing](/Users/yiizHeeen/Documents/GitHub/WDPS-2019/Preprocessing_notes/pics/Dependency_parsing.png)
 
 #### 3. How to choose? 
 
