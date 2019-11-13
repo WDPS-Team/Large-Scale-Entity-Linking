@@ -1,3 +1,3 @@
-FROM scratch
+FROM karmaresearch/trident
 
-# TODO
+CMD $KB_BIN server -i $KB_PATH --port $KB_PORT
