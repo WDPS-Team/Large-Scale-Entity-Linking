@@ -34,6 +34,18 @@ Run everything in the `app` folder.
    1. Run `./elasticsearch/load_sample_data.sh` to load all data
 6. Test Elastic Search Instance with `curl "http://localhost:9200/freebase/label/_search?q=obama"`
 
+## Run Spark Jobs
+
+### Run a Python application on dockerized Spark standalone cluster
+
+```shell
+docker-compose run spark-submit sh /submit.sh
+```
+
+### Run Spark Jobs on DAS4
+
+Probably need to use yarn?
+
 ## Utils
 
 - Recursive copy from DAS-4 to local storage:  
