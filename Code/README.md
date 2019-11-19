@@ -7,6 +7,8 @@ Steps 1 to 3 of main architecture
     nltk==3.4.5
     spacy==2.2.2
 
+Or run `pip3 install --user -r requirements.txt`
+
 ## Configuration
     python3 -m spacy download en_core_web_sm
     python3 -m spacy download en
