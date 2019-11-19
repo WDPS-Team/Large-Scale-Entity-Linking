@@ -40,7 +40,7 @@ def divideAndStoreWarc(file):
                         id = record.rec_headers.get_header(WARC_ID)
                         data = getTextFromHTML(lh.fromstring(html))
 
-                        print(data)
+                        #print(data)
 
                         warcRecords.append({
                             'id'  : id,
