@@ -22,6 +22,7 @@ services:
       - ENABLE_INIT_DAEMON=false
     volumes:
       - ./src/:/app/src/
+      - ./data/:/app/data/
     command:
       - "bash"
   es01:
