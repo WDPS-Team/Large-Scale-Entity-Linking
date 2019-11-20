@@ -9,4 +9,4 @@ then
 else
   echo "something went wrong"
 exit 1
-
+fi
