@@ -9,8 +9,5 @@ input_file = sc.textFile("sample.warc.gz")
 
 
 
-# Write the entire file to the local file system
-everything = input_file.collect()
-file = open("output", "w+")
-file.write(str(everything))
-file.close()
+# Write the file to hdfs
+input_file.saveAsTextFile("wdps1936output")
