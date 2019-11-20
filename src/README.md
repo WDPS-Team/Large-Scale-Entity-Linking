@@ -17,3 +17,4 @@ Or run `pip3 install --user -r requirements.txt`
 ## Execution
     python3 WARCSplitReader.py <INPUT_WARC_FILE> <OUTPUT_FOLDER>
     python3 EntityExtractor.py <FOLDER>
+    python3 EntityLinker.py <ENTITY>
