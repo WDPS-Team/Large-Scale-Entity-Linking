@@ -4,7 +4,7 @@ from pyspark import SparkContext, SparkFiles
 sc = SparkContext()
 
 # Read the input file as a rdd
-input_file = sc.textFile("app/data/sample.warc.gz")
+input_file = sc.textFile("sample.warc.gz")
 # Space for the main program
 
 
