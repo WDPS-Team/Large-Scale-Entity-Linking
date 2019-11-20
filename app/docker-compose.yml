@@ -25,6 +25,7 @@ services:
       - "PYSPARK_PYTHON=python3"
     volumes:
       - ./src/:/app/src/
+      - ./data/:/app/data/
     command:
       - "bash"
   es01:
