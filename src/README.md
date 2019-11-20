@@ -1,4 +1,4 @@
-## Warc Splitting and Entity Extraction
+## Warc Splitting, Entity Extraction and Entity Linking
 Steps 1 to 3 of main architecture
 
 ## Requirements
