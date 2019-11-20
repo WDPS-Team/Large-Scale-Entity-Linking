@@ -1,1 +1,1 @@
-( cd ./app && docker-compose run spark-submit /spark/bin/spark-submit /app/src/helloworld.py --files /app/data/sample.warc.gz)
+(cd ./app && docker-compose run spark-submit docker_scripts/submit.sh)

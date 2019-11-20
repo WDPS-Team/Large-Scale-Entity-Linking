@@ -20,12 +20,13 @@ services:
   spark-submit:
     image: bde2020/spark-python-template:2.4.4-hadoop2.7
     environment:
-      - SPARK_APPLICATION_PYTHON_LOCATION=/app/src/helloworld.py
+      - SPARK_APPLICATION_PYTHON_LOCATION=/app/src/spark_main.py
       - ENABLE_INIT_DAEMON=false
       - "PYSPARK_PYTHON=python3"
     volumes:
       - ./src/:/app/src/
       - ./data/:/app/data/
+      - ./docker_scripts/:/docker_scripts/
     command:
       - "bash"
   es01:
