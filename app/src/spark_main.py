@@ -8,6 +8,8 @@ input_file = sc.textFile("sample.warc.gz")
 # Space for the main program
 
 
+# TODO: Convert RDD into a TSV
 
 # Write the file to hdfs
-input_file.saveAsTextFile("wdps1936output")
+output_rdd = input_file
+output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv")
