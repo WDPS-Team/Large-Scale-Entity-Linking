@@ -12,23 +12,27 @@ def getTextFromHTML(html):
     return clean_html.text_content()
 
 
-def extractWarcRecords(file):
+def extractWarcRecordsList(stream):
     warcRecords = []
-    with open(file, 'rb') as f:
-        for record in ArchiveIterator(f):
-            try:
-                if record.rec_type == 'response':           #filters by responce warcs
-                    html = record.content_stream().read()   #reads payload from the record
-                    if len(html) > 0:
-                        rec_id = record.rec_headers.get_header(WARC_ID)
-                        data = getTextFromHTML(lh.fromstring(html))
-                        warcRecords.append({
-                            'id'  : rec_id,
-                            'data': data
-                        })
-            except:
+    for record in ArchiveIterator(stream):
+        try:
+            if record.rec_type == 'response':           #filters by responce warcs
+                html = record.content_stream().read()   #reads payload from the record
+                if len(html) > 0:
+                    rec_id = record.rec_headers.get_header(WARC_ID)
+                    data = getTextFromHTML(lh.fromstring(html))
+                    warcRecords.append({
+                        'id'  : rec_id,
+                        'data': data
+                    })
+        except:
                 print("Parse error:", record.rec_headers.get_header(WARC_ID))
     return warcRecords
+
+
+def extractWarcRecords(file):
+    with open(file, 'rb') as f:
+        return extractWarcRecordsList(f)
 
 
 def storeWarcData(records, folder):
@@ -52,7 +56,7 @@ def emptyOutputDirectory(folder):
 if __name__ == "__main__":
     import sys
     
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print('Usage: <INPUT_FILE> <OUTPUT_FOLDER>. Using "sample.warc.gz" and "',TMP_FOLDER,'" instead.')
         INPUT = "sample.warc.gz"
         OUTPUT = TMP_FOLDER
