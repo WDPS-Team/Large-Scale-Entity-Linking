@@ -39,17 +39,17 @@ services:
       - data01:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-        #  trident:
-        #build:
-        #context: ./trident/
-        #environment:
-        #- KB_PORT=9090
-        #- KB_BIN=/app/trident/build/trident
-        #- KB_PATH=/data/kb/trident
-        #volumes:
-        #- ./trident-data/:/data/kb
-        #ports:
-        #- 9090:9090
+  trident:
+    build:
+     context: ./trident/
+    environment:
+      - KB_PORT=9090
+      - KB_BIN=/app/trident/build/trident
+      - KB_PATH=/data/kb/trident
+    volumes:
+      - ./trident-data/:/data/kb
+    ports:
+      - 9090:9090
 volumes:
   data01:
     driver: local
