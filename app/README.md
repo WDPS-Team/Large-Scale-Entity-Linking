@@ -6,9 +6,14 @@ Run everything in the `app` folder.
 
 1. `docker-compose build` to load images and build dependet images.
 2. Load the Trident store
-   1. Download the yago2s file and move to `yago2s_input`
-   2. Run `docker-compose run trident ./build/trident load -i /data/kb/trident -f /data/kb/yago2s_input`
-   Notice: You might need to increase the memory size for the Docker VM (Windows + MacOs), was tested with 8192MB on Win10
+    1. Setup Input data
+         - go to `app/trident-data`
+         - create dir if necessary: `yago2s_input`
+         - download yago2s knowledge base [here](https://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/yago-naga/yago/archive/)
+         - extract in `yago2s_input` folder
+    2. Index the knowledge base with trident
+        - run `docker-compose run trident ./trident load -i /data/kb/trident -f /data/kb/yago2s_input`
+        - Notice: You might need to increase the memory size for the Docker VM (Windows + MacOs), was tested with 8192MB on Win10
 3. `docker-compose up`
 4. Test the Trident Store
    - On Windows:

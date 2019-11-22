@@ -10,7 +10,7 @@ RUN git clone --depth 1 https://github.com/karmaresearch/trident.git
 
 RUN mkdir build
 WORKDIR /app/trident/build
-RUN cmake ..
+RUN cmake .. -DSERVER=1
 RUN make
 
 FROM ubuntu:18.04 as runtime
@@ -18,4 +18,5 @@ RUN apt install -y zlib1g
 
 COPY --from=builder /app /app
 
+WORKDIR /app/trident/build
 CMD $KB_BIN server -i $KB_PATH --port $KB_PORT
