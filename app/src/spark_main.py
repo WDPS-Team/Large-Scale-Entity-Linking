@@ -1,5 +1,6 @@
 from pyspark import SparkContext, SparkFiles
 import spacy
+import config
 
 class WARCSplitReader:
 
@@ -26,6 +27,7 @@ sc = SparkContext()
 
 print("using versions")
 print("spacy: {0}".format(spacy.__version__))
+print(config.WARC_ID)
 
 # Read the input file as a rdd
 input_file = sc.textFile("sample.warc.gz")
