@@ -44,7 +44,7 @@ Run everything in the `app` folder.
 ### Run a Python application on dockerized Spark standalone cluster
 
 ```shell
-docker-compose run spark-submit sh /submit.sh
+docker-compose run spark-submit sh ./scripts/submit.sh
 ```
 
 ### Warc Splitting, Entity Extraction and Entity Linking
