@@ -6,7 +6,7 @@ pip3 install -r /app/src/requirements.txt
 cp /app/data/sample.warc.gz /sample.warc.gz
 
 # --master spark://spark-master:7077
-/spark/bin/spark-submit --files /sample.warc.gz /app/src/spark_main.py 
+/spark/bin/spark-submit --files /sample.warc.gz /app/src/spark_main.py --py-files `ls -p /app/src/*.py | grep -v / | tr '\n' ','`
 #  --conf spark.pyspark.virtualenv.enabled=true \
 # --conf spark.pyspark.virtualenv.type=native \
 # --conf spark.pyspark.virtualenv.requirements=/app/src/requirements.txt \
