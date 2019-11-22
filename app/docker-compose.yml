@@ -2,13 +2,13 @@ version: '2.2'
 services:
   spark-master: 
     build:
-      context: ./spark_master/
+      context: ./spark/master/
     ports:
       - 7077:7077
       - 8080:8080
   spark-worker-1:
     build:
-      context: ./spark_worker/
+      context: ./spark/worker/
     depends_on:
       - spark-master
     ports:
@@ -17,17 +17,11 @@ services:
       - "SPARK_MASTER=spark://spark-master:7077"
   spark-submit:
     build:
-      context: ./docker_submit/
-    environment:
-      - SPARK_APPLICATION_PYTHON_LOCATION=/app/src/spark_main.py
-      - ENABLE_INIT_DAEMON=false
-      - "PYSPARK_PYTHON=python3"
+      context: ./spark/submit/
     volumes:
       - ./src/:/app/src/
       - ./data/:/app/data/
-      - ./docker_scripts/:/docker_scripts/
-    command:
-      - "bash"
+      - ./spark/submit/scripts/:/scripts/
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
     container_name: es01

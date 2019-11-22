@@ -1,0 +1,18 @@
+version: '2.2'
+services:
+  spark-base:
+    build:
+      context: ./spark/base/
+    image: wdps_spark_base:v1
+  spark-submit:
+    build:
+      context: ./spark/submit/
+    image: wdps_spark_submit:v1
+  spark-master:
+    build:
+      context: ./spark/master/
+    image: wdps_spark_master:v1
+  spark-worker:
+    build:
+      context: ./spark/worker/
+    image: wdps_spark_worker:v1
