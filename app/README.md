@@ -22,18 +22,18 @@ Run everything in the `app` folder.
       $KB_NODE="localhost"
       $KB_PORT="9090"
 
-      $query = " SELECT DISTINCT ?class
+      $query=" SELECT DISTINCT ?class
       WHERE {
         ?s a ?class .
       }
       LIMIT 25
       OFFSET 0"
-      python sparql.py ${KB_NODE}:${KB_PORT} "$query"
+      python3 sparql.py ${KB_NODE}:${KB_PORT} "$query"
 
-      $query = "SELECT ?subject ?predicate ?object
+      $query="SELECT ?subject ?predicate ?object
           WHERE {?subject ?predicate ?object} 
           LIMIT 100"
-      python sparql.py ${KB_NODE}:${KB_PORT} "$query"
+      python3 sparql.py ${KB_NODE}:${KB_PORT} "$query"
       ```
 5. Load the Elastic Search Data:
    1. Run `./elasticsearch/load_sample_data.sh` to load all data
