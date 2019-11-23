@@ -2,13 +2,13 @@ import json
 import os
 import spacy
 
+
 class EntityExtractor:
 
     def __init__(self, warc_docs):
         self.warc_docs = warc_docs
-    
-    def extract(self):
 
+    def extract(self):
         def process(row):
             # TODO: change to bigger model
             spacy_nlp = spacy.load("en_core_web_sm")

@@ -6,6 +6,7 @@ from config import TMP_FOLDER, WARC_ID, WARC_PER_DOC
 from http.client import HTTPResponse
 from io import BytesIO
 
+
 class WARCSplitReader:
 
     def __init__(self, spark_session, lines_of_input_file):
@@ -104,5 +105,3 @@ class WARCSplitReader:
 
         self.cleaned_warc_responses = self.filtered_warc_responses.map(process)
         return self.cleaned_warc_responses
-
-
