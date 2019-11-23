@@ -56,8 +56,8 @@ class WARCSplitReader:
                     source = FakeSocket(http_response_bytes)
                     response = HTTPResponse(source)
                     response.begin()
-                    msg = str(response.read())
-                    return {"headers": response.getheaders(), "content": msg}
+                    msg = response.read()
+                    return {"headers": response.getheaders(), "content": msg.decode("UTF-8")}
 
             result = {"id": None, "data": None, "status": "ok"}
             http_parser = HTTPParser()
@@ -67,9 +67,9 @@ class WARCSplitReader:
                     result["status": "empty html"]
                     return result
                 rec_id = record.rec_headers.get_header(WARC_ID)
-                req_content = http_parser.parse_http_response(html)
+                data = http_parser.parse_http_response(html)["content"]
                 result["id"] = rec_id
-                result["data"] = req_content["content"]
+                result["data"] = data
                 result["type"] = record.rec_type
                 return result
             except Exception as exc:
@@ -96,7 +96,10 @@ class WARCSplitReader:
 
         def process(row):
             # TODO: Error handling?
-            row["data"] = getTextFromHTML(lh.fromstring(row["data"]))
+            try:
+                row["data"] = getTextFromHTML(lh.fromstring(row["data"]))
+            except Exception as e:
+                row["data"] = ""
             return row
 
         self.cleaned_warc_responses = self.filtered_warc_responses.map(process)
