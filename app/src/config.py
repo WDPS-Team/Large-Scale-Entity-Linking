@@ -1,8 +1,11 @@
 SAMPLE_INPUT="data/sample.warc.gz"
 FREEBASE_DOMAIN="localhost:9200"
+FREEBASE_RETRY_COUNT=5
+FREEBASE_RETRY_GAP=0.5
 TMP_FOLDER="intermediate"
 WARC_ID = "WARC-TREC-ID"
 WARC_PER_DOC = 500
+
 
 def suppress_invalid_gzip():
     print("Configuring")
