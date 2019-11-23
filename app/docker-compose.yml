@@ -1,14 +1,12 @@
 version: '2.2'
 services:
   spark-master: 
-    build:
-      context: ./spark/master/
+    image: wdps_spark_master:v1
     ports:
       - 7077:7077
       - 8080:8080
   spark-worker-1:
-    build:
-      context: ./spark/worker/
+    image: wdps_spark_worker:v1
     depends_on:
       - spark-master
     ports:
@@ -16,8 +14,7 @@ services:
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
   spark-submit:
-    build:
-      context: ./spark/submit/
+    image: wdps_spark_submit:v1
     volumes:
       - ./src/:/app/src/
       - ./data/:/app/data/

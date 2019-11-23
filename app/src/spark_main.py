@@ -1,43 +1,26 @@
 from pyspark import SparkContext, SparkFiles
-import spacy
-import config
-
-class WARCSplitReader:
-
-    def __init__(self, spark_session, lines_of_input_file):
-        self.sc = spark_session
-        self.raw_lines = lines_of_input_file
-        self.docs = None
-
-    def __split_records(self):
-        payload = ''
-        for line in self.raw_lines:
-            if line.strip() == "WARC/1.0":
-                yield payload
-                payload = ''
-            else:
-                payload += " " + line
-
-    def convert_to_docs(self):
-        self.docs = self.__split_records()
-        return self.sc.parallelize(self.docs)
+from WARCSplitReader import WARCSplitReader
 
 # Initialize Spark App
 sc = SparkContext()
 
-print("using versions")
-print("spacy: {0}".format(spacy.__version__))
-print(config.WARC_ID)
-
-# Read the input file as a rdd
+# STAGE 1 - INPUT READING
+# -> READ warc files in a distributed manner
+# -> Clean all warc records (js, style) with lxml
 input_file = sc.textFile("sample.warc.gz")
-# Space for the main program
-
 wsr = WARCSplitReader(sc, input_file.collect())
-docs_rdd = wsr.convert_to_docs()
+wsr.parse_warc_records()
+wsr.process_warc_records()
+wsr.filter_invalid_records()
+cleaned_warc_records = wsr.clean_warc_responses()
 
-# TODO: Convert RDD into a TSV
+# to be filled
 
-# Write the file to hdfs
+# STAGE OUTPUT - Writing as TSV
+# TODO: actually write as TSV
+docs_rdd = cleaned_warc_records
+
+print("row count: {0}".format(docs_rdd.count()))
+
 output_rdd = docs_rdd
 output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv")

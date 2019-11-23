@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pip3 install -r /app/src/requirements.txt
+# pip3 install -r /app/src/requirements.txt
 
 
 cp /app/data/sample.warc.gz /sample.warc.gz
