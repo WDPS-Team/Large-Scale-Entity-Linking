@@ -1,26 +1,7 @@
 from pyspark import SparkContext, SparkFiles
 import spacy
 import config
-
-class WARCSplitReader:
-
-    def __init__(self, spark_session, lines_of_input_file):
-        self.sc = spark_session
-        self.raw_lines = lines_of_input_file
-        self.docs = None
-
-    def __split_records(self):
-        payload = ''
-        for line in self.raw_lines:
-            if line.strip() == "WARC/1.0":
-                yield payload
-                payload = ''
-            else:
-                payload += " " + line
-
-    def convert_to_docs(self):
-        self.docs = self.__split_records()
-        return self.sc.parallelize(self.docs)
+from WARCSplitReader import WARCSplitReader
 
 # Initialize Spark App
 sc = SparkContext()
@@ -34,7 +15,12 @@ input_file = sc.textFile("sample.warc.gz")
 # Space for the main program
 
 wsr = WARCSplitReader(sc, input_file.collect())
-docs_rdd = wsr.convert_to_docs()
+
+docs_rdd = wsr.parse_warc_records()
+docs_rdd = wsr.process_warc_records()
+wsr.filter_invalid_records()
+docs_rdd = wsr.clean_warc_responses()
+print("row count: {0}".format(docs_rdd.count()))
 
 # TODO: Convert RDD into a TSV
 
