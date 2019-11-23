@@ -1,9 +1,17 @@
 import requests
-from config import FREEBASE_DOMAIN
+import time
+from config import FREEBASE_DOMAIN, FREEBASE_RETRY_COUNT, FREEBASE_RETRY_GAP
 
 def search(query):
     url = 'http://%s/freebase/label/_search' % FREEBASE_DOMAIN
-    response = requests.get(url, params={'q': query, 'size':1000})
+    response=None
+    for _ in range(FREEBASE_RETRY_COUNT):
+        try:
+            response = requests.get(url, params={'q': query, 'size':1000})
+            break
+        except:
+            time.sleep(FREEBASE_RETRY_GAP)
+        
     id_labels = {}
     if response:
         response = response.json()
