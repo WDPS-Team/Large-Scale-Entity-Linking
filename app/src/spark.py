@@ -41,6 +41,5 @@ def parse_warc_records(records_rdd):
 
 split_lines_rdd = sc.parallelize(__splitter(input_file))
 
-wsr = WARCSplitReader(split_lines_rdd)
-out = wsr.parse_warc_records()
+out = parse_warc_records(split_lines_rdd)
 print(out.count())
