@@ -6,7 +6,7 @@
 
 # General setup
 echo "Copying input file to hdfs"
-hdfs dfs -copyFromLocal ./app/data/sample.warc.gz hdfs://master.ib.cluster:8020/user/wdps1936/sample.warc.gz
+hdfs dfs -copyFromLocal -f ./app/data/sample.warc.gz hdfs://master.ib.cluster:8020/user/wdps1936/sample.warc.gz
 if [ $? -eq 0 ]
 then
   echo "input data copied, running program"
