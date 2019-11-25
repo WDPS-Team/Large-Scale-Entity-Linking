@@ -16,5 +16,16 @@ print("SPARK FIRST STAGE FINISHED")
 print(output)
 
 input_file = sc.textFile("sample.warc.gz")
-wsr = WARCSplitReader(sc, input_file.collect())
-print(wsr.count())
+# Convert Output:
+def __splitter(input_file)
+        payload = ''
+        for line in input_file.collect():
+            if line.strip() == "WARC/1.0":
+                yield payload
+                payload = line
+            else:
+                payload += line + "\n"
+
+wsr = WARCSplitReader(sc, sc.parallelize(__splitter()))
+out = wsr.parse_warc_records()
+print(out.count())
