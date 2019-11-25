@@ -26,6 +26,6 @@ def __splitter(input_file):
             else:
                 payload += line + "\n"
 
-wsr = WARCSplitReader(sc, sc.parallelize(__splitter()))
+wsr = WARCSplitReader(sc, sc.parallelize(__splitter(input_file)))
 out = wsr.parse_warc_records()
 print(out.count())
