@@ -17,7 +17,7 @@ print(output)
 
 input_file = sc.textFile("sample.warc.gz")
 # Convert Output:
-def __splitter(input_file)
+def __splitter(input_file):
         payload = ''
         for line in input_file.collect():
             if line.strip() == "WARC/1.0":
