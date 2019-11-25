@@ -1,29 +1,17 @@
 # from io import StringIO
 # from lxml.html.clean import Cleaner
 # import lxml.html as lh
-from config import TMP_FOLDER, WARC_ID, WARC_PER_DOC
+# from config import TMP_FOLDER, WARC_ID, WARC_PER_DOC
 # from http.client import HTTPResponse
 # from io import BytesIO
 
 
-class WARCSplitReader:
+#class WARCSplitReader:
 
-    def __init__(self, records_rdd):
-        self.records_rdd = records_rdd
+#    def __init__(self, records_rdd):
+#        self.records_rdd = records_rdd
 
-    def parse_warc_records(self):
-        self.raw_warc_records = self.records_rdd.filter(lambda rec: rec.startswith("WARC/1.0"))
 
-        def parse(row):
-            import warcio
-            from warcio.recordloader import ArcWarcRecordLoader
-            # record = ArcWarcRecordLoader()
-            # record = record.parse_record_stream(StringIO(row), known_format="warc")
-            row = { "": "some change occurs always", "wrc":  str(warcio)}
-            return record
-
-        self.warc_records = self.raw_warc_records.map(parse)
-        return self.warc_records
 
     # def process_warc_records(self):
     #     warc_responses = self.warc_records

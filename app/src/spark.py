@@ -1,5 +1,4 @@
 from pyspark import SparkContext, SparkFiles
-from WARCSplitReader import WARCSplitReader
 
 sc = SparkContext()
 
@@ -25,6 +24,20 @@ def __splitter(input_file):
                 payload = line
             else:
                 payload += line + "\n"
+
+def parse_warc_records(records_rdd):
+    raw_warc_records = records_rdd.filter(lambda rec: rec.startswith("WARC/1.0"))
+
+    def parse(row):
+        import warcio
+        from warcio.recordloader import ArcWarcRecordLoader
+        # record = ArcWarcRecordLoader()
+        # record = record.parse_record_stream(StringIO(row), known_format="warc")
+        row = { "": "some change occurs always", "wrc":  str(warcio)}
+        return record
+
+    warc_records = raw_warc_records.map(parse)
+    return warc_records
 
 split_lines_rdd = sc.parallelize(__splitter(input_file))
 
