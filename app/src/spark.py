@@ -1,5 +1,5 @@
 from pyspark import SparkContext, SparkFiles
-
+from WARCSplitReader import WARCSplitReader
 sc = SparkContext()
 
 from warcio.recordloader import ArcWarcRecordLoader
@@ -31,5 +31,13 @@ split_lines_rdd = sc.parallelize(__splitter(input_file))
 
 out = parse_warc_records(split_lines_rdd)
 print(out.count())
+
+wsr = WARCSplitReader(sc, input_file.collect())
+wsr.parse_warc_records()
+wsr.process_warc_records()
+wsr.filter_invalid_records()
+cleaned_warc_records = wsr.clean_warc_responses()
+docs = cleaned_warc_records
+out = docs
 
 out.repartition(1).saveAsTextFile("output/predictions.tsv")
