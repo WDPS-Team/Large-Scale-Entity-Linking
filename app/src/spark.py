@@ -3,6 +3,7 @@ from pyspark import SparkContext, SparkFiles
 sc = SparkContext()
 
 from warcio.recordloader import ArcWarcRecordLoader
+import StringIO
 
 input_file = sc.textFile("sample.warc.gz")
 # Convert Output:
