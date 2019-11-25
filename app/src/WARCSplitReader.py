@@ -1,3 +1,4 @@
+import warcio
 from warcio.recordloader import ArcWarcRecordLoader
 # from io import StringIO
 # from lxml.html.clean import Cleaner
@@ -16,9 +17,9 @@ class WARCSplitReader:
         self.raw_warc_records = self.records_rdd.filter(lambda rec: rec.startswith("WARC/1.0"))
 
         def parse(row):
-            record = ArcWarcRecordLoader()
-            record = record.parse_record_stream(StringIO(row), known_format="warc")
-
+            # record = ArcWarcRecordLoader()
+            # record = record.parse_record_stream(StringIO(row), known_format="warc")
+            row = { "": "some change occurs always", "wrc":  str(warcio)}
             return record
 
         self.warc_records = self.raw_warc_records.map(parse)
