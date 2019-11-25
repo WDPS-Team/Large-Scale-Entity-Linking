@@ -2,17 +2,7 @@ from pyspark import SparkContext, SparkFiles
 
 sc = SparkContext()
 
-import warcio
-
-print(warcio)
-
-big_list = range(10000)
-rdd = sc.parallelize(big_list, 2)
-odds = rdd.filter(lambda x: x % 2 != 0)
-output = odds.take(5)
-
-print("SPARK FIRST STAGE FINISHED")
-print(output)
+from warcio.recordloader import ArcWarcRecordLoader
 
 input_file = sc.textFile("sample.warc.gz")
 # Convert Output:
@@ -29,11 +19,8 @@ def parse_warc_records(records_rdd):
     raw_warc_records = records_rdd.filter(lambda rec: rec.startswith("WARC/1.0"))
 
     def parse(row):
-        import warcio
-        from warcio.recordloader import ArcWarcRecordLoader
-        # record = ArcWarcRecordLoader()
-        # record = record.parse_record_stream(StringIO(row), known_format="warc")
-        row = { "": "some change occurs always", "wrc":  str(warcio)}
+        record = ArcWarcRecordLoader()
+        record = record.parse_record_stream(StringIO(row), known_format="warc")
         return record
 
     warc_records = raw_warc_records.map(parse)
