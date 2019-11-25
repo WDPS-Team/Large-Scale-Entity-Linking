@@ -1,8 +1,8 @@
 from pyspark import SparkContext, SparkFiles
 from WARCSplitReader import WARCSplitReader
-from EntityExtractor import EntityExtractor
-from EntityLinker import EntityLinker
-from OutputWriter import OutputWriter
+# from EntityExtractor import EntityExtractor
+# from EntityLinker import EntityLinker
+# from OutputWriter import OutputWriter
 
 # Initialize Spark App
 sc = SparkContext()
@@ -19,21 +19,22 @@ cleaned_warc_records = wsr.clean_warc_responses()
 docs = cleaned_warc_records
 
 # STAGE 2 - Entity Extraction
-ee = EntityExtractor(cleaned_warc_records)
-docs_with_entity_candidates = ee.extract()
+# ee = EntityExtractor(cleaned_warc_records)
+# docs_with_entity_candidates = ee.extract()
 
 # STAGE 3 - Disambiguation
 # to be filled
 
 # STAGE 4 - Entity Linking
-el = EntityLinker(docs_with_entity_candidates)
-linked_entities = el.link()
+# el = EntityLinker(docs_with_entity_candidates)
+# linked_entities = el.link()
 
 # STAGE 5 - Transform and Output
-ow = OutputWriter(linked_entities)
-ow.transform()
+# ow = OutputWriter(linked_entities)
+# ow.transform()
 # todo, sort
 
-output_rdd = ow.convert_to_tsv()
+# output_rdd = ow.convert_to_tsv()
+output_rdd = input_file
 # Write
 output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv")

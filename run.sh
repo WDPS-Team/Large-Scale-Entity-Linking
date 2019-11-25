@@ -4,23 +4,16 @@
 # Prerequsites:
 # - setup DAS4 cluster
 
-# General setup
-echo "Copying input file to hdfs"
-hdfs dfs -copyFromLocal -f ./app/data/sample.warc.gz hdfs://master.ib.cluster:8020/user/wdps1936/sample.warc.gz
-if [ $? -eq 0 ]
-then
-  echo "input data copied, running program"
-else
-  echo "something went wrong"
-  exit 1
-fi
-
 # Cleanup Files
 rm ./output.tsv
 hdfs dfs -rm -r output/predictions.tsv
 
-# Starting Spark on yarn
-/local/spark/spark-2.4.0-bin-hadoop2.7/bin/spark-submit --master yarn ./app/src/spark_main.py
+PYSPARK_PYTHON=$(readlink -f $(which python3)) /local/spark/spark-2.4.0-bin-hadoop2.7/bin/spark-submit \
+--conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./VENV/venv/bin/python \
+--master yarn \
+--archives venv.zip#VENV \
+app/src/spark.py
+
 
 # Copying Output File from HDFS
 hdfs dfs -copyToLocal output/predictions.tsv/part-00000 ./output.tsv
