@@ -31,3 +31,5 @@ split_lines_rdd = sc.parallelize(__splitter(input_file))
 
 out = parse_warc_records(split_lines_rdd)
 print(out.count())
+
+out.repartition(1).saveAsTextFile("output/predictions.tsv")
