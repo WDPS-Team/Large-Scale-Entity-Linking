@@ -1,2 +1,6 @@
 .DS_Store
 .idea
+.es_log*
+.es_node
+.kb_log*
+.kb_node

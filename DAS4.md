@@ -8,3 +8,6 @@
 - start_sparql_server.sh
 
 # Start ELASTIC
+
+# Deactiavte venv
+- deactivate
