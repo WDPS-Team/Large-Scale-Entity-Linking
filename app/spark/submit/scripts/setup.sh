@@ -1,10 +1,8 @@
 #!/bin/bash
 
-(cd /app/src  && python3 -m venv ./venv)
+rm -rf /app/src/venv
+virtualenv /app/src/venv # --python=/usr/bin/python3
 source "/app/src/venv/bin/activate"
-pip3 install virtualenv
-pip3 install --user virtualenv -r /app/src/requirements.txt
-
-virtualenv --relocatable /app/src/venv
+pip3 install -r /app/src/requirements.txt
+python3 -m spacy download en_core_web_sm
 deactivate
-zip -qr /app/src/venv.zip /app/src/venv
