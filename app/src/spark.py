@@ -1,6 +1,16 @@
 from pyspark import SparkContext, SparkFiles
 from WARCSplitReader import WARCSplitReader
 from EntityExtractor import EntityExtractor
+from EntityLinker import EntityLinker
+from OutputWriter import OutputWriter
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--es", help="es instance.")
+args = parser.parse_args()
+if args.es:
+    es = args.es
+
+print("es:", es)
 sc = SparkContext()
 
 input_file = sc.textFile("sample.warc.gz")
@@ -19,6 +29,9 @@ cleaned_warc_records = wsr.clean_warc_responses()
 cleaned_warc_records.cache()
 print("Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
 
+# LIMIT the records for dev:
+sc.parallelize(cleaned_warc_records.take(100))
+
 print("FINSIHED STAGE 1".format(cleaned_warc_records.count()))
 # STAGE 2 - Entity Extraction
 ee = EntityExtractor(cleaned_warc_records)
@@ -26,4 +39,13 @@ docs_with_entity_candidates = ee.extract()
 print("Processed Docs with Entity Candidates {0}".format(docs_with_entity_candidates.count()))
 out = docs_with_entity_candidates
 
-out.repartition(1).saveAsTextFile("output/predictions.tsv")
+# STAGE 4 - Entity Linking
+el = EntityLinker(docs_with_entity_candidates)
+linked_entities = el.link()
+
+# STAGE 5 - Transform and Output
+ow = OutputWriter(linked_entities)
+ow.transform()
+
+output_rdd = ow.convert_to_tsv()
+output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv")

@@ -9,7 +9,7 @@ PYSPARK_PYTHON=$(readlink -f $(which python3)) /local/spark/spark-2.4.0-bin-hado
 --conf spark.pyspark.virtualenv.type=native \
 --conf spark.pyspark.virtualenv.requirements=requirements.txt \
 --conf spark.pyspark.virtualenv.bin.path=venv/bin/virtualenv \
-app/src/spark.py
+app/src/spark.py $ES_NODE:$ES_PORT
 
 deactivate
 # Copying Output File from HDFS
