@@ -1,10 +1,8 @@
 from warcio.recordloader import ArcWarcRecordLoader
 from io import StringIO
-# from lxml.html.clean import Cleaner
-# import lxml.html as lh
+from lxml.html.clean import Cleaner
+import lxml.html as lh
 from config import TMP_FOLDER, WARC_ID, WARC_PER_DOC
-from http.client import HTTPResponse
-from io import BytesIO
 
 
 class WARCSplitReader:
@@ -64,26 +62,26 @@ class WARCSplitReader:
 
         return self.processed_warcs_records
 
-    # def filter_invalid_records(self):
-    #     self.filtered_warc_responses = self.processed_warcs_records.filter(lambda record: record["id"] != None)
-    #     return self.filtered_warc_responses
+    def filter_invalid_records(self):
+        self.filtered_warc_responses = self.processed_warcs_records.filter(lambda record: record["id"] != None)
+        return self.filtered_warc_responses
 
-    # def clean_warc_responses(self):
+    def clean_warc_responses(self):
 
-    #     def getTextFromHTML(html):
-    #         cleaner = Cleaner()
-    #         cleaner.javascript = True
-    #         cleaner.style = True
-    #         clean_html = cleaner.clean_html(html)
-    #         return clean_html.text_content()
+        def getTextFromHTML(html):
+            cleaner = Cleaner()
+            cleaner.javascript = True
+            cleaner.style = True
+            clean_html = cleaner.clean_html(html)
+            return clean_html.text_content()
 
-    #     def process(row):
-    #         # TODO: Error handling?
-    #         try:
-    #             row["data"] = getTextFromHTML(lh.fromstring(row["data"]))
-    #         except Exception as e:
-    #             row["data"] = ""
-    #         return row
+        def process(row):
+            # TODO: Error handling?
+            try:
+                row["data"] = getTextFromHTML(lh.fromstring(row["data"]))
+            except Exception as e:
+                row["data"] = ""
+            return row
 
-    #     self.cleaned_warc_responses = self.filtered_warc_responses.map(process)
-    #     return self.cleaned_warc_responses
+        self.cleaned_warc_responses = self.filtered_warc_responses.map(process)
+        return self.cleaned_warc_responses

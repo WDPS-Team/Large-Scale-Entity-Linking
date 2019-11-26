@@ -33,13 +33,15 @@ out = parse_warc_records(split_lines_rdd)
 print(out.count())
 
 wsr = WARCSplitReader(sc, input_file.collect())
-out = wsr.parse_warc_records()
-print("out two: {0}", out.count())
-out = wsr.process_warc_records()
-print("out three: {0}".format(out.count()))
-# wsr.filter_invalid_records()
-# cleaned_warc_records = wsr.clean_warc_responses()
-# docs = cleaned_warc_records
-# out = docs
+parsed_rdd = wsr.parse_warc_records()
+print("Parsed WARC Records: {0}".format(parsed_rdd.count()))
+warc_recs_rdd = wsr.process_warc_records()
+print("Processed WARC Records: {0}".format(warc_recs_rdd.count()))
+filtered_rdd = wsr.filter_invalid_records()
+print("Filtered WARC Records: {0}".format(filtered_rdd.count()))
+cleaned_warc_records = wsr.clean_warc_responses()
+cleaned_warc_records.cache()
+print("Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
+out = cleaned_warc_records
 
 out.repartition(1).saveAsTextFile("output/predictions.tsv")
