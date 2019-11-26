@@ -43,32 +43,14 @@ class WARCSplitReader:
         # warc_responses = self.warc_records.filter(lambda record: record.rec_type == 'response')
 
         def process(record):
-            # adapated from https://stackoverflow.com/questions/24728088/python-parse-http-response-string/24729316
-            class FakeSocket():
-                def __init__(self, response_bytes):
-                    self._file = BytesIO(response_bytes)
-
-                def makefile(self, *args, **kwargs):
-                    return self._file
-
-            class HTTPParser:
-                def parse_http_response(self, http_response_str):
-                    http_response_bytes = http_response_str.encode()
-                    source = FakeSocket(http_response_bytes)
-                    response = HTTPResponse(source)
-                    response.begin()
-                    msg = response.read()
-                    return {"headers": response.getheaders(), "content": msg.decode("UTF-8")}
-
             result = {"id": None, "data": None, "status": "ok"}
-            http_parser = HTTPParser()
             try:
                 html = record.content_stream().read()  # reads payload from the record
                 if len(html) == 0:
                     result["status": "empty html"]
                     return result
                 rec_id = record.rec_headers.get_header(WARC_ID)
-                data = http_parser.parse_http_response(html)["content"]
+                data = html
                 result["id"] = rec_id
                 result["data"] = data
                 result["type"] = record.rec_type
