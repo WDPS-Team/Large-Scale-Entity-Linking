@@ -28,11 +28,12 @@ print("Filtered WARC Records: {0}".format(filtered_rdd.count()))
 cleaned_warc_records = wsr.clean_warc_responses()
 cleaned_warc_records.cache()
 print("Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
+print("FINSIHED STAGE 1".format(cleaned_warc_records.count()))
 
 # LIMIT the records for dev:
-sc.parallelize(cleaned_warc_records.take(100))
+cleaned_warc_records = sc.parallelize(cleaned_warc_records.take(50))
 
-print("FINSIHED STAGE 1".format(cleaned_warc_records.count()))
+print("Contintue with".format(cleaned_warc_records.count()))
 # STAGE 2 - Entity Extraction
 ee = EntityExtractor(cleaned_warc_records)
 docs_with_entity_candidates = ee.extract()
