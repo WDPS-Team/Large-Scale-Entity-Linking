@@ -2,6 +2,7 @@
 rm ./output.tsv
 hdfs dfs -rm -r output/predictions.tsv
 
+source venv/bin/activate
 # Run Spark Job
 PYSPARK_PYTHON=$(readlink -f $(which python3)) /local/spark/spark-2.4.0-bin-hadoop2.7/bin/spark-submit \
 --conf spark.pyspark.virtualenv.enabled=true \
@@ -10,5 +11,6 @@ PYSPARK_PYTHON=$(readlink -f $(which python3)) /local/spark/spark-2.4.0-bin-hado
 --conf spark.pyspark.virtualenv.bin.path=venv/bin/virtualenv \
 app/src/spark.py
 
+deactivate
 # Copying Output File from HDFS
 hdfs dfs -copyToLocal output/predictions.tsv/part-00000 ./output.tsv
