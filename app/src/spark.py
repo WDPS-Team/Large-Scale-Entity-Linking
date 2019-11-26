@@ -34,7 +34,7 @@ print("FINSIHED STAGE 1".format(cleaned_warc_records.count()))
 # LIMIT the records for dev:
 cleaned_warc_records = sc.parallelize(cleaned_warc_records.take(50))
 
-print("Contintue with".format(cleaned_warc_records.count()))
+print("Contintue with: {0}".format(cleaned_warc_records.count()))
 # STAGE 2 - Entity Extraction
 ee = EntityExtractor(cleaned_warc_records)
 docs_with_entity_candidates = ee.extract()

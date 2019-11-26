@@ -35,7 +35,7 @@ class EntityLinker:
             linked_candidates = []
             for candidate in row["entities"]:
                 # candidate is a tupel of {'text': 'XML-RPC', 'type': 'ORG'}
-                ids = ["an id", "another id"] #search(candidate["text"])
+                ids = {"an id": "value 1", "another id": "value 2" } #search(candidate["text"])
                 linked_candidates.append({"label": candidate["text"], "ids": ids })
             return {"doc_id": row["doc_id"], "linked_candidates": linked_candidates}
 
