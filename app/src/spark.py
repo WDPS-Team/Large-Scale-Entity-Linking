@@ -9,8 +9,9 @@ parser.add_argument("--es", help="es instance.")
 args = parser.parse_args()
 if args.es:
     es = args.es
-
-print("es:", es)
+    print("es:", es)
+else:
+    print("es unset")
 sc = SparkContext()
 
 input_file = sc.textFile("sample.warc.gz")
