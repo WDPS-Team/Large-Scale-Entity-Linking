@@ -8,12 +8,10 @@ if [ $? -eq 0 ]; then echo "All done loading hadoop"; else echo "Error in loadin
 module load python/3.6.0
 if [ $? -eq 0 ]; then echo "All done loading python3.6"; else echo "Error in loading Python" && exit 1; fi
 
-echo "Setting up Elastic Search"
 if [ ! -d "/home/wdps1936/elasticsearch-2.4.1" ]; then
     echo "Copying Elastic Search folder"
     cp -r /home/jurbani/wdps/elasticsearch-2.4.1 /home/wdps1936/elasticsearch-2.4.1
 fi
-source ./start_elasticsearch_server.sh > /dev/null   #ES_NODE and ES_PORT are needed for spark job submission
 
 if [ ! -d "/home/wdps1936/spark" ]; then
     echo "Copying Spark Framework folder"
