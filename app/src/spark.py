@@ -5,16 +5,17 @@ from EntityLinker import EntityLinker
 from OutputWriter import OutputWriter
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("--es", help="es instance.")
+parser.add_argument("--es", help="Elastic Search instance.")
 args = parser.parse_args()
 if args.es:
-    es = args.es
-    print("es:", es)
+    es_path = args.es
 else:
-    print("es unset")
+    es_path = "localhost:9200"
+print("es path:",es_path)
+
 sc = SparkContext()
 
-input_file = sc.textFile("sample.warc.gz")
+input_file = sc.textFile("input.warc.gz")
 
 # STAGE 1 - INPUT READING
 # -> READ warc files in a distributed manner
@@ -29,7 +30,7 @@ print("Filtered WARC Records: {0}".format(filtered_rdd.count()))
 cleaned_warc_records = wsr.clean_warc_responses()
 cleaned_warc_records.cache()
 print("Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
-print("FINSIHED STAGE 1".format(cleaned_warc_records.count()))
+print("FINSIHED STAGE 1")
 
 # LIMIT the records for dev:
 cleaned_warc_records = sc.parallelize(cleaned_warc_records.take(50))
@@ -42,12 +43,12 @@ print("Processed Docs with Entity Candidates {0}".format(docs_with_entity_candid
 out = docs_with_entity_candidates
 
 # STAGE 4 - Entity Linking
-el = EntityLinker(docs_with_entity_candidates)
+el = EntityLinker(docs_with_entity_candidates, es_path)
 linked_entities = el.link()
 
-# STAGE 5 - Transform and Output
+# # STAGE 5 - Transform and Output
 ow = OutputWriter(linked_entities)
 ow.transform()
 
 output_rdd = ow.convert_to_tsv()
-output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv")
+output_rdd.repartition(1).saveAsTextFile("output/predictions1.tsv")

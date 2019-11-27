@@ -1,6 +1,6 @@
 from pyspark import SparkContext, SparkFiles
 from WARCSplitReader import WARCSplitReader
-# from EntityExtractor import EntityExtractor
+from EntityExtractor import EntityExtractor
 # from EntityLinker import EntityLinker
 # from OutputWriter import OutputWriter
 
@@ -19,15 +19,15 @@ cleaned_warc_records = wsr.clean_warc_responses()
 docs = cleaned_warc_records
 
 # STAGE 2 - Entity Extraction
-# ee = EntityExtractor(cleaned_warc_records)
-# docs_with_entity_candidates = ee.extract()
+ee = EntityExtractor(cleaned_warc_records)
+docs_with_entity_candidates = ee.extract()
 
 # STAGE 3 - Disambiguation
 # to be filled
 
 # STAGE 4 - Entity Linking
-# el = EntityLinker(docs_with_entity_candidates)
-# linked_entities = el.link()
+el = EntityLinker(docs_with_entity_candidates)
+linked_entities = el.link()
 
 # STAGE 5 - Transform and Output
 # ow = OutputWriter(linked_entities)
