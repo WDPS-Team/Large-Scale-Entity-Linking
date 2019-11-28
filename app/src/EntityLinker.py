@@ -1,11 +1,11 @@
 import requests
 import time
-from config import FREEBASE_DOMAIN, FREEBASE_RETRY_COUNT, FREEBASE_RETRY_GAP
 
 class EntityLinker:
 
-    def __init__(self, docs_with_entities):
+    def __init__(self, docs_with_entities, es_path):
         self.docs_with_entities = docs_with_entities
+        self.es_path = es_path
 
     def link(self):
 
@@ -14,14 +14,14 @@ class EntityLinker:
             # TODO: Maybe paralleize?
 
             def search(query):
-                url = 'http://%s/freebase/label/_search' % FREEBASE_DOMAIN
+                url = 'http://%s/freebase/label/_search' % self.es_path
                 response = None
-                for _ in range(FREEBASE_RETRY_COUNT):
+                for _ in range(5):
                     try:
                         response = requests.get(url, params={'q': query, 'size': 1000})
                         break
                     except:
-                        time.sleep(FREEBASE_RETRY_GAP)
+                        time.sleep(0.5)
 
                 id_labels = {}
                 if response:

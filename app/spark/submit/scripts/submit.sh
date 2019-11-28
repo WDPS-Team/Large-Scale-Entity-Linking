@@ -1,10 +1,17 @@
 #!/bin/bash
 
-source "/app/src/venv/bin/activate"
 cp /app/data/sample.warc.gz /sample.warc.gz
-pyfileslist=$(ls -p /app/src/*.py | grep -v / | tr '\n' ',')
 
-/spark/bin/spark-submit --files /sample.warc.gz /app/src/spark_main.py --py-files "$pyfileslist"
+source /app/src/venv/bin/activate
+#--master spark-master \
+#  --conf spark.pyspark.virtualenv.enabled=true \
+#  --conf spark.pyspark.virtualenv.type=native \
+#  --conf spark.pyspark.virtualenv.requirements=/app/src/requirements.txt \
+#  --conf spark.pyspark.virtualenv.bin.path=/app/src/venv/bin \
+
+/spark/bin/spark-submit \
+  --files /sample.warc.gz \
+  /app/src/spark_main.py
 
 deactivate
 rm -r /app/data/predictions.tsv
