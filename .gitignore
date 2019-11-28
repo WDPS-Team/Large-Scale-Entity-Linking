@@ -13,4 +13,6 @@ pyvenv.cfg
 /src/venv
 /src/__pycache__
 venv
+VENV/
+venv.zip
 data/predictions.tsv
