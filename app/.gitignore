@@ -1,7 +1,0 @@
-Lib
-Scripts
-pyvenv.cfg
-/data/predictions.tsv/
-/src/venv
-/src/__pycache__
-venv

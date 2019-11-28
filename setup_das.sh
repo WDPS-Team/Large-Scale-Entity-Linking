@@ -22,4 +22,4 @@ prun -v -np 1 sh setup_venv.sh
 
 echo "Copying default input file to hdfs"
 hdfs dfs -rm -r hdfs://master.ib.cluster:8020/user/wdps1936/sample.warc.gz
-hdfs dfs -copyFromLocal -f ./app/data/sample.warc.gz hdfs://master.ib.cluster:8020/user/wdps1936/sample.warc.gz
+hdfs dfs -copyFromLocal -f ./data/sample.warc.gz hdfs://master.ib.cluster:8020/user/wdps1936/sample.warc.gz
