@@ -9,3 +9,5 @@ python3 -m spacy download en_core_web_sm
 virtualenv --relocatable venv
 zip -r venv.zip venv
 deactivate
+# Copy for Spark Driver Node:
+cp -r venv ./VENV/venv
