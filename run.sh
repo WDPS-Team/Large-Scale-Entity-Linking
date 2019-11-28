@@ -26,7 +26,7 @@ PYSPARK_PYTHON=$(readlink -f $(which python3)) ../spark/spark-2.4.0-bin-hadoop2.
 --conf spark.pyspark.virtualenv.type=native \
 --conf spark.pyspark.virtualenv.requirements=requirements.txt \
 --conf spark.pyspark.virtualenv.bin.path=venv/bin/virtualenv \
-app/src/spark.py --es "$1"
+src/spark.py --es "$1"
 
 deactivate
 # Copying Output File from HDFS
