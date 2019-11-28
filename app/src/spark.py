@@ -51,4 +51,4 @@ ow = OutputWriter(linked_entities)
 ow.transform()
 
 output_rdd = ow.convert_to_tsv()
-output_rdd.repartition(1).saveAsTextFile("output/predictions1.tsv")
+output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv")
