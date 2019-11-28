@@ -8,13 +8,11 @@ class EntityLinker:
         self.es_path = es_path
 
     def link(self):
-
-        def link_freebase(row):
-
+        
+        def link_freebase(row, es_path):
             # TODO: Maybe paralleize?
-
-            def search(query):
-                url = 'http://%s/freebase/label/_search' % self.es_path
+            def search(query, es_path):
+                url = 'http://{0}/freebase/label/_search'.format(es_path)
                 response = None
                 for _ in range(5):
                     try:
@@ -35,9 +33,11 @@ class EntityLinker:
             linked_candidates = []
             for candidate in row["entities"]:
                 # candidate is a tupel of {'text': 'XML-RPC', 'type': 'ORG'}
-                ids = search(candidate["text"])
+                ids = search(candidate["text"], es_path)
                 linked_candidates.append({"label": candidate["text"], "ids": ids })
             return {"doc_id": row["doc_id"], "linked_candidates": linked_candidates}
 
-        linked_entities = self.docs_with_entities.map(link_freebase)
+        lambda_es_path = self.es_path
+        query_lambda = lambda row : link_freebase(row, lambda_es_path)
+        linked_entities = self.docs_with_entities.map(query_lambda)
         return linked_entities

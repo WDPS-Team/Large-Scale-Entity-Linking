@@ -43,14 +43,13 @@ print("Processed Docs with Entity Candidates {0}".format(docs_with_entity_candid
 out = docs_with_entity_candidates
 
 # STAGE 4 - Entity Linking
-#el = EntityLinker(docs_with_entity_candidates, es_path)
-#linked_entities = el.link()
+el = EntityLinker(docs_with_entity_candidates, es_path)
+linked_entities = el.link()
 
 # # STAGE 5 - Transform and Output
-# ow = OutputWriter(linked_entities)
-# ow.transform()
+ow = OutputWriter(linked_entities)
+ow.transform()
 
-# output_rdd = ow.convert_to_tsv()
-# output_rdd.cache()
-output_rdd = out
+output_rdd = ow.convert_to_tsv()
+output_rdd.cache()
 output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv")
