@@ -1,5 +1,6 @@
 echo "Building virtual environment"
 rm -rf venv
+rm -rf VENV
 rm -rf venv.zip
 pip3 install --user virtualenv
 python3 ~/.local/lib/python3.6/site-packages/virtualenv.py -p python3 venv
