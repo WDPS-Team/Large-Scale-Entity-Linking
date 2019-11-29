@@ -33,7 +33,7 @@ print("Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
 print("FINSIHED STAGE 1")
 
 # LIMIT the records for dev:
-cleaned_warc_records = sc.parallelize(cleaned_warc_records.take(50))
+cleaned_warc_records = sc.parallelize(cleaned_warc_records.take(10))
 
 print("Contintue with: {0}".format(cleaned_warc_records.count()))
 # STAGE 2 - Entity Extraction
@@ -52,4 +52,4 @@ ow.transform()
 
 output_rdd = ow.convert_to_tsv()
 output_rdd.cache()
-output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv")
+output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
