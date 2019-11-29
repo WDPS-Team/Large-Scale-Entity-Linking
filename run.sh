@@ -1,7 +1,7 @@
 source venv/bin/activate
 
 # Run Spark Job
-PYSPARK_PYTHON=./VENV/venv/bin/python3 /local/spark/spark-2.4.0-bin-hadoop2.7/bin/spark-submit \
+PYSPARK_PYTHON=./VENV/venv/bin/python3 ../spark/spark-2.4.0-bin-hadoop2.7/bin/spark-submit \
 --master yarn \
 --conf spark.pyspark.virtualenv.enabled=true \
 --conf spark.pyspark.virtualenv.type=native \
