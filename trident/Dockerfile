@@ -6,7 +6,7 @@ RUN apt install -y git cmake gcc build-essential zlib1g zlib1g-dev
 
 # Install trident
 WORKDIR /app
-RUN git clone --depth 1 https://github.com/karmaresearch/trident.git
+RUN git clone --depth 1 https://github.com/WDPS-Team/trident
 
 RUN mkdir build
 WORKDIR /app/trident/build
