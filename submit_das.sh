@@ -1,5 +1,4 @@
 #checking for input file
-echo $1 $2
 if [ "$#" -ne 2 ]
 then
     echo "Correct Usage: \$ES_PATH <input_file>"
