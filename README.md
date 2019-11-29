@@ -43,11 +43,12 @@ Test with `curl "http://localhost:9200/freebase/label/_search?q=obama"`. Expect 
 1. Copy indexed knowledge base to `trident/data` so that the Trident files are stored under `trident/data/trident`
 
 **Testing the Trident Store**
-      ```
-      python3 sparql.py localhost:9090 "SELECT DISTINCT ?class WHERE {?s a ?class .} LIMIT 25 OFFSET 0"
 
-      python3 sparql.py localhost:9090 "SELECT ?subject ?predicate ?object WHERE {?subject ?predicate ?object} LIMIT 100"
-      ```
+```
+python3 sparql.py localhost:9090 "SELECT DISTINCT ?class WHERE {?s a ?class .} LIMIT 25 OFFSET 0"
+
+python3 sparql.py localhost:9090 "SELECT ?subject ?predicate ?object WHERE {?subject ?predicate ?object} LIMIT 100"
+```
 
 ### Setup & Handling Spark
 
