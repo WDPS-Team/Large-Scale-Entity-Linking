@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#rm -r /output/predictions.tsv
 cp /data/sample.warc.gz /input.warc.gz
 
 source venv/bin/activate

@@ -52,4 +52,4 @@ ow.transform()
 
 output_rdd = ow.convert_to_tsv()
 output_rdd.cache()
-output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv")
+linked_entities.repartition(1).saveAsTextFile("output/predictions.tsv")  #TODO: ids are always coming empty
