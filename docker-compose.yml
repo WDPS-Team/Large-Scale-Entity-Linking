@@ -7,6 +7,7 @@ services:
       - ./data/:/data/
       - ./spark/submit/scripts/setup.sh:/setup.sh
       - ./spark/submit/scripts/submit.sh:/submit.sh
+      - ./spark/submit/log4j.properties:/spark/conf/log4j.properties
       - ./requirements.txt:/requirements.txt
       - spark_submit_venv:/venv
   es01:

@@ -4,4 +4,5 @@ RUN apt update
 RUN apt install -y zip
 RUN apt install -y python3-pip
 RUN pip3 install virtualenv
+COPY log4j.properties /spark/conf/log4j.properties
 CMD bash
