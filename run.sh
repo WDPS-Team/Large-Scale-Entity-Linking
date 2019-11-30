@@ -1,14 +1,53 @@
-source venv/bin/activate
+#!/bin/bash
 
-# Run Spark Job
-PYSPARK_PYTHON=./VENV/venv/bin/python3 ../spark/spark-2.4.0-bin-hadoop2.7/bin/spark-submit \
---master yarn \
---conf spark.pyspark.virtualenv.enabled=true \
---conf spark.pyspark.virtualenv.type=native \
---conf spark.pyspark.virtualenv.requirements=requirements.txt \
---conf spark.pyspark.virtualenv.bin.path=./VENV/venv/bin/virtualenv \
---conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./VENV/venv/bin/python \
---archives venv.zip#VENV \
-src/spark.py --es "$1"
+#default values
+ES_PATH=`cat .es_path`
+INPUT_PATH="data/sample.warc.gz"
 
-deactivate
+# check for input parameters
+while [[ $# -gt 0 ]]
+do
+case $1 in
+    -es)
+    ES_PATH="$2"
+    shift
+    shift
+    ;;
+    -f)
+    INPUT_PATH="$2"
+    shift
+    shift
+    ;;
+esac
+done
+
+#move file to hdfs if it exists
+if [ -f $INPUT_PATH ]; then
+    echo "Copying input file: $INPUT_PATH"
+    INPUT_FILE=`basename $INPUT_PATH`
+    hdfs dfs -copyFromLocal $INPUT_PATH $INPUT_FILE
+else
+    echo "ERROR: $INPUT_PATH does not exist."
+    exit 1
+fi
+
+#Elastic search server check
+response=$(curl --write-out %{http_code} --silent --output /dev/null $ES_PATH)
+if [ $response -ne 200 ]
+then
+    echo "ERROR: Elastic Search on node $ES_PATH is not running."
+    exit 1
+fi
+
+#Delete output files prior run
+rm output.tsv
+hdfs dfs -rm -r output/predictions.tsv
+
+#submit spark job
+prun -v -1 -np 1 sh run_das.sh $ES_PATH $INPUT_FILE
+
+# Copying Output File from HDFS
+hdfs dfs -get output/predictions.tsv/part-00000 ./output.tsv
+
+#Deleting input file from HDFS
+hdfs dfs -rm -r $INPUT_FILE > /dev/null
