@@ -3,6 +3,7 @@
 #default values
 ES_PATH=`cat .es_path`
 INPUT_PATH="data/sample.warc.gz"
+OUTPUT_FILE="output.tsv"
 
 # check for input parameters
 while [[ $# -gt 0 ]]
@@ -15,6 +16,11 @@ case $1 in
     ;;
     -f)
     INPUT_PATH="$2"
+    shift
+    shift
+    ;;
+    -o)
+    OUTPUT_FILE="$2"
     shift
     shift
     ;;
@@ -40,14 +46,14 @@ then
 fi
 
 #Delete output files prior run
-rm output.tsv
+rm $OUTPUT_FILE
 hdfs dfs -rm -r output/predictions.tsv
 
 #submit spark job
 prun -v -1 -np 1 sh run_das.sh $ES_PATH $INPUT_FILE
 
 # Copying Output File from HDFS
-hdfs dfs -get output/predictions.tsv/part-00000 ./output.tsv
+hdfs dfs -get output/predictions.tsv/part-00000 $OUTPUT_FILE
 
-#Deleting input file from HDFS
+#Deleting copied input file from HDFS
 hdfs dfs -rm -r $INPUT_FILE > /dev/null

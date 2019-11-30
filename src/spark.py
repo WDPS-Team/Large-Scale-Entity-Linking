@@ -4,18 +4,24 @@ from EntityExtractor import EntityExtractor
 from EntityLinker import EntityLinker
 from OutputWriter import OutputWriter
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--es", help="Elastic Search instance.")
+parser.add_argument("--f", help="Input file.")
 args = parser.parse_args()
+es_path = "localhost:9200"
+input_path = "sample.warc.gz"
 if args.es:
     es_path = args.es
-else:
-    es_path = "localhost:9200"
-print("es path:",es_path)
+if args.f:
+    input_path = args.f
+
+print("Elastic Search Server:",es_path)
+print("Input file:", input_path)
 
 sc = SparkContext()
 
-input_file = sc.textFile("input.warc.gz")
+input_file = sc.textFile(input_path)
 
 # STAGE 1 - INPUT READING
 # -> READ warc files in a distributed manner
@@ -29,7 +35,7 @@ filtered_rdd = wsr.filter_invalid_records()
 print("Filtered WARC Records: {0}".format(filtered_rdd.count()))
 cleaned_warc_records = wsr.clean_warc_responses()
 cleaned_warc_records.cache()
-cleaned_warc_records.repartition(1).saveAsTextFile("output/cleaned_warc_records")
+#cleaned_warc_records.repartition(1).saveAsTextFile("output/cleaned_warc_records")
 print("Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
 print("FINSIHED STAGE 1")
 
