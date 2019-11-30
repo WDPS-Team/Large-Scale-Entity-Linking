@@ -17,6 +17,7 @@ class OutputWriter():
             return result
 
         self.expanded = self.linked_entities.flatMap(expand)
+        self.expanded = self.expanded.sortBy(lambda row: (row["doc_id"], row["label"], row["id"]) )
         return self.expanded
 
     def convert_to_tsv(self):
