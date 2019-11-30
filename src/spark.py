@@ -29,6 +29,7 @@ filtered_rdd = wsr.filter_invalid_records()
 print("Filtered WARC Records: {0}".format(filtered_rdd.count()))
 cleaned_warc_records = wsr.clean_warc_responses()
 cleaned_warc_records.cache()
+cleaned_warc_records.repartition(1).saveAsTextFile("output/cleaned_warc_records")
 print("Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
 print("FINSIHED STAGE 1")
 

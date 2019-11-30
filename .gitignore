@@ -9,7 +9,7 @@ output.tsv
 Lib
 Scripts
 pyvenv.cfg
-/data/predictions.tsv/
+data/output/
 /src/venv
 /src/__pycache__
 venv

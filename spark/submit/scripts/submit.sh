@@ -12,5 +12,5 @@ PYSPARK_PYTHON=$(readlink -f $(which python3)) /spark/bin/spark-submit \
 src/spark.py --es "es01:9200"
 
 deactivate
-rm -r /data/output.tsv
-cp -r /output/predictions.tsv /data/output.tsv
+rm -r /data/output/
+cp -r /output/ /data/output/
