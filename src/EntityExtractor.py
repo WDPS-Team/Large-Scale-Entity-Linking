@@ -12,13 +12,13 @@ class EntityExtractor:
         def process(row):
             # TODO: change to bigger model
             spacy_nlp = spacy.load("en_core_web_sm")
-            document = spacy_nlp(row['data'].strip())
+            document = spacy_nlp(row['text'].strip())
             entity_list = []
             for element in document.ents:
                 entity = dict(type=element.label_, text=element.text)
                 entity_list.append(entity)
 
-            return {"doc_id": row["id"], "entities": entity_list}
+            return {"doc_id": row["_id"], "entities": entity_list}
 
         docs_with_entities = self.warc_docs.map(process)
         return docs_with_entities
