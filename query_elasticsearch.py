@@ -1,11 +1,30 @@
 import requests
+import json
 
 def search(domain, query):
+    
+    params = ()
+    data = {
+        "query": { 
+            "match": { "label": query }
+        },
+        "size": 20
+    }
+    json_qry = json.dumps(data)
+    #data = '\n{\n  "query": { "match_all": {} }, "size": 10 \n}'
     url = 'http://%s/freebase/label/_search' % domain
-    response = requests.get(url, params={'q': query, 'size':1000})
+    response = requests.post(url, params=params, data=json_qry)
+
+    # response = requests.get(url, params={'q': query, 'size':10})
     id_labels = {}
-    if response:
+
+    print(response)
+
+    if True:
+        print("query run")
         response = response.json()
+        print("query json")
+        print(response)
         for hit in response.get('hits', {}).get('hits', []):
             freebase_label = hit.get('_source', {}).get('label')
             freebase_id = hit.get('_source', {}).get('resource')
