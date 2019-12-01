@@ -110,3 +110,7 @@ class WARCSplitReader:
 
         self.cleaned_warc_responses = self.filtered_warc_responses.map(process)
         return self.cleaned_warc_responses
+
+    def filter_unfit_records(self):
+        self.fit_cleaned_warc_responses = self.cleaned_warc_responses.filter(lambda record: record["title"] != "")
+        return self.fit_cleaned_warc_responses
