@@ -6,6 +6,10 @@
 
 Run `sh setup.sh` to build virtual environment and download the dependencies.
 
+### Quickrun:
+
+1. `. start_elasticsearch_server.sh` + `./run.sh` will run the latest started elastic search instance and the defaults set in run.sh
+
 ### Start Elastic Search Server
 
 1. Run `sh start_elasticsearch_server.sh` to start the Elastic Search server and it will run for 15 minutes by default.
