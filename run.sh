@@ -47,7 +47,10 @@ fi
 
 #Delete output files prior run
 rm $OUTPUT_FILE
+rm -rf tmp
+mkdir tmp
 hdfs dfs -rm -r output/predictions.tsv
+hdfs dfs -rm -r output/cleaned_warc_records
 hdfs dfs -rm -r output/candidates
 
 #submit spark job
@@ -55,6 +58,10 @@ prun -v -1 -np 1 sh run_das.sh $ES_PATH $INPUT_FILE
 
 # Copying Output File from HDFS
 hdfs dfs -get output/predictions.tsv/part-00000 $OUTPUT_FILE
+hdfs dfs -copyToLocal output/cleaned_warc_records ./tmp/cleaned_warc_records
+hdfs dfs -copyToLocal output/candidates ./tmp/candidates
+
+
 
 #Deleting copied input file from HDFS
 hdfs dfs -rm -r $INPUT_FILE > /dev/null
