@@ -48,26 +48,31 @@ class TextPreprocessor:
 
     def extract_text_from_document(self):
         text_remove_css_classes = ["navbar"]
-        text_remove_tags = ["script"]
+        text_remove_ids = ["menu"]    
+        text_remove_tags = ["script", "head"]
         def extract(row):
             html = row["html"]
             soup = bs4.BeautifulSoup(html, features="lxml")
             
+            # Get Title
+            qry_title=soup.find_all("title")
+            if len(qry_title) != 0:
+                row["title"] = str(qry_title[0].string)
+ 
             # Remove CSS classes:
             removable_tags = soup.find_all(name="div", attrs={ "class": text_remove_css_classes })
             for tag_with_css_class in removable_tags:
                 tag_with_css_class.decompose()
-            
+            # Remove IDs:
+            removable_tags = soup.find_all(id=text_remove_ids)
+            for tag in removable_tags:
+                tag.decompose()
             # Remove Non-relevant tags i.e. <script>
             removable_tags = soup.find_all(text_remove_tags)
             for tag in removable_tags:
                 tag.decompose()            
             # Get Text
             row["text"] = soup.get_text()
-            # Get Title
-            qry_title=soup.find_all("title")
-            if len(qry_title) != 0:
-                row["title"] = str(qry_title[0].string)
             return row
 
         extract_rdd = self.cleaned_warc_responses.map(extract)
