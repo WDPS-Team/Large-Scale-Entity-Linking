@@ -1,4 +1,23 @@
-# 2019-WDPS
+# Large Scale Entity Linking
+
+## DAS4 Execution
+
+### DAS4 Setup
+
+Run `sh setup.sh` to build virtual environment and download the dependencies.
+
+### Start Elastic Search Server
+
+1. Run `sh start_elasticsearch_server.sh` to start the Elastic Search server and it will run for 15 minutes by default.
+2. The address of the cluster node will be displayed and you can make sure it's running using `curl <ES_NODE>:9200`
+
+### Run Spark Job
+
+`sh run.sh`
+
+By default, `data/sample.warc.gz` will be taken as input and output will be in `output.tsv`. Job submission can be customized using the options -f, -o and -es.
+Eg: `sh run.sh -f input.warc.gz -o out.tsv -es node007:9200`
+
 
 ## Local Development
 
@@ -68,3 +87,13 @@ python3 sparql.py localhost:9090 "SELECT ?subject ?predicate ?object WHERE {?sub
 
 - Recursive copy from DAS-4 to local storage:  
   `scp -rp -oProxyJump=PERSONALUSERID@ssh.data.vu.nl USERID@fs0.das4.cs.vu.nl:/filepath ./target/`
+
+- Access DAS4 Cluster from home:   
+   `ssh -L22022:fs0.das4.cs.vu.nl:22 <VUNET_ID>@ssh.data.vu.nl` and keep it running in the terminal.
+   Now mount `ssh://<DAS4_ID>@localhost:22022/` in your file system.
+
+- Access Elastic Search from home:
+    `ssh -L22022:fs0.das4.cs.vu.nl:22 <VUNET_ID>@ssh.data.vu.nl` and keep it running in the terminal.
+    Open another terminal and run
+    `ssh -L9200:<ES_NODE_IN_DAS>:9200 <DAS4_ID>@localhost -p 22022`
+
