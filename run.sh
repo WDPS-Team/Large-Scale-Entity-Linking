@@ -48,6 +48,7 @@ fi
 #Delete output files prior run
 rm $OUTPUT_FILE
 hdfs dfs -rm -r output/predictions.tsv
+hdfs dfs -rm -r output/candidates
 
 #submit spark job
 prun -v -1 -np 1 sh run_das.sh $ES_PATH $INPUT_FILE
