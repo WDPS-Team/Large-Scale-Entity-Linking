@@ -1,5 +1,6 @@
 from pyspark import SparkContext, SparkFiles
 from WARCSplitReader import WARCSplitReader
+from TextPreprocessor import TextPreprocessor
 from EntityExtractor import EntityExtractor
 from EntityLinker import EntityLinker
 from OutputWriter import OutputWriter
@@ -33,14 +34,19 @@ warc_recs_rdd = wsr.process_warc_records()
 print("Processed WARC Records: {0}".format(warc_recs_rdd.count()))
 filtered_rdd = wsr.filter_invalid_records()
 print("Filtered WARC Records: {0}".format(filtered_rdd.count()))
-cleaned_warc_records = wsr.clean_warc_responses()
+print("STAGE 2 - Preprocessing Text")
+text_prepro = TextPreprocessor(filtered_rdd)
+cleaned_warc_records = text_prepro.clean_warc_responses()
 cleaned_warc_records.cache()
-print("Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
-#cleaned_warc_records.repartition(1).saveAsTextFile("output/cleaned_warc_records")
-fit_cleaned_warc_records = wsr.filter_unfit_records()
+print("\t Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
 
-print("Fit WARC Records: {0}".format(fit_cleaned_warc_records.count()))
-print("FINSIHED STAGE 1")
+text_prepro.extract_text_from_document()
+fit_cleaned_warc_records = text_prepro.filter_unfit_records()
+print("\t Records fit for Extraction: {0}".format(fit_cleaned_warc_records.count()))
+cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/cleaned_warc_records")
+p
+fit_cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/fit_cleaned_warc_records")
+print("FINSIHED STAGE 2")
 
 # LIMIT the records for dev:
 fit_cleaned_warc_records = fit_cleaned_warc_records.sortBy(lambda row: (row["_id"]) )
