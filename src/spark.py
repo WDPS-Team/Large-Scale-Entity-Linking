@@ -52,6 +52,7 @@ ee = EntityExtractor(fit_cleaned_warc_records)
 docs_with_entity_candidates = ee.extract()
 print("Processed Docs with Entity Candidates {0}".format(docs_with_entity_candidates.count()))
 out = docs_with_entity_candidates
+docs_with_entity_candidates.repartition(1).saveAsTextFile("output/candidates")
 
 print("FINSIHED STAGE 2")
 # STAGE 4 - Entity Linking
