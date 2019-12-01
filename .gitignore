@@ -16,3 +16,4 @@ venv
 VENV/
 venv.zip
 data/predictions.tsv
+tmp
