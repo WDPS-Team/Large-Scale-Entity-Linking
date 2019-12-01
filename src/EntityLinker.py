@@ -1,5 +1,6 @@
 import requests
 import time
+import json
 
 class EntityLinker:
 
@@ -10,13 +11,23 @@ class EntityLinker:
     def link(self):
         
         def link_freebase(row, es_path):
-            # TODO: Maybe paralleize?
+            
             def search(query, es_path):
+
+                params = ()
+                data = {
+                    "query": { 
+                        "match": { "label": query }
+                    },
+                    "size": 1
+                }
+                json_qry = json.dumps(data)
+
                 url = 'http://{0}/freebase/label/_search'.format(es_path)
                 response = None
                 for _ in range(5):
                     try:
-                        response = requests.get(url, params={'q': query, 'size': 1000})
+                        response = requests.post(url, params=params, data=json_qry)
                         break
                     except:
                         time.sleep(0.5)
