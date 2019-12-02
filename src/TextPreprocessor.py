@@ -2,6 +2,7 @@ import bs4
 from lxml import etree
 import lxml.html as lh
 from lxml.html.clean import Cleaner
+import re
 
 class TextPreprocessor:
     def __init__(self, warc_records_rdd):
@@ -48,7 +49,7 @@ class TextPreprocessor:
 
     def extract_text_from_document(self):
         text_remove_css_classes = ["navbar"]
-        text_remove_ids = ["menu"]    
+        text_remove_ids = ["menu", "footer", "nav-bar"]
         text_remove_tags = ["script", "head"]
         def extract(row):
             html = row["html"]
@@ -70,9 +71,12 @@ class TextPreprocessor:
             # Remove Non-relevant tags i.e. <script>
             removable_tags = soup.find_all(text_remove_tags)
             for tag in removable_tags:
-                tag.decompose()            
+                tag.decompose()
             # Get Text
             row["text"] = soup.get_text()
+
+            # Replace multiple newlines
+            row["text"] = re.sub(r"([\n])+", "\\n", row["text"])
             return row
 
         extract_rdd = self.cleaned_warc_responses.map(extract)
