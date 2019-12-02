@@ -43,9 +43,8 @@ print("\t Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
 text_prepro.extract_text_from_document()
 fit_cleaned_warc_records = text_prepro.filter_unfit_records()
 print("\t Records fit for Extraction: {0}".format(fit_cleaned_warc_records.count()))
-cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/cleaned_warc_records")
-
-fit_cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/fit_cleaned_warc_records")
+# cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/cleaned_warc_records")
+# fit_cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/fit_cleaned_warc_records")
 print("FINSIHED STAGE 2")
 
 # LIMIT the records for dev:
@@ -73,4 +72,4 @@ ow.transform()
 
 output_rdd = ow.convert_to_tsv()
 output_rdd.cache()
-output_rdd.repartition(1).saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
+output_rdd.saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
