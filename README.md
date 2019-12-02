@@ -95,9 +95,14 @@ python3 sparql.py localhost:9090 "SELECT ?subject ?predicate ?object WHERE {?sub
 - Access DAS4 Cluster from home:   
    `ssh -L22022:fs0.das4.cs.vu.nl:22 <VUNET_ID>@ssh.data.vu.nl` and keep it running in the terminal.
    Now mount `ssh://<DAS4_ID>@localhost:22022/` in your file system.
+   Access in Terminal 
+   `ssh -oProxyJump=<VUNET_ID>@ssh.data.vu.nl <DAS4_ID>@fs0.das4.cs.vu.nl`
 
 - Access Elastic Search from home:
-    `ssh -L22022:fs0.das4.cs.vu.nl:22 <VUNET_ID>@ssh.data.vu.nl` and keep it running in the terminal.
-    Open another terminal and run
-    `ssh -L9200:<ES_NODE_IN_DAS>:9200 <DAS4_ID>@localhost -p 22022`
+    `ssh -L9200:<ES_NODE>:9200 -oProxyJump=<VUNET_ID>@ssh.data.vu.nl <DAS4_ID>@fs0.das4.cs.vu.nl`
+    
+- Access Spark UI from home:
+    `ssh -L8080:fs0.das4.cs.vu.nl:8088 -oProxyJump=<VUNET_ID>@ssh.data.vu.nl <DAS4_ID>@fs0.das4.cs.vu.nl`
+    Now Spark UI should be accessible via `localhost:8080`
+
 
