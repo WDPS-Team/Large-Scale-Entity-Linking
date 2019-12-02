@@ -4,6 +4,9 @@
 .es_node
 .kb_log*
 .kb_node
+.PRUN_ENVIRONMENT.*
+.es_path
+elasticsearch.*.fs0
 output.tsv
 
 Lib
