@@ -93,10 +93,8 @@ python3 sparql.py localhost:9090 "SELECT ?subject ?predicate ?object WHERE {?sub
   `scp -rp -oProxyJump=PERSONALUSERID@ssh.data.vu.nl USERID@fs0.das4.cs.vu.nl:/filepath ./target/`
 
 - Access DAS4 Cluster from home:   
-   `ssh -L22022:fs0.das4.cs.vu.nl:22 <VUNET_ID>@ssh.data.vu.nl` and keep it running in the terminal.
-   Now mount `ssh://<DAS4_ID>@localhost:22022/` in your file system.
-   Access in Terminal 
-   `ssh -oProxyJump=<VUNET_ID>@ssh.data.vu.nl <DAS4_ID>@fs0.das4.cs.vu.nl`
+   `ssh -L22022:fs0.das4.cs.vu.nl:22 -oProxyJump=<VUNET_ID>@ssh.data.vu.nl <GROUP_ID>@fs0.das4.cs.vu.nl`
+   Use `ssh://<DAS4_ID>@localhost:22022/` to mount in your file system.
 
 - Access Elastic Search from home:
     `ssh -L9200:<ES_NODE>:9200 -oProxyJump=<VUNET_ID>@ssh.data.vu.nl <DAS4_ID>@fs0.das4.cs.vu.nl`
