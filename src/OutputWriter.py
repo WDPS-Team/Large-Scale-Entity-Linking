@@ -17,6 +17,7 @@ class OutputWriter():
             return result
 
         self.expanded = self.linked_entities.flatMap(expand)
+        self.expanded = self.expanded.repartition(1).sortBy(lambda row: (row["doc_id"], row["label"], row["id"]) )
         return self.expanded
 
     def convert_to_tsv(self):
@@ -25,4 +26,4 @@ class OutputWriter():
         def to_tsv(row):
             return "{0}\t{1}\t{2}".format(row["doc_id"].strip(), row["label"].strip(), row["id"].strip())
 
-        return self.expanded.map(to_tsv).sortBy(lambda row: (row["doc_id"], row["label"], row["id"]) )
+        return self.expanded.mapValues(to_tsv)
