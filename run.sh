@@ -2,6 +2,7 @@
 
 #default values
 ES_PATH=`cat .es_path`
+KB_PATH=`cat .kb_path`
 INPUT_PATH="data/sample.warc.gz"
 OUTPUT_FILE="output.tsv"
 
@@ -11,6 +12,11 @@ do
 case $1 in
     -es)
     ES_PATH="$2"
+    shift
+    shift
+    ;;
+    -kb)
+    KB_PATH="$2"
     shift
     shift
     ;;
@@ -44,14 +50,20 @@ if [ $response -ne 200 ] || [ -z $ES_PATH ] ; then
     exit 1
 fi
 
+#Trident server check
+response=$(curl --write-out %{http_code} --silent --output /dev/null $KB_PATH)
+if [ $response -ne 200 ] || [ -z $KB_PATH ] ; then
+    echo "WARN: Trident on node $KB_PATH is not running."
+fi
+
 #Delete output files prior run
 rm $OUTPUT_FILE
 rm -rf tmp
 mkdir tmp
 hdfs dfs -rm -r output
 
-#submit spark job
-prun -v -1 -np 1 -t 3600 sh run_das.sh $ES_PATH $INPUT_FILE
+submit spark job
+prun -v -1 -np 1 -t 3600 sh run_das.sh $ES_PATH $INPUT_FILE $KB_PATH
 
 # Copying Output File from HDFS
 hdfs dfs -get output/predictions.tsv/part-00000 $OUTPUT_FILE
