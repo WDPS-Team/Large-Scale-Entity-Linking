@@ -39,8 +39,7 @@ fi
 
 #Elastic search server check
 response=$(curl --write-out %{http_code} --silent --output /dev/null $ES_PATH)
-if [ $response -ne 200 ]
-then
+if [ $response -ne 200 ] || [ -z $ES_PATH ] ; then
     echo "ERROR: Elastic Search on node $ES_PATH is not running."
     exit 1
 fi
@@ -49,20 +48,14 @@ fi
 rm $OUTPUT_FILE
 rm -rf tmp
 mkdir tmp
-hdfs dfs -rm -r output/predictions.tsv
-hdfs dfs -rm -r output/cleaned_warc_records
-hdfs dfs -rm -r output/fit_cleaned_warc_records
-hdfs dfs -rm -r output/candidates
+hdfs dfs -rm -r output
 
 #submit spark job
-prun -v -1 -np 1 sh run_das.sh $ES_PATH $INPUT_FILE
+prun -v -1 -np 1 -t 3600 sh run_das.sh $ES_PATH $INPUT_FILE
 
 # Copying Output File from HDFS
 hdfs dfs -get output/predictions.tsv/part-00000 $OUTPUT_FILE
-hdfs dfs -copyToLocal output/cleaned_warc_records ./tmp/cleaned_warc_records
-hdfs dfs -copyToLocal output/fit_cleaned_warc_records ./tmp/fit_cleaned_warc_records
-hdfs dfs -copyToLocal output/candidates ./tmp/candidates
-
+hdfs dfs -copyToLocal output/* ./tmp/   #copying all intermediate files for debugging
 
 
 #Deleting copied input file from HDFS
