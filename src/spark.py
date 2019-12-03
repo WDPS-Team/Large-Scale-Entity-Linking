@@ -8,16 +8,21 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--es", help="Elastic Search instance.")
+parser.add_argument("--kb", help="Trident instance.")
 parser.add_argument("--f", help="Input file.")
 args = parser.parse_args()
 es_path = "localhost:9200"
+kb_path = "localhost:9090"
 input_path = "sample.warc.gz"
 if args.es:
     es_path = args.es
+if args.kb:
+    kb_path = args.kb
 if args.f:
     input_path = args.f
 
 print("Elastic Search Server:",es_path)
+print("Trident Server:",kb_path)
 print("Input file:", input_path)
 
 sc = SparkContext()
@@ -49,7 +54,7 @@ print("FINSIHED STAGE 2")
 
 # LIMIT the records for dev:
 fit_cleaned_warc_records = fit_cleaned_warc_records.sortBy(lambda row: (row["_id"]) )
-fit_cleaned_warc_records = sc.parallelize(fit_cleaned_warc_records.take(20))
+fit_cleaned_warc_records = sc.parallelize(fit_cleaned_warc_records.take(5))
 
 print("Contintue with: {0}".format(fit_cleaned_warc_records.count()))
 # STAGE 2 - Entity Extraction
@@ -59,7 +64,7 @@ print("Processed Docs with Entity Candidates {0}".format(docs_with_entity_candid
 out = docs_with_entity_candidates
 docs_with_entity_candidates.repartition(1).saveAsTextFile("output/candidates")
 
-print("FINSIHED STAGE 2")
+print("FINSIHED STAGE 3")
 # STAGE 4 - Entity Linking
 el = EntityLinker(docs_with_entity_candidates, es_path)
 linked_entities = el.link()
