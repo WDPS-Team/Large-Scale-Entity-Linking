@@ -62,7 +62,7 @@ rm -rf tmp
 mkdir tmp
 hdfs dfs -rm -r output
 
-submit spark job
+# submit spark job
 prun -v -1 -np 1 -t 3600 sh run_das.sh $ES_PATH $INPUT_FILE $KB_PATH
 
 # Copying Output File from HDFS
