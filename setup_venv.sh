@@ -1,8 +1,10 @@
-VENV_PATH="/var/scratch2/wdps1936"
 PWD_PATH=$(pwd)
+VENV_DIR=`basename $PWD_PATH`
+VENV_PATH="/var/scratch2/wdps1936/$VENV_DIR"
 
-# echo "Building virtual environment"
+echo "Building virtual environment"
 rm -rf venv VENV venv.zip   #delete soft links
+mkdir -p $VENV_PATH
 cd $VENV_PATH
 rm -rf venv VENV venv.zip   #delete actual files
 pip3 install --user virtualenv
