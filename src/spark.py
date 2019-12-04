@@ -1,4 +1,4 @@
-from pyspark import SparkContext, SparkFiles
+from pyspark import SparkContext, SparkFiles, SparkConf
 from WARCSplitReader import WARCSplitReader
 from TextPreprocessor import TextPreprocessor
 from EntityExtractor import EntityExtractor
@@ -25,7 +25,8 @@ print("Elastic Search Server:",es_path)
 print("Trident Server:",kb_path)
 print("Input file:", input_path)
 
-sc = SparkContext()
+conf = SparkConf().set("spark.ui.showConsoleProgress", "true")
+sc = SparkContext(conf=conf)
 
 input_file = sc.textFile(input_path)
 
@@ -34,35 +35,35 @@ input_file = sc.textFile(input_path)
 # -> Clean all warc records (js, style) with lxml
 wsr = WARCSplitReader(sc, input_file.collect())
 parsed_rdd = wsr.parse_warc_records()
-print("Parsed WARC Records: {0}".format(parsed_rdd.count()))
+#print("Parsed WARC Records: {0}".format(parsed_rdd.count()))
 warc_recs_rdd = wsr.process_warc_records()
-print("Processed WARC Records: {0}".format(warc_recs_rdd.count()))
+# print("Processed WARC Records: {0}".format(warc_recs_rdd.count()))
 filtered_rdd = wsr.filter_invalid_records()
-print("Filtered WARC Records: {0}".format(filtered_rdd.count()))
+# print("Filtered WARC Records: {0}".format(filtered_rdd.count()))
 print("STAGE 2 - Preprocessing Text")
 text_prepro = TextPreprocessor(filtered_rdd)
 cleaned_warc_records = text_prepro.clean_warc_responses()
 cleaned_warc_records.cache()
-print("\t Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
+# print("\t Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
 
 text_prepro.extract_text_from_document()
 fit_cleaned_warc_records = text_prepro.filter_unfit_records()
-print("\t Records fit for Extraction: {0}".format(fit_cleaned_warc_records.count()))
+# print("\t Records fit for Extraction: {0}".format(fit_cleaned_warc_records.count()))
 # cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/cleaned_warc_records")
 # fit_cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/fit_cleaned_warc_records")
 print("FINSIHED STAGE 2")
 
 # LIMIT the records for dev:
-fit_cleaned_warc_records = fit_cleaned_warc_records.sortBy(lambda row: (row["_id"]) )
-fit_cleaned_warc_records = sc.parallelize(fit_cleaned_warc_records.take(5))
+#fit_cleaned_warc_records = fit_cleaned_warc_records.sortBy(lambda row: (row["_id"]) )
+fit_cleaned_warc_records = sc.parallelize(fit_cleaned_warc_records.take(20))
 
-print("Contintue with: {0}".format(fit_cleaned_warc_records.count()))
+# print("Contintue with: {0}".format(fit_cleaned_warc_records.count()))
 # STAGE 2 - Entity Extraction
 ee = EntityExtractor(fit_cleaned_warc_records)
 docs_with_entity_candidates = ee.extract()
-print("Processed Docs with Entity Candidates {0}".format(docs_with_entity_candidates.count()))
+# print("Processed Docs with Entity Candidates {0}".format(docs_with_entity_candidates.count()))
 out = docs_with_entity_candidates
-docs_with_entity_candidates.repartition(1).saveAsTextFile("output/candidates")
+# docs_with_entity_candidates.repartition(1).saveAsTextFile("output/candidates")
 
 print("FINSIHED STAGE 3")
 # STAGE 4 - Entity Linking
