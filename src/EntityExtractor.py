@@ -11,7 +11,7 @@ class EntityExtractor:
     def extract(self):
         def process(row):
             # TODO: change to bigger model
-            spacy_nlp = spacy.load("en_core_web_sm")
+            spacy_nlp = spacy.load("en_core_web_md")
             document = spacy_nlp(row['text'].strip())
             entity_list = []
             for element in document.ents:
