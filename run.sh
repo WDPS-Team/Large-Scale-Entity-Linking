@@ -66,8 +66,11 @@ hdfs dfs -rm -r output
 prun -v -1 -np 1 -t 3600 sh run_das.sh $ES_PATH $INPUT_FILE $KB_PATH
 
 # Copying Output File from HDFS
-hdfs dfs -get output/predictions.tsv/part-00000 $OUTPUT_FILE
-hdfs dfs -copyToLocal output/* ./tmp/   #copying all intermediate files for debugging
+hdfs dfs -get output/predictions.tsv/* tmp/
+cat tmp/* > $OUTPUT_FILE
+
+#copying all intermediate files for debugging
+#hdfs dfs -copyToLocal output/* ./tmp/   
 
 
 #Deleting copied input file from HDFS
