@@ -11,7 +11,7 @@ pip3 install --user virtualenv
 python3 ~/.local/lib/python3.6/site-packages/virtualenv.py -p python3 venv
 source venv/bin/activate
 pip3 install -r $PWD_PATH/requirements.txt
-python3 -m spacy download en_core_web_sm
+python3 -m spacy download en_core_web_md
 virtualenv --relocatable venv
 zip -r venv.zip venv
 mkdir VENV # Copy for Spark Driver Node:
