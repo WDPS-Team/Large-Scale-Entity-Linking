@@ -1,6 +1,16 @@
+PWD_PATH=$(pwd)
+SCR_DIR=`basename $PWD_PATH`
+SCR_PATH="/var/scratch2/wdps1936/$SCR_DIR"
+
+if [ ! -d "$SCR_PATH/elasticsearch-2.4.1" ]; then
+    echo "Copying Elastic Search folder"    #copying allows creating multiple instances of working elastic search servers
+    mkdir -p $SCR_PATH
+    cp -r /home/wdps1936/elasticsearch-2.4.1 $SCR_PATH/
+fi
+
 ES_PORT=9200
 export ES_PATH=""
-ES_BIN=/home/wdps1936/elasticsearch-2.4.1/bin/elasticsearch
+ES_BIN=$SCR_PATH/elasticsearch-2.4.1/bin/elasticsearch
 
 prun -v -np 1 -t 3600 ESPORT=$ES_PORT $ES_BIN </dev/null 2> .es_node > /dev/null &
 echo "waiting for elasticsearch to set up..."

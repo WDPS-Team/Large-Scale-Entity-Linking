@@ -2,6 +2,7 @@
 
 #default values
 ES_PATH=`cat .es_path`
+KB_PATH=`cat .kb_path`
 INPUT_PATH="data/sample.warc.gz"
 OUTPUT_FILE="output.tsv"
 
@@ -11,6 +12,11 @@ do
 case $1 in
     -es)
     ES_PATH="$2"
+    shift
+    shift
+    ;;
+    -kb)
+    KB_PATH="$2"
     shift
     shift
     ;;
@@ -39,30 +45,32 @@ fi
 
 #Elastic search server check
 response=$(curl --write-out %{http_code} --silent --output /dev/null $ES_PATH)
-if [ $response -ne 200 ]
-then
+if [ $response -ne 200 ] || [ -z $ES_PATH ] ; then
     echo "ERROR: Elastic Search on node $ES_PATH is not running."
     exit 1
+fi
+
+#Trident server check
+response=$(curl --write-out %{http_code} --silent --output /dev/null $KB_PATH)
+if [ $response -ne 200 ] || [ -z $KB_PATH ] ; then
+    echo "WARN: Trident on node $KB_PATH is not running."
 fi
 
 #Delete output files prior run
 rm $OUTPUT_FILE
 rm -rf tmp
 mkdir tmp
-hdfs dfs -rm -r output/predictions.tsv
-hdfs dfs -rm -r output/cleaned_warc_records
-hdfs dfs -rm -r output/fit_cleaned_warc_records
-hdfs dfs -rm -r output/candidates
+hdfs dfs -rm -r output
 
-#submit spark job
-prun -v -1 -np 1 sh run_das.sh $ES_PATH $INPUT_FILE
+# submit spark job
+prun -v -1 -np 1 -t 3600 sh run_das.sh $ES_PATH $INPUT_FILE $KB_PATH
 
 # Copying Output File from HDFS
-hdfs dfs -get output/predictions.tsv/part-00000 $OUTPUT_FILE
-hdfs dfs -copyToLocal output/cleaned_warc_records ./tmp/cleaned_warc_records
-hdfs dfs -copyToLocal output/fit_cleaned_warc_records ./tmp/fit_cleaned_warc_records
-hdfs dfs -copyToLocal output/candidates ./tmp/candidates
+hdfs dfs -get output/predictions.tsv/* tmp/
+cat tmp/* > $OUTPUT_FILE
 
+#copying all intermediate files for debugging
+#hdfs dfs -copyToLocal output/* ./tmp/   
 
 
 #Deleting copied input file from HDFS

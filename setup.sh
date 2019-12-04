@@ -13,5 +13,10 @@ if [ ! -d "/home/wdps1936/elasticsearch-2.4.1" ]; then
     cp -r /home/jurbani/wdps/elasticsearch-2.4.1 /home/wdps1936/elasticsearch-2.4.1
 fi
 
+if [ ! -d "/home/wdps1936/trident" ]; then
+    echo "Copying Trident folder"
+    cp -r /home/jurbani/trident /home/wdps1936/trident
+fi
+
 # Build venv in cluster node
 prun -v -np 1 sh setup_venv.sh
