@@ -77,7 +77,10 @@ class TextPreprocessor:
             removable_tags = soup.find_all(text_remove_tags)
             for tag in removable_tags:
                 tag.decompose()
-            # Get Text
+
+            # Only Select Body if available:
+            if (soup.body is not None):
+                soup = soup.body
             row["text"] = soup.get_text()
 
             # Replace multiple newlines
