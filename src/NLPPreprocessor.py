@@ -46,7 +46,7 @@ class NLPPreprocessor:
         def apply_word_fixes(row):
 
             def fix_word(word):
-                if word.lower() == "U.S.":
+                if word.lower() == "u.s.":
                     return "US"
                 return word
             row["npl_text"] = [ [fix_word(word) for word in sentence] for sentence in row["sentences_wo_sw"]] 
