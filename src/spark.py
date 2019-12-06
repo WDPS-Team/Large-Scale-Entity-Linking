@@ -4,6 +4,7 @@ from TextPreprocessor import TextPreprocessor
 from EntityExtractor import EntityExtractor
 from EntityLinker import EntityLinker
 from OutputWriter import OutputWriter
+from NLPPreprocessor import NLPPreprocessor
 import argparse
 
 parser = argparse.ArgumentParser()
