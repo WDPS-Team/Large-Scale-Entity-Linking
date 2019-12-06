@@ -9,8 +9,7 @@ class NLPPreprocessor:
 
     def tokenization(self):
         def execute(row):
-            stop_words = stopwords.words('english')
-
+            nltk.data.path.append("venv/nltk_data")
             def stopwords_removal(sentence):
                 tokenized_sentence = nltk.tokenize.word_tokenize(sentence)
                 return tokenized_sentence
@@ -23,6 +22,7 @@ class NLPPreprocessor:
     def lemmatize(self):
 
         def execute_lemmatize(row):
+            nltk.data.path.append("venv/nltk_data")
             lemmatizer = WordNetLemmatizer()
             row["lemmatized_sentences"] = [ [lemmatizer.lemmatize(word) for word in sentence] for sentence in row["sentences_tokenized"]] 
             return row
@@ -31,7 +31,7 @@ class NLPPreprocessor:
 
     
     def stop_words(self):
-
+        nltk.data.path.append("venv/nltk_data");
         stop_words = stopwords.words('english')
         def execute_stop_words(row):
             # NLTK Stopwords
