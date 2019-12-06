@@ -14,7 +14,7 @@ class TextPreprocessor:
         def process(row):
 
             def clean_html(html):
-                cleaner = Cleaner(page_structure=False, links=False, style=True, javascript=True)
+                cleaner = Cleaner(page_structure=False, links=True, style=True, javascript=True)
                 clean_html = cleaner.clean_html(html)
                 return clean_html
 
