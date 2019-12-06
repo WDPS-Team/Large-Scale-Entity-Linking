@@ -8,7 +8,7 @@ PYSPARK_PYTHON=./VENV/venv/bin/python3 ../spark/spark-2.4.0-bin-hadoop2.7/bin/sp
 --conf spark.pyspark.virtualenv.requirements=requirements.txt \
 --conf spark.pyspark.virtualenv.bin.path=./VENV/venv/bin/virtualenv \
 --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=./VENV/venv/bin/python \
---num-executors 84 \
+--num-executors 7 --executor-cores 11 --executor-memory 32GB \
 --archives venv.zip#VENV \
 src/spark.py --es "$1" --f "$2" --kb "$3"
 
