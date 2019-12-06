@@ -12,15 +12,18 @@ class EntityExtractor:
         def process(row):
             # TODO: change to bigger model
             spacy_nlp = spacy.load("en_core_web_md")
-            document = spacy_nlp(row['text'].strip())
-            entity_list = []
-            for element in document.ents:
-                text = element.text.strip("\n").replace("\n", "").replace("\r", "")
-                if element.label_ not in ["CARDINAL", "DATE", "QUANTITY", "TIME", "ORDINAL", "MONEY", "PERCENT", "QUANTITY"]:
-                    entity = dict(type=element.label_, text=text)
-                    entity_list.append(entity)
-
-            return {"doc_id": row["_id"], "entities": entity_list}
+            
+            def spacy_extract(text):
+                document = spacy_nlp(text)
+                entity_list = []
+                for element in document.ents:
+                    text = element.text.strip("\n").replace("\n", "").replace("\r", "")
+                    if element.label_ not in ["CARDINAL", "DATE", "QUANTITY", "TIME", "ORDINAL", "MONEY", "PERCENT", "QUANTITY"]:
+                        entity = dict(type=element.label_, text=text)
+                        entity_list.append(entity)
+                return entity_list
+            entities = [entity_result for sentence in row["npl_text"] for entity_result in spacy_extract(sentence)]
+            return {"doc_id": row["_id"], "entities": entities}
 
         docs_with_entities = self.warc_docs.map(process)
         return docs_with_entities

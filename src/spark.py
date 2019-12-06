@@ -51,6 +51,13 @@ fit_cleaned_warc_records = text_prepro.filter_unfit_records()
 # print("\t Records fit for Extraction: {0}".format(fit_cleaned_warc_records.count()))
 # cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/cleaned_warc_records")
 # fit_cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/fit_cleaned_warc_records")
+
+nlpp = NLPPreprocessor(fit_cleaned_warc_records)
+fit_cleaned_warc_records = nlpp.tokenization()
+fit_cleaned_warc_records = nlpp.lemmatize()
+fit_cleaned_warc_records = nlpp.stop_words()
+fit_cleaned_warc_records = nlpp.word_fixes()
+fit_cleaned_warc_records = nlpp.words_to_str()
 print("FINSIHED STAGE 2")
 
 # LIMIT the records for dev:

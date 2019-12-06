@@ -52,7 +52,7 @@ class TextPreprocessor:
         # Not sure: main_meta -> flickr img title -> sometimes might be useful
         text_remove_css_classes = ["navbar",  "widget", "main_meta", "feeds", "copyright"]
         text_remove_ids = ["menu", "footer", "nav-bar", "topnav", "search", "search-bar", "header-bar", "cat-bar-wipe"]
-        text_remove_tags = ["script", "head"]
+        text_remove_tags = ["script", "head", "a"]
 
         def extract(row):
             html = row["html"]
@@ -85,6 +85,11 @@ class TextPreprocessor:
 
             # Replace multiple newlines
             row["text"] = re.sub(r"([\n])+", "\\n", row["text"])
+            # Replace tabs to spaces
+            row["text"] = re.sub(r"([\t])+", " ", row["text"])
+
+            # Split text into different sentences
+            row["sentences"] = row["text"].split("\n")
             return row
 
         extract_rdd = self.cleaned_warc_responses.map(extract)
