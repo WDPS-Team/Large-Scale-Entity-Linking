@@ -23,6 +23,6 @@ class OutputWriter():
         # doc id tab surface form tab id
 
         def to_tsv(row):
-            return "{0}\t{1}\t{2}".format(row["doc_id"].strip(), row["label"].strip(), row["id"].strip())
+            return "{0}\t{1}\t{2}".format(row["_id"].strip(), row["label"].strip(), row["id"].strip())
 
         return self.expanded.map(to_tsv)
