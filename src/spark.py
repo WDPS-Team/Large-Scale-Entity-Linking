@@ -64,7 +64,10 @@ nlpp.word_fixes()
 nlpprepro_stage_rdd = nlpp.words_to_str()
 
 # LIMIT the records for dev:
-nlp_subset = nlpprepro_stage_rdd.take(17)
+if debug:
+    nlp_subset = nlpprepro_stage_rdd.take(17)
+else:
+    nlp_subset = nlpprepro_stage_rdd.take(89)
 nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
 
 if debug:
