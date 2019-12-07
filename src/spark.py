@@ -62,20 +62,15 @@ nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
 
 print("STAGE 4 - Entity Extraction")
 ee = EntityExtractor(nlpprepro_stage_rdd)
-docs_with_entity_candidates = ee.extract()
-# print("Processed Docs with Entity Candidates {0}".format(docs_with_entity_candidates.count()))
-out = docs_with_entity_candidates
-# docs_with_entity_candidates.repartition(1).saveAsTextFile("output/candidates")
+ee_stage_rdd = ee.extract()
 
 print("STAGE 5 - Entity Linking")
 # STAGE 4 - Entity Linking
-el = EntityLinker(docs_with_entity_candidates, es_path)
-linked_entities = el.link()
+el = EntityLinker(ee_stage_rdd, es_path)
+el_stage_rdd = el.link()
 
 print("STAGE 6 - Writing Output")
-ow = OutputWriter(linked_entities)
+ow = OutputWriter(el_stage_rdd)
 ow.transform()
-
-output_rdd = ow.convert_to_tsv()
-output_rdd.cache()
-output_rdd.saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
+ow_stage_rdd = ow.convert_to_tsv()
+ow_stage_rdd.saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
