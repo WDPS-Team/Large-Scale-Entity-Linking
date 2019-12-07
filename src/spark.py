@@ -31,56 +31,48 @@ sc = SparkContext(conf=conf)
 
 input_file = sc.textFile(input_path)
 
-# STAGE 1 - INPUT READING
-# -> READ warc files in a distributed manner
-# -> Clean all warc records (js, style) with lxml
+print("STAGE 1 - Reading Input WARC")
 wsr = WARCSplitReader(sc, input_file.collect())
-parsed_rdd = wsr.parse_warc_records()
-#print("Parsed WARC Records: {0}".format(parsed_rdd.count()))
-warc_recs_rdd = wsr.process_warc_records()
-# print("Processed WARC Records: {0}".format(warc_recs_rdd.count()))
-filtered_rdd = wsr.filter_invalid_records()
-# print("Filtered WARC Records: {0}".format(filtered_rdd.count()))
+wsr.parse_warc_records()
+wsr.process_warc_records()
+warc_stage_rdd = wsr.filter_invalid_records()
+
 print("STAGE 2 - Preprocessing Text")
-text_prepro = TextPreprocessor(filtered_rdd)
-cleaned_warc_records = text_prepro.clean_warc_responses()
-cleaned_warc_records.cache()
-# print("\t Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
-
+text_prepro = TextPreprocessor(warc_stage_rdd)
+text_prepro.clean_warc_responses()
 text_prepro.extract_text_from_document()
-fit_cleaned_warc_records = text_prepro.filter_unfit_records()
-# print("\t Records fit for Extraction: {0}".format(fit_cleaned_warc_records.count()))
-# cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/cleaned_warc_records")
-# fit_cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/fit_cleaned_warc_records")
+txtprepro_stage_rdd = text_prepro.filter_unfit_records()
 
-nlpp = NLPPreprocessor(fit_cleaned_warc_records)
-fit_cleaned_warc_records = nlpp.tokenization()
-fit_cleaned_warc_records = nlpp.lemmatize()
-fit_cleaned_warc_records = nlpp.stop_words()
-fit_cleaned_warc_records = nlpp.word_fixes()
-fit_cleaned_warc_records = nlpp.words_to_str()
-print("FINSIHED STAGE 2")
+print("STAGE 3 - NLP Preprocessing")
+
+nlpp = NLPPreprocessor(txtprepro_stage_rdd)
+nlpp.tokenization()
+nlpp.lemmatize()
+nlpp.stop_words()
+nlpp.word_fixes()
+nlpprepro_stage_rdd = nlpp.words_to_str()
 
 # LIMIT the records for dev:
-#fit_cleaned_warc_records = fit_cleaned_warc_records.sortBy(lambda row: (row["_id"]) )
-fit_cleaned_warc_records = sc.parallelize(fit_cleaned_warc_records.take(20))
+nlp_subset = nlpprepro_stage_rdd.take(17)
+nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
 
-# print("Contintue with: {0}".format(fit_cleaned_warc_records.count()))
-# STAGE 2 - Entity Extraction
-ee = EntityExtractor(fit_cleaned_warc_records)
+# for row in nlp_subset:
+#     print(row["_id"])
+#     print(row["text"])
+
+print("STAGE 4 - Entity Extraction")
+ee = EntityExtractor(nlpprepro_stage_rdd)
 docs_with_entity_candidates = ee.extract()
 # print("Processed Docs with Entity Candidates {0}".format(docs_with_entity_candidates.count()))
 out = docs_with_entity_candidates
 # docs_with_entity_candidates.repartition(1).saveAsTextFile("output/candidates")
 
-print("FINSIHED STAGE 3")
+print("STAGE 5 - Entity Linking")
 # STAGE 4 - Entity Linking
 el = EntityLinker(docs_with_entity_candidates, es_path)
 linked_entities = el.link()
 
-print("FINISHED STAGE 4")
-
-# # STAGE 5 - Transform and Output
+print("STAGE 6 - Writing Output")
 ow = OutputWriter(linked_entities)
 ow.transform()
 

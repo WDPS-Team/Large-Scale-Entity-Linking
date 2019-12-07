@@ -23,7 +23,7 @@ class EntityExtractor:
                         entity_list.append(entity)
                 return entity_list
             entities = [entity_result for sentence in row["npl_text"] for entity_result in spacy_extract(sentence)]
-            return {"doc_id": row["_id"], "entities": entities}
+            return {"_id": row["_id"], "entities": entities}
 
         docs_with_entities = self.warc_docs.map(process)
         return docs_with_entities
