@@ -4,22 +4,28 @@ from TextPreprocessor import TextPreprocessor
 from EntityExtractor import EntityExtractor
 from EntityLinker import EntityLinker
 from OutputWriter import OutputWriter
+from NLPPreprocessor import NLPPreprocessor
 import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--es", help="Elastic Search instance.")
 parser.add_argument("--kb", help="Trident instance.")
 parser.add_argument("--f", help="Input file.")
+parser.add_argument("--debug", help="Output some debug data.")
 args = parser.parse_args()
 es_path = "localhost:9200"
 kb_path = "localhost:9090"
 input_path = "sample.warc.gz"
+debug = False
 if args.es:
     es_path = args.es
 if args.kb:
     kb_path = args.kb
 if args.f:
     input_path = args.f
+
+if args.debug == "True":
+    debug = True
 
 print("Elastic Search Server:",es_path)
 print("Trident Server:",kb_path)
@@ -30,52 +36,67 @@ sc = SparkContext(conf=conf)
 
 input_file = sc.textFile(input_path)
 
-# STAGE 1 - INPUT READING
-# -> READ warc files in a distributed manner
-# -> Clean all warc records (js, style) with lxml
+print("STAGE 1 - Reading Input WARC")
 wsr = WARCSplitReader(sc, input_file.collect())
-parsed_rdd = wsr.parse_warc_records()
-#print("Parsed WARC Records: {0}".format(parsed_rdd.count()))
-warc_recs_rdd = wsr.process_warc_records()
-# print("Processed WARC Records: {0}".format(warc_recs_rdd.count()))
-filtered_rdd = wsr.filter_invalid_records()
-# print("Filtered WARC Records: {0}".format(filtered_rdd.count()))
-print("STAGE 2 - Preprocessing Text")
-text_prepro = TextPreprocessor(filtered_rdd)
-cleaned_warc_records = text_prepro.clean_warc_responses()
-cleaned_warc_records.cache()
-# print("\t Cleaned WARC Records: {0}".format(cleaned_warc_records.count()))
+wsr.parse_warc_records()
+wsr.process_warc_records()
+warc_stage_rdd = wsr.filter_invalid_records()
 
+print("STAGE 2 - Preprocessing Text")
+text_prepro = TextPreprocessor(warc_stage_rdd)
+text_prepro.clean_warc_responses()
 text_prepro.extract_text_from_document()
-fit_cleaned_warc_records = text_prepro.filter_unfit_records()
-# print("\t Records fit for Extraction: {0}".format(fit_cleaned_warc_records.count()))
-# cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/cleaned_warc_records")
-# fit_cleaned_warc_records.sortBy(lambda row: (row["_id"])).repartition(1).saveAsTextFile("output/fit_cleaned_warc_records")
-print("FINSIHED STAGE 2")
+txtprepro_stage_rdd = text_prepro.filter_unfit_records()
+
+print("STAGE 3 - NLP Preprocessing")
+
+if debug:
+    for row in txtprepro_stage_rdd.take(17):
+        print(row["_id"])
+        print(row["html"])
+    sc.parallelize(txtprepro_stage_rdd.take(17)).saveAsTextFile("output/txtprepro_stage_rdd")
+
+nlpp = NLPPreprocessor(txtprepro_stage_rdd)
+nlpp.tokenization()
+nlpp.lemmatize()
+nlpp.stop_words()
+nlpp.word_fixes()
+nlpprepro_stage_rdd = nlpp.words_to_str()
 
 # LIMIT the records for dev:
-#fit_cleaned_warc_records = fit_cleaned_warc_records.sortBy(lambda row: (row["_id"]) )
-fit_cleaned_warc_records = sc.parallelize(fit_cleaned_warc_records.take(20))
+if debug:
+    nlp_subset = nlpprepro_stage_rdd.take(17)
+else:
+    nlp_subset = nlpprepro_stage_rdd.take(83)
+nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
 
-# print("Contintue with: {0}".format(fit_cleaned_warc_records.count()))
-# STAGE 2 - Entity Extraction
-ee = EntityExtractor(fit_cleaned_warc_records)
-docs_with_entity_candidates = ee.extract()
-# print("Processed Docs with Entity Candidates {0}".format(docs_with_entity_candidates.count()))
-out = docs_with_entity_candidates
-# docs_with_entity_candidates.repartition(1).saveAsTextFile("output/candidates")
+if debug:
+    for row in nlp_subset:
+        print(row["_id"])
+        print(row["text"])
+    sc.parallelize(nlpprepro_stage_rdd.take(17)).saveAsTextFile("output/nlpprepro_stage_rdd")
 
-print("FINSIHED STAGE 3")
+print("STAGE 4 - Entity Extraction")
+ee = EntityExtractor(nlpprepro_stage_rdd)
+ee_stage_rdd = ee.extract()
+ee_stage_rdd.cache()
+
+if debug:
+    for row in ee_stage_rdd.take(17):
+        print(row["_id"])
+        print(row["sentences_entities"])
+    sc.parallelize(ee_stage_rdd.take(17)).saveAsTextFile("output/ee_stage_rdd")
+
+ee_stage_rdd = ee.join_sentences()
+ee_stage_rdd.cache()
+
+print("STAGE 5 - Entity Linking")
 # STAGE 4 - Entity Linking
-el = EntityLinker(docs_with_entity_candidates, es_path)
-linked_entities = el.link()
+el = EntityLinker(ee_stage_rdd, es_path)
+el_stage_rdd = el.link()
 
-print("FINISHED STAGE 4")
-
-# # STAGE 5 - Transform and Output
-ow = OutputWriter(linked_entities)
+print("STAGE 6 - Writing Output")
+ow = OutputWriter(el_stage_rdd)
 ow.transform()
-
-output_rdd = ow.convert_to_tsv()
-output_rdd.cache()
-output_rdd.saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
+ow_stage_rdd = ow.convert_to_tsv()
+ow_stage_rdd.saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)

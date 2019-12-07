@@ -4,6 +4,7 @@ import lxml.html as lh
 from lxml.html.clean import Cleaner
 import re
 
+
 class TextPreprocessor:
     def __init__(self, warc_records_rdd):
         self.warc_records = warc_records_rdd
@@ -13,7 +14,7 @@ class TextPreprocessor:
         def process(row):
 
             def clean_html(html):
-                cleaner = Cleaner(page_structure=False, links=False, style=True, javascript=True)
+                cleaner = Cleaner(page_structure=False, links=True, style=True, javascript=True)
                 clean_html = cleaner.clean_html(html)
                 return clean_html
 
@@ -34,7 +35,7 @@ class TextPreprocessor:
             except Exception as e:
                 print("Error Converting to LXML", row["id"], "Error: ", type(e))
                 return cleaned_result
-             # Clean
+            # Clean
             cleaned_html = clean_html(lxml_doc)
             html_doc = lh.tostring(cleaned_html)
             cleaned_result["html"] = html_doc
@@ -48,37 +49,49 @@ class TextPreprocessor:
         return self.fit_cleaned_warc_responses
 
     def extract_text_from_document(self):
-        text_remove_css_classes = ["navbar"]
-        text_remove_ids = ["menu", "footer", "nav-bar"]
-        text_remove_tags = ["script", "head"]
+        # Not sure: main_meta -> flickr img title -> sometimes might be useful
+        text_remove_css_classes = ["navbar",  "widget", "main_meta", "feeds", "copyright"]
+        text_remove_ids = ["menu", re.compile('^.*footer.*'), re.compile('^nav.*'), "topnav", "search", "search-bar", re.compile('^header.*'), re.compile('^cat-bar.*')]
+        text_remove_tags = ["script", "head", "code", "form"]
+
         def extract(row):
             html = row["html"]
             soup = bs4.BeautifulSoup(html, features="lxml")
-            
+
             # Get Title
-            qry_title=soup.find_all("title")
+            qry_title = soup.find_all("title")
             if len(qry_title) != 0:
                 row["title"] = str(qry_title[0].string)
- 
+
             # Remove CSS classes:
-            removable_tags = soup.find_all(name="div", attrs={ "class": text_remove_css_classes })
-            for tag_with_css_class in removable_tags:
-                tag_with_css_class.decompose()
+            for css_class in text_remove_css_classes:
+                removable_tags = soup.find_all(attrs={"class": css_class})
+                for tag_with_css_class in removable_tags:
+                    tag_with_css_class.decompose()
             # Remove IDs:
-            removable_tags = soup.find_all(id=text_remove_ids)
-            for tag in removable_tags:
-                tag.decompose()
+            for id in text_remove_ids:
+                removable_tags = soup.find_all(id=id)
+                for tag in removable_tags:
+                    tag.decompose()
             # Remove Non-relevant tags i.e. <script>
             removable_tags = soup.find_all(text_remove_tags)
             for tag in removable_tags:
                 tag.decompose()
-            # Get Text
+
+            # Only Select Body if available:
+            if (soup.body is not None):
+                soup = soup.body
             row["text"] = soup.get_text()
 
             # Replace multiple newlines
             row["text"] = re.sub(r"([\n])+", "\\n", row["text"])
+            # Replace tabs to spaces
+            row["text"] = re.sub(r"([\t])+", " ", row["text"])
+
+            # Split text into different sentences
+            row["sentences"] = row["text"].split("\n")
             return row
 
         extract_rdd = self.cleaned_warc_responses.map(extract)
         self.extracted_text_doc_records = extract_rdd
-    
+        return self.extracted_text_doc_records

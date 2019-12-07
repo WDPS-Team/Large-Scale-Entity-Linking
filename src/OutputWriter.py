@@ -13,17 +13,16 @@ class OutputWriter():
             result = []
             for candidate in row["linked_candidates"]:
                 for id, value in candidate["ids"].items():
-                    result.append({"doc_id": row["doc_id"], "id": id, "label": candidate["label"]})
+                    result.append({"_id": row["_id"], "id": id, "label": candidate["label"]})
             return result
 
         self.expanded = self.linked_entities.flatMap(expand)
-        #self.expanded = self.expanded.sortBy(lambda row: (row["doc_id"], row["label"], row["id"]) )
         return self.expanded
 
     def convert_to_tsv(self):
         # doc id tab surface form tab id
 
         def to_tsv(row):
-            return "{0}\t{1}\t{2}".format(row["doc_id"].strip(), row["label"].strip(), row["id"].strip())
+            return "{0}\t{1}\t{2}".format(row["_id"].strip(), row["label"].strip(), row["id"].strip())
 
         return self.expanded.map(to_tsv)

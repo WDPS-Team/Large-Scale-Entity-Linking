@@ -46,7 +46,7 @@ class EntityLinker:
                 # candidate is a tupel of {'text': 'XML-RPC', 'type': 'ORG'}
                 ids = search(candidate["text"], es_path)
                 linked_candidates.append({"label": candidate["text"], "ids": ids })
-            return {"doc_id": row["doc_id"], "linked_candidates": linked_candidates}
+            return {"_id": row["_id"], "linked_candidates": linked_candidates}
 
         lambda_es_path = self.es_path
         query_lambda = lambda row : link_freebase(row, lambda_es_path)

@@ -9,7 +9,7 @@ PYSPARK_PYTHON=$(readlink -f $(which python3)) /spark/bin/spark-submit \
 --conf spark.pyspark.virtualenv.type=native \
 --conf spark.pyspark.virtualenv.requirements=requirements.txt \
 --conf spark.pyspark.virtualenv.bin.path=venv/bin/virtualenv \
-src/spark.py --es "es01:9200" --f "sample.warc.gz"
+src/spark.py --es "es01:9200" --f "sample.warc.gz" --debug "True"
 
 deactivate
 rm -r /data/output/
