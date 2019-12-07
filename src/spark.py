@@ -63,6 +63,11 @@ nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
 print("STAGE 4 - Entity Extraction")
 ee = EntityExtractor(nlpprepro_stage_rdd)
 ee_stage_rdd = ee.extract()
+ee_stage_rdd.cache()
+
+
+ee_stage_rdd = ee.join_sentences()
+ee_stage_rdd.cache()
 
 print("STAGE 5 - Entity Linking")
 # STAGE 4 - Entity Linking
