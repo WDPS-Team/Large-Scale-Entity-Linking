@@ -11,16 +11,21 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--es", help="Elastic Search instance.")
 parser.add_argument("--kb", help="Trident instance.")
 parser.add_argument("--f", help="Input file.")
+parser.add_argument("--debug", help="Output some debug data.")
 args = parser.parse_args()
 es_path = "localhost:9200"
 kb_path = "localhost:9090"
 input_path = "sample.warc.gz"
+debug = False
 if args.es:
     es_path = args.es
 if args.kb:
     kb_path = args.kb
 if args.f:
     input_path = args.f
+
+if args.debug == "True":
+    debug = True
 
 print("Elastic Search Server:",es_path)
 print("Trident Server:",kb_path)
@@ -45,6 +50,12 @@ txtprepro_stage_rdd = text_prepro.filter_unfit_records()
 
 print("STAGE 3 - NLP Preprocessing")
 
+if debug:
+    for row in txtprepro_stage_rdd.take(17):
+        print(row["_id"])
+        print(row["html"])
+    sc.parallelize(txtprepro_stage_rdd.take(17)).saveAsTextFile("output/txtprepro_stage_rdd")
+
 nlpp = NLPPreprocessor(txtprepro_stage_rdd)
 nlpp.tokenization()
 nlpp.lemmatize()
@@ -56,15 +67,22 @@ nlpprepro_stage_rdd = nlpp.words_to_str()
 nlp_subset = nlpprepro_stage_rdd.take(17)
 nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
 
-# for row in nlp_subset:
-#     print(row["_id"])
-#     print(row["text"])
+if debug:
+    for row in nlp_subset:
+        print(row["_id"])
+        print(row["text"])
+    sc.parallelize(nlpprepro_stage_rdd.take(17)).saveAsTextFile("output/nlpprepro_stage_rdd")
 
 print("STAGE 4 - Entity Extraction")
 ee = EntityExtractor(nlpprepro_stage_rdd)
 ee_stage_rdd = ee.extract()
 ee_stage_rdd.cache()
 
+if debug:
+    for row in ee_stage_rdd.take(17):
+        print(row["_id"])
+        print(row["sentences_entities"])
+    sc.parallelize(ee_stage_rdd.take(17)).saveAsTextFile("output/ee_stage_rdd")
 
 ee_stage_rdd = ee.join_sentences()
 ee_stage_rdd.cache()
