@@ -11,4 +11,6 @@ RUN pip3 install -r requirements.txt
 RUN python3 -m nltk.downloader stopwords
 RUN python3 -m nltk.downloader punkt
 RUN python3 -m nltk.downloader wordnet
+RUN curl https://github.com/explosion/spacy-models/releases/download/en_core_web_md-2.2.5/en_core_web_md-2.2.5.tar.gz -L -o /en_core_web_md-2.2.5.tar.gz
+RUN curl https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-2.2.5/en_core_web_lg-2.2.5.tar.gz -L -o /en_core_web_lg-2.2.5.tar.gz
 CMD bash
