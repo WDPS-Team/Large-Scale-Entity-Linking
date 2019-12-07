@@ -51,8 +51,8 @@ class TextPreprocessor:
     def extract_text_from_document(self):
         # Not sure: main_meta -> flickr img title -> sometimes might be useful
         text_remove_css_classes = ["navbar",  "widget", "main_meta", "feeds", "copyright"]
-        text_remove_ids = ["menu", "footer", "nav-bar", "topnav", "search", "search-bar", "header-bar", "cat-bar-wipe"]
-        text_remove_tags = ["script", "head", "a"]
+        text_remove_ids = ["menu", re.compile('^.*footer.*'), re.compile('^nav.*'), "topnav", "search", "search-bar", re.compile('^header.*'), re.compile('^cat-bar.*')]
+        text_remove_tags = ["script", "head", "code", "form"]
 
         def extract(row):
             html = row["html"]
