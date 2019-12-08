@@ -2,10 +2,9 @@ import pandas as pd
 import numpy as np
 from biz.getCosine import get_word_vector as gwv, cos_dist as cd
 
+# local test file path
 file_path = '../data/test_data_4.csv'
-result_file_path = '../data/result_cos.csv'
 data = pd.read_csv(file_path, header=None)
-# data['similarity'] = np.nan
 data.columns = ['No.', 'docu_id', 'mention', 'fb_id', 'fb_score', 'entity']
 
 # get 'mention''s value
@@ -46,6 +45,3 @@ for mention in mentions:
     df_data_result['similarity'] = similarity
     print(df_data_result)
 
-    # print(data[data['mention'] == mention][data['entity'] == similarity_entity])
-    # # print(similarity_entity)
-    # print(similarity)
