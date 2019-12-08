@@ -5,6 +5,7 @@ from EntityExtractor import EntityExtractor
 from EntityLinker import EntityLinker
 from OutputWriter import OutputWriter
 from NLPPreprocessor import NLPPreprocessor
+from DataDisambiguator import DataDisambiguator
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -67,7 +68,7 @@ nlpprepro_stage_rdd = nlpp.words_to_str()
 if debug:
     nlp_subset = nlpprepro_stage_rdd.take(17)
 else:
-    nlp_subset = nlpprepro_stage_rdd.take(83)
+    nlp_subset = nlpprepro_stage_rdd.take(50)
 nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
 
 if debug:
@@ -94,9 +95,14 @@ print("STAGE 5 - Entity Linking")
 # STAGE 4 - Entity Linking
 el = EntityLinker(ee_stage_rdd, es_path)
 el_stage_rdd = el.link()
+el_stage_rdd.saveAsTextFile("output/el")
 
-print("STAGE 6 - Writing Output")
-ow = OutputWriter(el_stage_rdd)
+print("STAGE 6 - Data Disambiguation")
+dd = DataDisambiguator(el_stage_rdd, kb_path)
+dd_stage_rdd = dd.disambiguate()
+
+print("STAGE 7 - Writing Output")
+ow = OutputWriter(dd_stage_rdd)
 ow.transform()
 ow_stage_rdd = ow.convert_to_tsv()
-ow_stage_rdd.saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
+ow_stage_rdd.saveAsTextFile("output/predictions.tsv")
