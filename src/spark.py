@@ -95,7 +95,6 @@ print("STAGE 5 - Entity Linking")
 # STAGE 4 - Entity Linking
 el = EntityLinker(ee_stage_rdd, es_path)
 el_stage_rdd = el.link()
-el_stage_rdd.saveAsTextFile("output/el")
 
 print("STAGE 6 - Data Disambiguation")
 dd = DataDisambiguator(el_stage_rdd, kb_path)
