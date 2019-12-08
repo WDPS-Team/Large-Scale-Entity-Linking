@@ -12,7 +12,7 @@ class OutputWriter():
 
             result = []
             for candidate in row["linked_candidates"]:
-                for id, value in candidate["ids"].items():
+                for id in candidate["ids"]:
                     result.append({"_id": row["_id"], "id": id, "label": candidate["label"]})
             return result
 
