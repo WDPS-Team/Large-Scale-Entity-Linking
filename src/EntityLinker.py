@@ -25,12 +25,12 @@ class EntityLinker:
 
                 url = 'http://{0}/freebase/label/_search'.format(es_path)
                 response = None
-                for _ in range(5):
+                for _ in range(10):
                     try:
                         response = requests.post(url, params=params, data=json_qry)
                         break
                     except:
-                        time.sleep(0.5)
+                        time.sleep(0.1)
 
                 id_labels = {}
                 if response:
@@ -45,7 +45,7 @@ class EntityLinker:
             for candidate in row["entities"]:
                 # candidate is a tupel of {'text': 'XML-RPC', 'type': 'ORG'}
                 ids = search(candidate["text"], es_path)
-                linked_candidates.append({"label": candidate["text"], "ids": ids })
+                linked_candidates.append({"label": candidate["text"], "type": candidate["type"], "ids": ids })
             return {"_id": row["_id"], "linked_candidates": linked_candidates}
 
         lambda_es_path = self.es_path
