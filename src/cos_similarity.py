@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from biz.getCosine import get_word_vector as gwv, cos_dist as cd
+from getCosine import get_word_vector as gwv, cos_dist as cd
 
 # local test file path
 file_path = '../data/test_data_4.csv'
