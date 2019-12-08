@@ -16,7 +16,7 @@ data/output/
 /src/venv
 /src/__pycache__
 venv
-VENV/
+VENV
 venv.zip
 data/predictions.tsv
 tmp
