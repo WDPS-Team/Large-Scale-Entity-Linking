@@ -1,4 +1,3 @@
-#import trident
 import requests
 import json
 import time
@@ -55,28 +54,17 @@ class DataDisambiguator:
                     if(validate(id, candidate["type"], kb_path)):
                         valid_ids.append(id)
                         break
+                if len(valid_ids) == 0 and len(candidate["ids"].items()) > 0:
+                    valid_ids.append(list(candidate["ids"].keys())[0])
+                
                 valid_candidates.append({"label": candidate["label"], "ids": valid_ids })
             
 
             return {"_id": doc["_id"], "linked_candidates": valid_candidates}
         
 
-
-        # TODO: Implement it with python trident module
-        #
-        # db = trident.Db('/home/jurbani/data/motherkb-trident')
-        # lambda_map = lambda doc : disambiguate_doc(doc, db)
-        # valid_entities = self.linked_rdd.map(lambda_map)
-
         kb_path = self.kb_path
         lambda_map = lambda doc : disambiguate_doc(doc, kb_path)
         valid_entities = self.linked_rdd.map(lambda_map)
 
         return valid_entities
-
-
-
-# db = trident.Db('/home/jurbani/data/motherkb-trident')
-# results = db.sparql("SELECT * { ?s ?p ?o .} LIMIT 10")
-# print(results)
-# <http://rdf.freebase.com/ns/m.0d0xs> ?p <http://rdf.freebase.com/ns/location.location>} 
