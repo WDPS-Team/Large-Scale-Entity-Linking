@@ -19,7 +19,7 @@ class EntityLinker:
                     "query": { 
                         "match": { "label": query }
                     },
-                    "size": 10
+                    "size": 30
                 }
                 json_qry = json.dumps(data)
 
@@ -35,7 +35,7 @@ class EntityLinker:
                 id_labels = {}
                 if response:
                     response = response.json()
-                    for hit in response.get('hits', {}).get('hits', [])[:1]:
+                    for hit in response.get('hits', {}).get('hits', []):
                         freebase_label = hit.get('_source', {}).get('label')
                         freebase_id = hit.get('_source', {}).get('resource')
                         id_labels.setdefault(freebase_id, set()).add(freebase_label)
