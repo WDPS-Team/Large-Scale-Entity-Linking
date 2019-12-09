@@ -5,7 +5,6 @@ from EntityExtractor import EntityExtractor
 from EntityLinker import EntityLinker
 from OutputWriter import OutputWriter
 from NLPPreprocessor import NLPPreprocessor
-from ModelCache import ModelCache
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -27,10 +26,6 @@ if args.f:
 
 if args.debug == "True":
     debug = True
-
-root_path = "/var/scratch2/wdps1936/lib"
-# root_path = "/data"
-mc = ModelCache(root_path)
 
 print("Elastic Search Server:",es_path)
 print("Trident Server:",kb_path)
@@ -71,7 +66,7 @@ nlpprepro_stage_rdd.cache()
 
 # LIMIT the records for dev:
 if debug:
-    nlp_subset = nlpprepro_stage_rdd.take(10)
+    nlp_subset = nlpprepro_stage_rdd.take(1)
 else:
     nlp_subset = nlpprepro_stage_rdd.take(83)
 nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
