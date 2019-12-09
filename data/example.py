@@ -6,6 +6,8 @@ vector2 = model.word_rep('WDW')
 print(model.vector_cos_sim(vector1, vector2))
 
 # Slowly implemented
-windex = model.most_similar("USA")
+word = "London"
+windex = model.most_similar(word)
 print(windex)
 print(model.get_word(windex))
+print(model.vector_cos_sim(model.word_rep(word), model.word_rep(model.get_word(windex))))
