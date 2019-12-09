@@ -15,7 +15,6 @@ python3 -m spacy download en_core_web_md
 python3 -m nltk.downloader stopwords -d venv/nltk_data
 python3 -m nltk.downloader punkt -d venv/nltk_data
 python3 -m nltk.downloader wordnet -d venv/nltk_data
-cp -r /home/wdps1936/build-python venv/
 virtualenv --relocatable venv
 zip -r venv.zip venv
 mkdir VENV # Copy for Spark Driver Node:
