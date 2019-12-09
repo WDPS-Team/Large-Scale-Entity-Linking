@@ -1,8 +1,7 @@
 import requests
 import time
 import json
-import gensim 
-from gensim.models import Word2Vec 
+
 
 class EntityLinker:
 
@@ -55,17 +54,17 @@ class EntityLinker:
         self.linked_entities = self.docs_with_entities.map(query_lambda)
         return self.linked_entities
 
-    def disambiguate(self):
+    def disambiguate(self, model_cache):
         # Create CBOW model 
         # download model from https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/view
-        def apply_word2vec(row):
-            root_path = "/var/scratch2/wdps1936/lib"
+        def apply_word2vec(row, mc):
             try:
-                model = gensim.models.KeyedVectors.load_word2vec_format(root_path + '/GoogleNews-vectors-negative300.bin', binary=True)  
-                row["w2v"] = model.similarity(row["linked_candidates"][0]["label"], 'spain')
+                row["w2v"] = mc.w2v().similarity(row["linked_candidates"][0]["label"], 'spain')
             except:
                 #word might not be in dict -> what to do?
                 row["w2v"] = "word not in dict"
             return row
-        self.dis_entities = self.linked_entities.map(apply_word2vec)
+        
+        apply_lbmd = lambda row: apply_word2vec(row, model_cache)
+        self.dis_entities = self.linked_entities.map(apply_lbmd)
         return self.dis_entities

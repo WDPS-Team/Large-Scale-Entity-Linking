@@ -5,6 +5,7 @@ from EntityExtractor import EntityExtractor
 from EntityLinker import EntityLinker
 from OutputWriter import OutputWriter
 from NLPPreprocessor import NLPPreprocessor
+from ModelCache import ModelCache
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -26,6 +27,10 @@ if args.f:
 
 if args.debug == "True":
     debug = True
+
+root_path = "/var/scratch2/wdps1936/lib"
+# root_path = "/data"
+mc = ModelCache(root_path)
 
 print("Elastic Search Server:",es_path)
 print("Trident Server:",kb_path)
@@ -102,7 +107,7 @@ if debug:
         print(row["linked_candidates"])
     sc.parallelize(ee_stage_rdd.take(17)).saveAsTextFile("output/el_stage_rdd")
 
-el_stage_rdd = el.disambiguate()
+el_stage_rdd = el.disambiguate(mc)
 el_stage_rdd.cache()
 
 if debug:
