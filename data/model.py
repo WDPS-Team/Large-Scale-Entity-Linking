@@ -23,6 +23,8 @@ import sys
 import logging
 import struct
 import numpy as np
+from numpy import dot
+from numpy.linalg import norm
 
 MAGIC_NUMBER = 0xbea25956
 MODEL_VERSION = 1
@@ -105,6 +107,34 @@ class Model:
         if l > 0:
             v /= l
         return v
+    
+    def word_to_vocab_index(self, w):
+        return self._w2i[w]
+    
+    def get_word(self, idx):
+        return self._i2w[idx]
+
+    def vector_cos_sim(self, v1, v2):
+        return dot(v1, v2)/(norm(v1)*norm(v2))
+
+    def most_similar(self, check_word):
+        check_word_vector = self.word_rep(check_word)
+        current_word = self._i2w[0]
+        current_max_sim = self.vector_cos_sim(check_word_vector, self._get_vector(0))
+        current_max_idx = 0
+        
+        for index, word in enumerate(self._i2w):
+            if word == check_word:
+                continue
+            word_vector = self._get_vector(index)
+            sim = self.vector_cos_sim(check_word_vector, word_vector)
+            if (sim > current_max_sim):
+                current_max_idx = index
+                current_max_sim = sim
+
+        return current_max_idx
+
+
 
 if __name__ == '__main__':
     path = sys.argv[1]
