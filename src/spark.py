@@ -47,11 +47,11 @@ text_prepro = TextPreprocessor(warc_stage_rdd)
 text_prepro.clean_warc_responses()
 text_prepro.extract_text_from_document()
 txtprepro_stage_rdd = text_prepro.filter_unfit_records()
-
+txtprepro_stage_rdd.cache()
 print("STAGE 3 - NLP Preprocessing")
 
 if debug:
-    for row in txtprepro_stage_rdd.take(17):
+    for row in txtprepro_stage_rdd.take(2):
         print(row["_id"])
         print(row["html"])
     sc.parallelize(txtprepro_stage_rdd.take(17)).saveAsTextFile("output/txtprepro_stage_rdd")
@@ -62,10 +62,11 @@ nlpp.lemmatize()
 nlpp.stop_words()
 nlpp.word_fixes()
 nlpprepro_stage_rdd = nlpp.words_to_str()
+nlpprepro_stage_rdd.cache()
 
 # LIMIT the records for dev:
 if debug:
-    nlp_subset = nlpprepro_stage_rdd.take(17)
+    nlp_subset = nlpprepro_stage_rdd.take(10)
 else:
     nlp_subset = nlpprepro_stage_rdd.take(83)
 nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
@@ -94,6 +95,21 @@ print("STAGE 5 - Entity Linking")
 # STAGE 4 - Entity Linking
 el = EntityLinker(ee_stage_rdd, es_path)
 el_stage_rdd = el.link()
+el_stage_rdd.cache()
+if debug:
+    for row in el_stage_rdd.take(17):
+        print(row["_id"])
+        print(row["linked_candidates"])
+    sc.parallelize(ee_stage_rdd.take(17)).saveAsTextFile("output/el_stage_rdd")
+
+el_stage_rdd = el.disambiguate()
+el_stage_rdd.cache()
+
+if debug:
+    for row in el_stage_rdd.take(17):
+        print(row["_id"])
+        print(row["w2v"])
+    sc.parallelize(ee_stage_rdd.take(17)).saveAsTextFile("output/eld_stage_rdd")
 
 print("STAGE 6 - Writing Output")
 ow = OutputWriter(el_stage_rdd)

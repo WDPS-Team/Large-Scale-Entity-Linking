@@ -1,6 +1,8 @@
 import requests
 import time
 import json
+import gensim 
+from gensim.models import Word2Vec 
 
 class EntityLinker:
 
@@ -35,7 +37,7 @@ class EntityLinker:
                 id_labels = {}
                 if response:
                     response = response.json()
-                    for hit in response.get('hits', {}).get('hits', [])[:1]:
+                    for hit in response.get('hits', {}).get('hits', []):
                         freebase_label = hit.get('_source', {}).get('label')
                         freebase_id = hit.get('_source', {}).get('resource')
                         id_labels.setdefault(freebase_id, set()).add(freebase_label)
@@ -45,10 +47,25 @@ class EntityLinker:
             for candidate in row["entities"]:
                 # candidate is a tupel of {'text': 'XML-RPC', 'type': 'ORG'}
                 ids = search(candidate["text"], es_path)
-                linked_candidates.append({"label": candidate["text"], "ids": ids })
+                linked_candidates.append({"label": candidate["text"], "type": candidate["type"], "ids": ids })
             return {"_id": row["_id"], "linked_candidates": linked_candidates}
 
         lambda_es_path = self.es_path
         query_lambda = lambda row : link_freebase(row, lambda_es_path)
-        linked_entities = self.docs_with_entities.map(query_lambda)
-        return linked_entities
+        self.linked_entities = self.docs_with_entities.map(query_lambda)
+        return self.linked_entities
+
+    def disambiguate(self):
+        # Create CBOW model 
+        # download model from https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/view
+        def apply_word2vec(row):
+            root_path = "/var/scratch2/wdps1936/lib"
+            try:
+                model = gensim.models.KeyedVectors.load_word2vec_format(root_path + '/GoogleNews-vectors-negative300.bin', binary=True)  
+                row["w2v"] = model.similarity(row["linked_candidates"][0]["label"], 'spain')
+            except:
+                #word might not be in dict -> what to do?
+                row["w2v"] = "word not in dict"
+            return row
+        self.dis_entities = self.linked_entities.map(apply_word2vec)
+        return self.dis_entities
