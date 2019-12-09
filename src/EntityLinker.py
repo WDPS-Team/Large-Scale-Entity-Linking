@@ -54,9 +54,22 @@ class EntityLinker:
         self.linked_entities = self.docs_with_entities.map(query_lambda)
         return self.linked_entities
 
-    def disambiguate(self, model_cache):
-        # Create CBOW model 
+    def disambiguate(self):
+
+        # Create CBOW model
         # download model from https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/view
+        class ModelCache:
+
+            def __init__(self):
+                self.model_root_path = "/var/scratch2/wdps1936/lib"
+                # self.model_root_path = "/data"
+                self.model = None
+
+            def w2v(self):
+                if self.model is None:
+                    self.model = gensim.models.KeyedVectors.load_word2vec_format(self.model_root_path + '/GoogleNews-vectors-negative300.bin', binary=True)  
+                return self.model
+        
         def apply_word2vec(row, mc):
             try:
                 row["w2v"] = mc.w2v().similarity(row["linked_candidates"][0]["label"], 'spain')
@@ -65,6 +78,6 @@ class EntityLinker:
                 row["w2v"] = "word not in dict"
             return row
         
-        apply_lbmd = lambda row: apply_word2vec(row, model_cache)
-        self.dis_entities = self.linked_entities.map(apply_lbmd)
+        #apply_lbmd = lambda row: apply_word2vec(row, model_cache)
+        self.dis_entities = self.linked_entities.map(lambda row: apply_word2vec(row, ModelCache()))
         return self.dis_entities

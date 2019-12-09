@@ -107,7 +107,7 @@ if debug:
         print(row["linked_candidates"])
     sc.parallelize(ee_stage_rdd.take(17)).saveAsTextFile("output/el_stage_rdd")
 
-el_stage_rdd = el.disambiguate(mc)
+el_stage_rdd = el.disambiguate()
 el_stage_rdd.cache()
 
 if debug:
