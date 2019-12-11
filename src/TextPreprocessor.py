@@ -20,7 +20,7 @@ class TextPreprocessor:
 
             # TODO: Error handling?
             raw_data = row["data"]
-            cleaned_result = {"_id": row["id"], "title": "", "text": "", "html": "", "raw": raw_data}
+            cleaned_result = {"_id": row["_id"], "title": "", "text": "", "html": "", "raw": raw_data}
 
             # Only if document is empty
             if row["data"].strip() == "":
@@ -33,7 +33,7 @@ class TextPreprocessor:
             except etree.ParseError as e:
                 lxml_doc = etree.fromstring(raw_data)
             except Exception as e:
-                print("Error Converting to LXML", row["id"], "Error: ", type(e))
+                print("Error Converting to LXML", row["_id"], "Error: ", type(e))
                 return cleaned_result
             # Clean
             cleaned_html = clean_html(lxml_doc)
