@@ -1,6 +1,7 @@
 version: '2.2'
 services:
   spark-submit:
+    network_mode: host
     image: wdps_spark_submit:v1
     volumes:
       - ./src/:/src/
@@ -10,27 +11,6 @@ services:
       - ./spark/submit/log4j.properties:/spark/conf/log4j.properties
       - ./requirements.txt:/requirements.txt
       - spark_submit_venv:/venv
-  es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
-    container_name: es01
-    environment:
-      - node.name=es01
-      - discovery.type=single-node
-    volumes:
-      - data01:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-  trident:
-    build:
-     context: ./trident/
-    environment:
-      - KB_PORT=9090
-      - KB_BIN=/app/trident/build/trident
-      - KB_PATH=/data/kb/trident
-    volumes:
-      - ./trident/data/:/data/kb
-    ports:
-      - 9090:9090
 volumes:
   data01:
     driver: local
