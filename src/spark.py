@@ -113,4 +113,6 @@ ow = OutputWriter(dd_stage_rdd)
 ow.transform()
 ow_stage_rdd = ow.convert_to_tsv()
 ow_stage_rdd.cache()
-ow_stage_rdd.coalesce(1).saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
+if debug:
+    ow_stage_rdd = ow_stage_rdd.coalesce(1)
+ow_stage_rdd.saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
