@@ -58,7 +58,7 @@ class DataDisambiguator:
                         valid_ids.append(freebase_id)
                         break
                 if len(valid_ids) == 0 and len(entity["ranked_candidates"]) > 0:   #add the id with the best score incase Trident is unable to come up with a best match
-                    valid_ids.append(list(entity["ranked_candidates"][0]["freebase_id"]))
+                    valid_ids.append(entity["ranked_candidates"][0]["freebase_id"])
                 valid_candidates.append({"label": entity["label"], "ids": valid_ids })
             
 
