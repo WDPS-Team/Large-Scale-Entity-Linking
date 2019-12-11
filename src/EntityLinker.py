@@ -68,15 +68,29 @@ class EntityLinker:
                 for candidate in row["linked_candidates"]:
                     label_vector = mc.model().word_rep(candidate["label"])
                     ranked_candidates = []
-                    for freebase_id, freebase_label in candidate["ids"].items():
-                        candidate_vector = mc.model().word_rep(freebase_label)
-                        sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
+                    for freebase_id, freebase_labels in candidate["ids"].items():
+                        # freebase_label can contain multiple labels
+                        # use max sim:
+                        max_sim = None
+                        max_label = None
+                        for label in freebase_labels:
+                            if max_sim is None:
+                                max_label = label
+                                candidate_vector = mc.model().word_rep(label)
+                                max_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
+                            else:
+                                candidate_vector = mc.model().word_rep(label)
+                                new_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
+                                if new_sim > max_sim:
+                                    max_sim = new_sim
+                                    max_label = label
+
                         # Only add if a certain threshold is met:
-                        if ranking_threshold < sim:
+                        if ranking_threshold < max_sim:
                             ranked_candidates.append({
-                                "similarity": sim,
+                                "similarity": max_sim,
                                 "freebase_id": freebase_id,
-                                "freebase_label": freebase_label
+                                "freebase_label": max_label
                             })
 
                     # Sort by similiarty
