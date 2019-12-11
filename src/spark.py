@@ -92,16 +92,17 @@ el_stage_2_rdd = el.rank_entity_candidates()
 el_stage_2_rdd.cache()
 
 # TODO: Fetch Trident And Do The Magic Stuff
-for row in el_stage_2_rdd.collect():
-    print("---------------------")
-    print(row["_id"])
-    for e in row["entities_ranked_candidates"]:
-        print(e["label"])
-        print(e["type"])
-        for c in e["ranked_candidates"]:
-            print(c["similarity"])
-            print(c["freebase_label"])
-            print(c["freebase_id"])
+if debug:
+    for row in el_stage_2_rdd.collect():
+        print("---------------------")
+        print(row["_id"])
+        for e in row["entities_ranked_candidates"]:
+            print(e["label"])
+            print(e["type"])
+            for c in e["ranked_candidates"]:
+                print(c["similarity"])
+                print(c["freebase_label"])
+                print(c["freebase_id"])
 
 print("STAGE 6 - Data Disambiguation")
 dd = DataDisambiguator(el_stage_2_rdd, kb_path)
