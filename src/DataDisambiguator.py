@@ -50,19 +50,19 @@ class DataDisambiguator:
             
         def disambiguate_doc(doc, kb_path):
             valid_candidates = []
-            for candidate in doc["linked_candidates"]:
+            for entity in doc["entities_ranked_candidates"]:
                 valid_ids = []
-                for id, _ in candidate["ids"].items():
-                    if(validate(id, candidate["type"], kb_path)):   #validate the id with type using Trident
-                        valid_ids.append(id)
+                for candidate in entity["ranked_candidates"]:
+                    freebase_id = candidate["freebase_id"]
+                    if(validate(freebase_id, entity["type"], kb_path)):   #validate the id with type using Trident
+                        valid_ids.append(freebase_id)
                         break
-                if len(valid_ids) == 0 and len(candidate["ids"].items()) > 0:   #add the id with the best score incase Trident is unable to come up with a best match
-                    valid_ids.append(list(candidate["ids"].keys())[0])
-                
-                valid_candidates.append({"label": candidate["label"], "ids": valid_ids })
+                if len(valid_ids) == 0 and len(entity["ranked_candidates"]) > 0:   #add the id with the best score incase Trident is unable to come up with a best match
+                    valid_ids.append(list(entity["ranked_candidates"][0]["freebase_id"]))
+                valid_candidates.append({"label": entity["label"], "ids": valid_ids })
             
 
-            return {"_id": doc["_id"], "linked_candidates": valid_candidates}
+            return {"_id": doc["_id"], "entities": valid_candidates}
         
 
         kb_path = self.kb_path
