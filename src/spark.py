@@ -52,10 +52,6 @@ recs=[
 ]
 warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
 
-for row in warc_stage_rdd.collect():
-    print(row)
-
-
 print("STAGE 2 - Preprocessing Text")
 text_prepro = TextPreprocessor(warc_stage_rdd)
 text_prepro.clean_warc_responses()
@@ -94,8 +90,20 @@ el_stage_rdd.cache()
 el_stage_2_rdd = el.rank_entity_candidates()
 el_stage_2_rdd.cache()
 
+# TODO: Fetch Trident And Do The Magic Stuff
+for row in el_stage_2_rdd.collect():
+    print("---------------------")
+    print(row["_id"])
+    for e in row["entities_ranked_candidates"]:
+        print(e["label"])
+        print(e["type"])
+        for c in e["ranked_candidates"]:
+            print(c["similarity"])
+            print(c["freebase_label"])
+            print(c["freebase_id"])
+
 print("STAGE 6 - Writing Output")
 ow = OutputWriter(el_stage_2_rdd)
 ow.transform()
 ow_stage_rdd = ow.convert_to_tsv()
-ow_stage_rdd.saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
+ow_stage_rdd.coalesce(1).saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
