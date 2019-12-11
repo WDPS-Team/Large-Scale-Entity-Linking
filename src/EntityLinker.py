@@ -1,24 +1,27 @@
 import requests
 import time
 import json
+from LexVec import ModelCache
 
 
 class EntityLinker:
 
-    def __init__(self, docs_with_entities, es_path):
+    def __init__(self, docs_with_entities, es_path, ranking_threshold, model_root_path):
         self.docs_with_entities = docs_with_entities
         self.es_path = es_path
+        self.ranking_threshold = ranking_threshold
+        self.model_root_path = model_root_path
 
-    def link(self):
-        
+    def get_entity_linking_candidates(self):
+
         def link_freebase(row, es_path):
-            
+
             def search(query, es_path):
 
                 params = ()
                 data = {
-                    "query": { 
-                        "match": { "label": query }
+                    "query": {
+                        "match": {"label": query}
                     },
                     "size": 10
                 }
@@ -28,7 +31,8 @@ class EntityLinker:
                 response = None
                 for _ in range(5):
                     try:
-                        response = requests.post(url, params=params, data=json_qry)
+                        response = requests.post(
+                            url, params=params, data=json_qry)
                         break
                     except:
                         time.sleep(0.5)
@@ -39,45 +43,55 @@ class EntityLinker:
                     for hit in response.get('hits', {}).get('hits', []):
                         freebase_label = hit.get('_source', {}).get('label')
                         freebase_id = hit.get('_source', {}).get('resource')
-                        id_labels.setdefault(freebase_id, set()).add(freebase_label)
+                        id_labels.setdefault(
+                            freebase_id, set()).add(freebase_label)
                 return id_labels
 
             linked_candidates = []
             for candidate in row["entities"]:
                 # candidate is a tupel of {'text': 'XML-RPC', 'type': 'ORG'}
                 ids = search(candidate["text"], es_path)
-                linked_candidates.append({"label": candidate["text"], "type": candidate["type"], "ids": ids })
+                linked_candidates.append(
+                    {"label": candidate["text"], "type": candidate["type"], "ids": ids})
             return {"_id": row["_id"], "linked_candidates": linked_candidates}
 
         lambda_es_path = self.es_path
-        query_lambda = lambda row : link_freebase(row, lambda_es_path)
+        def query_lambda(row): return link_freebase(row, lambda_es_path)
         self.linked_entities = self.docs_with_entities.map(query_lambda)
         return self.linked_entities
 
-    def disambiguate(self):
+    def rank_entity_candidates(self):
+        def rank_candidates(row, mc, ranking_threshold):
+            ranking = []
 
-        # Create CBOW model
-        # download model from https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/view
-        class ModelCache:
-
-            def __init__(self):
-                self.model_root_path = "/var/scratch2/wdps1936/lib"
-                # self.model_root_path = "/data"
-                self.model = None
-
-            def w2v(self):
-                if self.model is None:
-                    self.model = gensim.models.KeyedVectors.load_word2vec_format(self.model_root_path + '/GoogleNews-vectors-negative300.bin', binary=True)  
-                return self.model
-        
-        def apply_word2vec(row, mc):
             try:
-                row["w2v"] = mc.w2v().similarity(row["linked_candidates"][0]["label"], 'spain')
-            except:
-                #word might not be in dict -> what to do?
-                row["w2v"] = "word not in dict"
-            return row
-        
-        #apply_lbmd = lambda row: apply_word2vec(row, model_cache)
-        self.dis_entities = self.linked_entities.map(lambda row: apply_word2vec(row, ModelCache()))
-        return self.dis_entities
+                for candidate in row["linked_candidates"]:
+                    label_vector = mc.model().word_rep(candidate["label"])
+                    ranked_candidates = []
+                    for freebase_id, freebase_label in candidate["ids"].items():
+                        candidate_vector = mc.model().word_rep(freebase_label)
+                        sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
+                        # Only add if a certain threshold is met:
+                        if ranking_threshold >= sim:
+                            ranked_candidates.append({
+                                "similarity": sim,
+                                "freebase_id": freebase_id,
+                                "freebase_label": freebase_label
+                            })
+
+                    # Sort by similiarty
+                    ranked_candidates.sort(key=lambda rank: rank["similarity"], reverse=True)
+                    ranking.append({
+                        "label": candidate["label"],
+                        "type": candidate["type"],
+                        "ranked_candidates": ranked_candidates
+                    })
+            except Exception as e:
+                print(e)
+            return {"_id": row["_id"], "entities_ranked_candidates": ranking}
+        model_path = self.model_root_path
+        ranking_threshold = self.ranking_threshold
+        self.ranked_entities = self.linked_entities.map(
+            lambda row: rank_candidates(row, ModelCache(model_path), ranking_threshold))
+        return self.ranked_entities
+

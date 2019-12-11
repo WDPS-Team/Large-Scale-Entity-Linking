@@ -29,11 +29,11 @@ from numpy.linalg import norm
 MAGIC_NUMBER = 0xbea25956
 MODEL_VERSION = 1
 
-class Model:
+class LexVecModel:
     def __init__(self, path):
         self._f = open(path, 'rb')
         self._parse_header()
-        print('vocab_size = %d, buckets = %d, dim = %d, minn = %d, maxn = %d' % (self._vocab_size, self._buckets, self._dim, self._minn, self._maxn), file=sys.stderr)
+        # print('vocab_size = %d, buckets = %d, dim = %d, minn = %d, maxn = %d' % (self._vocab_size, self._buckets, self._dim, self._minn, self._maxn), file=sys.stderr)
 
     def _read_int(self):
         self._bytes_read += 4
@@ -134,7 +134,16 @@ class Model:
 
         return current_max_idx
 
+class ModelCache:
+    def __init__(self, root_path):
+        self.model_root_path = root_path 
+        self._model = None
 
+    def model(self):
+        if self._model is None:
+            self._model = LexVecModel(self.model_root_path + '/model.bin')
+            return self._model
+        return self._model
 
 if __name__ == '__main__':
     path = sys.argv[1]
