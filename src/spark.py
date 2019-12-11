@@ -5,6 +5,7 @@ from EntityExtractor import EntityExtractor
 from EntityLinker import EntityLinker
 from OutputWriter import OutputWriter
 from NLPPreprocessor import NLPPreprocessor
+from DataDisambiguator import DataDisambiguator
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -102,8 +103,12 @@ for row in el_stage_2_rdd.collect():
             print(c["freebase_label"])
             print(c["freebase_id"])
 
-print("STAGE 6 - Writing Output")
-ow = OutputWriter(el_stage_2_rdd)
+print("STAGE 6 - Data Disambiguation")
+dd = DataDisambiguator(el_stage_2_rdd, kb_path)
+dd_stage_rdd = dd.disambiguate()
+
+print("STAGE 7 - Writing Output")
+ow = OutputWriter(dd_stage_rdd)
 ow.transform()
 ow_stage_rdd = ow.convert_to_tsv()
 ow_stage_rdd.coalesce(1).saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)

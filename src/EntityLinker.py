@@ -23,19 +23,19 @@ class EntityLinker:
                     "query": {
                         "match": {"label": query}
                     },
-                    "size": 10
+                    "size": 30
                 }
                 json_qry = json.dumps(data)
 
                 url = 'http://{0}/freebase/label/_search'.format(es_path)
                 response = None
-                for _ in range(5):
+                for _ in range(10):
                     try:
                         response = requests.post(
                             url, params=params, data=json_qry)
                         break
                     except:
-                        time.sleep(0.5)
+                        time.sleep(0.1)
 
                 id_labels = {}
                 if response:

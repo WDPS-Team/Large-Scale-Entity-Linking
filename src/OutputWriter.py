@@ -16,6 +16,9 @@ class OutputWriter():
                 if len(candidate["ranked_candidates"]) > 0:
                     freebase_entity = candidate["ranked_candidates"][0]
                     result.append({"_id": row["_id"], "id": freebase_entity["freebase_id"], "label": candidate["label"]})
+            # for candidate in row["linked_candidates"]:
+            #     for id in candidate["ids"]:
+            #         result.append({"_id": row["_id"], "id": id, "label": candidate["label"]})
             return result
 
         self.expanded = self.linked_entities.flatMap(expand)

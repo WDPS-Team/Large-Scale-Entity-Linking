@@ -53,7 +53,8 @@ fi
 #Trident server check
 response=$(curl --write-out %{http_code} --silent --output /dev/null $KB_PATH)
 if [ $response -ne 200 ] || [ -z $KB_PATH ] ; then
-    echo "WARN: Trident on node $KB_PATH is not running."
+    echo "ERROR: Trident on node $KB_PATH is not running."
+    exit 1
 fi
 
 #Delete output files prior run
@@ -71,7 +72,6 @@ cat tmp/* > $OUTPUT_FILE
 
 #copying all intermediate files for debugging
 #hdfs dfs -copyToLocal output/* ./tmp/   
-
 
 #Deleting copied input file from HDFS
 hdfs dfs -rm -r $INPUT_FILE > /dev/null
