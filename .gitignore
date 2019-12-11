@@ -7,12 +7,16 @@
 .PRUN_ENVIRONMENT.*
 .es_path
 elasticsearch.*.fs0
+.kb_path
+trident.*.fs0
 output.tsv
 
 Lib
 Scripts
 pyvenv.cfg
 data/output/
+data/lexvec.commoncrawl.ngramsubwords.300d.W.pos.bin.gz
+data/model.bin
 /src/venv
 /src/__pycache__
 venv

@@ -41,7 +41,7 @@ class WARCSplitReader:
 
         def process(row):
             record = row["warc"]
-            result = {"id": None, "data": None, "status": "ok"}
+            result = {"_id": None, "data": None, "status": "ok"}
             try:
                 html = record.content_stream().read()  # reads payload from the record
                 if len(html) == 0:
@@ -49,7 +49,7 @@ class WARCSplitReader:
                     return result
                 rec_id = record.rec_headers.get_header(WARC_ID)
                 data = html
-                result["id"] = rec_id
+                result["_id"] = rec_id
                 result["data"] = data
                 result["type"] = record.rec_type
                 return result
@@ -63,6 +63,6 @@ class WARCSplitReader:
         return self.processed_warcs_records
 
     def filter_invalid_records(self):
-        self.filtered_warc_responses = self.processed_warcs_records.filter(lambda record: record["id"] != None)
+        self.filtered_warc_responses = self.processed_warcs_records.filter(lambda record: record["_id"] != None)
         return self.filtered_warc_responses
 

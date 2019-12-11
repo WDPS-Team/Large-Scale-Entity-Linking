@@ -5,6 +5,7 @@ from EntityExtractor import EntityExtractor
 from EntityLinker import EntityLinker
 from OutputWriter import OutputWriter
 from NLPPreprocessor import NLPPreprocessor
+from DataDisambiguator import DataDisambiguator
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -19,8 +20,6 @@ input_path = "sample.warc.gz"
 debug = False
 ranking_threshold = 0.5
 model_root_path = "/var/scratch2/wdps1936/lib"
-# model_root_path = "/data"
-
 if args.es:
     es_path = args.es
 if args.kb:
@@ -30,6 +29,7 @@ if args.f:
 
 if args.debug == "True":
     debug = True
+    model_root_path = "/data"
 
 print("Elastic Search Server:",es_path)
 print("Trident Server:",kb_path)
@@ -46,6 +46,13 @@ wsr.parse_warc_records()
 wsr.process_warc_records()
 warc_stage_rdd = wsr.filter_invalid_records()
 
+# Filter to intersting records:
+if debug:
+    recs=[
+        "clueweb12-0000tw-00-00084"
+    ]
+    warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
+
 print("STAGE 2 - Preprocessing Text")
 text_prepro = TextPreprocessor(warc_stage_rdd)
 text_prepro.clean_warc_responses()
@@ -58,7 +65,6 @@ nlpp = NLPPreprocessor(txtprepro_stage_rdd)
 nlpp.tokenization()
 nlpp.lemmatize()
 nlpp.stop_words()
-nlpp.word_fixes()
 nlpprepro_stage_rdd = nlpp.words_to_str()
 nlpprepro_stage_rdd.cache()
 
@@ -85,8 +91,28 @@ el_stage_rdd.cache()
 el_stage_2_rdd = el.rank_entity_candidates()
 el_stage_2_rdd.cache()
 
-print("STAGE 6 - Writing Output")
-ow = OutputWriter(el_stage_2_rdd)
+# TODO: Fetch Trident And Do The Magic Stuff
+if debug:
+    for row in el_stage_2_rdd.collect():
+        print("---------------------")
+        print(row["_id"])
+        for e in row["entities_ranked_candidates"]:
+            print(e["label"])
+            print(e["type"])
+            for c in e["ranked_candidates"]:
+                print(c["similarity"])
+                print(c["freebase_label"])
+                print(c["freebase_id"])
+
+print("STAGE 6 - Data Disambiguation")
+dd = DataDisambiguator(el_stage_2_rdd, kb_path)
+dd_stage_rdd = dd.disambiguate()
+
+print("STAGE 7 - Writing Output")
+ow = OutputWriter(dd_stage_rdd)
 ow.transform()
 ow_stage_rdd = ow.convert_to_tsv()
+ow_stage_rdd.cache()
+if debug:
+    ow_stage_rdd = ow_stage_rdd.coalesce(1)
 ow_stage_rdd.saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)

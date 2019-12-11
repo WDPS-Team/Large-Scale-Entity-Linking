@@ -20,7 +20,7 @@ class TextPreprocessor:
 
             # TODO: Error handling?
             raw_data = row["data"]
-            cleaned_result = {"_id": row["id"], "title": "", "text": "", "html": "", "raw": raw_data}
+            cleaned_result = {"_id": row["_id"], "title": "", "text": "", "html": "", "raw": raw_data}
 
             # Only if document is empty
             if row["data"].strip() == "":
@@ -33,7 +33,7 @@ class TextPreprocessor:
             except etree.ParseError as e:
                 lxml_doc = etree.fromstring(raw_data)
             except Exception as e:
-                print("Error Converting to LXML", row["id"], "Error: ", type(e))
+                print("Error Converting to LXML", row["_id"], "Error: ", type(e))
                 return cleaned_result
             # Clean
             cleaned_html = clean_html(lxml_doc)
@@ -51,7 +51,7 @@ class TextPreprocessor:
     def extract_text_from_document(self):
         # Not sure: main_meta -> flickr img title -> sometimes might be useful
         text_remove_css_classes = ["navbar", re.compile('^.*widget.*'), "main_meta", "feeds", "copyright"]
-        text_remove_ids = ["menu", re.compile('^.*footer.*'), re.compile('^nav.*'), re.compile('^.*widget.*'), "topnav", re.compile('^.*sidebar.*'), "search", "search-bar", re.compile('^header.*'), re.compile('^cat-bar.*')]
+        text_remove_ids = ["menu", "copyright", re.compile('^.*footer.*'), re.compile('^nav.*'), re.compile('^.*widget.*'), "topnav", re.compile('^.*sidebar.*'), "search", "search-bar", re.compile('^header.*'), re.compile('^cat-bar.*')]
         text_remove_tags = ["script", "head", "code", "form"]
 
         def extract(row):

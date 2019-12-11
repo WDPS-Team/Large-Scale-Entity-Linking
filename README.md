@@ -102,5 +102,6 @@ python3 sparql.py localhost:9090 "SELECT ?subject ?predicate ?object WHERE {?sub
 - Access Spark UI from home:
     `ssh -L8080:fs0.das4.cs.vu.nl:8088 -oProxyJump=<VUNET_ID>@ssh.data.vu.nl <DAS4_ID>@fs0.das4.cs.vu.nl`
     Now Spark UI should be accessible via `localhost:8080`
-
+- Query Trident on local:
+    `python3 sparql.py 'localhost:9090' "select * where {<http://rdf.freebase.com/ns/m.0d0xs> ?p ?o} limit 1000"`
 
