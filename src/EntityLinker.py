@@ -72,7 +72,7 @@ class EntityLinker:
                         candidate_vector = mc.model().word_rep(freebase_label)
                         sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
                         # Only add if a certain threshold is met:
-                        if ranking_threshold >= sim:
+                        if ranking_threshold < sim:
                             ranked_candidates.append({
                                 "similarity": sim,
                                 "freebase_id": freebase_id,
