@@ -10,11 +10,13 @@ class DataDisambiguator:
     def disambiguate(self):
 
         def getTridentClass(type):
-            class_type = "organization.organization"
+            class_type = "common.topic"
             if(type == "PERSON"):
                 class_type = "people.person"
             elif(type == "GPE" or type ==  "LOC"):
                 class_type = "location.location"
+            elif(type == "ORG"):
+                class_type = "organization.organization"
             return class_type
 
         def checkRelation(sparql_query, kb_path):
@@ -51,10 +53,10 @@ class DataDisambiguator:
             for candidate in doc["linked_candidates"]:
                 valid_ids = []
                 for id, _ in candidate["ids"].items():
-                    if(validate(id, candidate["type"], kb_path)):
+                    if(validate(id, candidate["type"], kb_path)):   #validate the id with type using Trident
                         valid_ids.append(id)
                         break
-                if len(valid_ids) == 0 and len(candidate["ids"].items()) > 0:
+                if len(valid_ids) == 0 and len(candidate["ids"].items()) > 0:   #add the id with the best score incase Trident is unable to come up with a best match
                     valid_ids.append(list(candidate["ids"].keys())[0])
                 
                 valid_candidates.append({"label": candidate["label"], "ids": valid_ids })
