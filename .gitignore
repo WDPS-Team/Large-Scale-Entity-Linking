@@ -13,6 +13,8 @@ Lib
 Scripts
 pyvenv.cfg
 data/output/
+data/lexvec.commoncrawl.ngramsubwords.300d.W.pos.bin.gz
+data/model.bin
 /src/venv
 /src/__pycache__
 venv
