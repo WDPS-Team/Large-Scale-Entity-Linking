@@ -37,7 +37,7 @@ class NLPPreprocessor:
             # NLTK Stopwords
             row["sentences_wo_sw"] = [ [word for word in s if word not in stop_words] for s in row["lemmatized_sentences"] ]
             # Other Stopwords
-            row["sentences_wo_sw"] = [ [word for word in s if word not in get_stop_words('english')] for s in row["sentences_wo_sw"] ]
+            row["npl_text"] = [ [word for word in s if word not in get_stop_words('english')] for s in row["sentences_wo_sw"] ]
             return row
         self.text_rdd = self.text_rdd.map(execute_stop_words)
         return self.text_rdd
