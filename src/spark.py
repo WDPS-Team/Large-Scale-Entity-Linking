@@ -17,7 +17,7 @@ es_path = "localhost:9200"
 kb_path = "localhost:9090"
 input_path = "sample.warc.gz"
 debug = False
-ranking_threshold = 0.1
+ranking_threshold = 0.5
 model_root_path = "/var/scratch2/wdps1936/lib"
 # model_root_path = "/data"
 
