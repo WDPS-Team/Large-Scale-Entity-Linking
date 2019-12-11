@@ -44,7 +44,7 @@ else
 fi
 
 #Elastic search server check
-response=$(curl --write-out %{http_code} --silent --output /dev/null $"$ES_PATH/freebase/label")
+response=$(curl --write-out %{http_code} --silent --output /dev/null $"$ES_PATH/freebase")
 if [ $response -ne 200 ] || [ -z $ES_PATH ] ; then
     echo "ERROR: Elastic Search on node $ES_PATH is not running."
     exit 1
