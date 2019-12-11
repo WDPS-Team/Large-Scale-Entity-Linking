@@ -47,11 +47,11 @@ wsr.process_warc_records()
 warc_stage_rdd = wsr.filter_invalid_records()
 
 # Filter to intersting records:
-
-recs=[
-    "clueweb12-0000tw-00-00018"
-]
-warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
+if debug:
+    recs=[
+        "clueweb12-0000tw-00-00084"
+    ]
+    warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
 
 print("STAGE 2 - Preprocessing Text")
 text_prepro = TextPreprocessor(warc_stage_rdd)
