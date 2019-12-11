@@ -57,8 +57,8 @@ class NLPPreprocessor:
 
     def words_to_str(self):
         def convert_words_to_str(row):
-            row["npl_text"] = [ " ".join(s) for s in row["npl_text"] ]
-            return row
+            nlp_text = [ " ".join(s) for s in row["npl_text"] ]
+            return {"_id": row["_id"], "npl_text": nlp_text }
         self.text_rdd = self.text_rdd.map(convert_words_to_str)
         return self.text_rdd
 
