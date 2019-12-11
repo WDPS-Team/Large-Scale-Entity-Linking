@@ -18,5 +18,11 @@ if [ ! -d "/home/wdps1936/trident" ]; then
     cp -r /home/jurbani/trident /home/wdps1936/trident
 fi
 
+if [ ! -f "/var/scratch2/wdps1936/lib/model.bin" ]; then
+    echo "Downloading lexvec OOV model"
+    wget https://www.dropbox.com/s/buix0deqlks4312/lexvec.commoncrawl.ngramsubwords.300d.W.pos.bin.gz?dl=1 -O /var/scratch2/wdps1936/lib/model.bin.gz
+    gzip -d /var/scratch2/wdps1936/lib/model.bin.gz
+fi
+
 # Build venv in cluster node
 prun -v -np 1 sh setup_venv.sh
