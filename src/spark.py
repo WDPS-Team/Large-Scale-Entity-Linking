@@ -19,8 +19,6 @@ input_path = "sample.warc.gz"
 debug = False
 ranking_threshold = 0.5
 model_root_path = "/var/scratch2/wdps1936/lib"
-# model_root_path = "/data"
-
 if args.es:
     es_path = args.es
 if args.kb:
@@ -30,6 +28,7 @@ if args.f:
 
 if args.debug == "True":
     debug = True
+    model_root_path = "/data"
 
 print("Elastic Search Server:",es_path)
 print("Trident Server:",kb_path)
@@ -45,6 +44,17 @@ wsr = WARCSplitReader(sc, input_file.collect())
 wsr.parse_warc_records()
 wsr.process_warc_records()
 warc_stage_rdd = wsr.filter_invalid_records()
+
+# Filter to intersting records:
+
+recs=[
+    "clueweb12-0000tw-00-00018"
+]
+warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
+
+for row in warc_stage_rdd.collect():
+    print(row)
+
 
 print("STAGE 2 - Preprocessing Text")
 text_prepro = TextPreprocessor(warc_stage_rdd)
