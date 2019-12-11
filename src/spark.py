@@ -58,7 +58,6 @@ nlpp = NLPPreprocessor(txtprepro_stage_rdd)
 nlpp.tokenization()
 nlpp.lemmatize()
 nlpp.stop_words()
-nlpp.word_fixes()
 nlpprepro_stage_rdd = nlpp.words_to_str()
 nlpprepro_stage_rdd.cache()
 

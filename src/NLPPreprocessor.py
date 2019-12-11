@@ -31,7 +31,7 @@ class NLPPreprocessor:
 
     
     def stop_words(self):
-        nltk.data.path.append("venv/nltk_data");
+        nltk.data.path.append("venv/nltk_data")
         stop_words = stopwords.words('english')
         def execute_stop_words(row):
             # NLTK Stopwords
@@ -41,19 +41,6 @@ class NLPPreprocessor:
             return row
         self.text_rdd = self.text_rdd.map(execute_stop_words)
         return self.text_rdd
-
-    def word_fixes(self):
-        def apply_word_fixes(row):
-
-            def fix_word(word):
-                if word.lower() == "u.s.":
-                    return "US"
-                return word
-            row["npl_text"] = [ [fix_word(word) for word in sentence] for sentence in row["sentences_wo_sw"]] 
-            return row
-        self.text_rdd = self.text_rdd.map(apply_word_fixes)
-        return self.text_rdd
-
 
     def words_to_str(self):
         def convert_words_to_str(row):
