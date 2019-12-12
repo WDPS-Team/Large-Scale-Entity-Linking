@@ -1,13 +1,99 @@
 import requests
 import json
 import time
+from LexVec import ModelCache
 
 class DataDisambiguator:
-    def __init__(self, linked_rdd, kb_path):
-        self.linked_rdd = linked_rdd
-        self.kb_path    = kb_path
-    
-    def disambiguate(self):
+    def __init__(self, linked_rdd, kb_path, ranking_threshold, model_root_path):
+        self.linked_rdd        = linked_rdd
+        self.kb_path           = kb_path
+        self.ranking_threshold = ranking_threshold
+        self.model_root_path   = model_root_path
+
+
+    def disambiguate_label(self):
+
+        def getLabelList(sparql_query, kb_path):
+            url = 'http://{0}/sparql'.format(kb_path)
+            response = None
+            for _ in range(10):
+                try:
+                    response = requests.post(url, data={'print': True, 'query': sparql_query})
+                    break
+                except:
+                    time.sleep(0.1)
+
+            try:
+                response = response.json()
+                labelList = []
+                for objects in response["results"]["bindings"]:
+                    labelList.append(objects["object"]["value"].strip('\"').replace("_", " "))
+                return labelList
+            except:
+                return labelList
+                
+        def getTridentLabels(freebase_id, kb_path):
+            sparql_id = freebase_id.replace("/",".")     #modify freebase ID for Trident format
+            if(sparql_id[0]=="."):
+                sparql_id = sparql_id[1:]
+            
+            q_subject   = "<http://rdf.freebase.com/ns/" + sparql_id + ">"
+            q_predicate = "<http://rdf.freebase.com/key/wikipedia.en>"      # TODO: use <http://rdf.freebase.com/key/en> instead??
+
+            sparql_query = "SELECT * { ?subject ?predicate ?object } LIMIT 30".replace("?subject", q_subject).replace("?predicate", q_predicate)
+
+            return getLabelList(sparql_query, kb_path)
+
+
+        def rank_candidates(row, mc, ranking_threshold, kb_path):
+            ranking = []
+            try:
+                for candidate in row["linked_candidates"]:
+                    label_vector = mc.model().word_rep(candidate["label"])
+                    ranked_candidates = []
+                    for freebase_id, _ in candidate["ids"].items():
+                        max_sim = None
+                        max_label = None
+                        for label in getTridentLabels(freebase_id, kb_path):
+                            if max_sim is None:
+                                max_label = label
+                                candidate_vector = mc.model().word_rep(label)
+                                max_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
+                            else:
+                                candidate_vector = mc.model().word_rep(label)
+                                new_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
+                                if new_sim > max_sim:
+                                    max_sim = new_sim
+                                    max_label = label
+
+                        # Only add if a certain threshold is met:
+                        if ranking_threshold < max_sim:
+                            ranked_candidates.append({
+                                "similarity": max_sim,
+                                "freebase_id": freebase_id,
+                                "trident_label": max_label
+                            })
+
+                    # Sort by similiarty
+                    ranked_candidates.sort(key=lambda rank: rank["similarity"], reverse=True)
+                    ranking.append({
+                        "label": candidate["label"],
+                        "type": candidate["type"],
+                        "ranked_candidates": ranked_candidates
+                    })
+            except Exception as e:
+                print(e)
+            return {"_id": row["_id"], "entities_ranked_candidates": ranking}
+
+        kb_path           = self.kb_path
+        model_path        = self.model_root_path
+        ranking_threshold = self.ranking_threshold
+        
+        self.ranked_entities = self.linked_rdd.map(
+            lambda row: rank_candidates(row, ModelCache(model_path), ranking_threshold, kb_path))
+        return self.ranked_entities
+
+    def disambiguate_type(self):
 
         def getTridentClass(type):
             class_type = "common.topic"
@@ -67,6 +153,6 @@ class DataDisambiguator:
 
         kb_path = self.kb_path
         lambda_map = lambda doc : disambiguate_doc(doc, kb_path)
-        valid_entities = self.linked_rdd.map(lambda_map)
+        valid_entities = self.ranked_entities.map(lambda_map)
 
         return valid_entities
