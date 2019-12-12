@@ -16,21 +16,18 @@ class DataDisambiguator:
         def getLabelList(sparql_query, kb_path):
             url = 'http://{0}/sparql'.format(kb_path)
             response = None
-            for _ in range(10):
+            for _ in range(30):
                 try:
                     response = requests.post(url, data={'print': True, 'query': sparql_query})
                     break
                 except:
                     time.sleep(0.1)
-
-            try:
-                response = response.json()
-                labelList = []
-                for objects in response["results"]["bindings"]:
-                    labelList.append(objects["object"]["value"].strip('\"').replace("_", " "))
-                return labelList
-            except:
-                return labelList
+            
+            labelList = []
+            response = response.json()
+            for objects in response["results"]["bindings"]:
+                labelList.append(objects["object"]["value"].strip('\"').replace("_", " "))
+            return labelList
                 
         def getTridentLabels(freebase_id, kb_path):
             sparql_id = freebase_id.replace("/",".")     #modify freebase ID for Trident format
@@ -38,7 +35,7 @@ class DataDisambiguator:
                 sparql_id = sparql_id[1:]
             
             q_subject   = "<http://rdf.freebase.com/ns/" + sparql_id + ">"
-            q_predicate = "<http://rdf.freebase.com/key/wikipedia.en>"      # TODO: use <http://rdf.freebase.com/key/en> instead??
+            q_predicate = "<http://rdf.freebase.com/key/wikipedia.en>"      # TODO: add <http://rdf.freebase.com/key/en> also??
 
             sparql_query = "SELECT * { ?subject ?predicate ?object } LIMIT 30".replace("?subject", q_subject).replace("?predicate", q_predicate)
 
@@ -48,23 +45,19 @@ class DataDisambiguator:
         def rank_candidates(row, mc, ranking_threshold, kb_path):
             ranking = []
             try:
-                for candidate in row["linked_candidates"]:
-                    label_vector = mc.model().word_rep(candidate["label"])
+                for entity in row["entities_ranked_candidates"]:
+                    label_vector = mc.model().word_rep(entity["label"].lower())
                     ranked_candidates = []
-                    for freebase_id, _ in candidate["ids"].items():
-                        max_sim = None
+                    for candidate in entity["ranked_candidates"]:
+                        freebase_id = candidate["freebase_id"]
+                        max_sim = 0
                         max_label = None
                         for label in getTridentLabels(freebase_id, kb_path):
-                            if max_sim is None:
+                            candidate_vector = mc.model().word_rep(label.lower())
+                            new_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
+                            if new_sim > max_sim or max_label is None:
+                                max_sim = new_sim
                                 max_label = label
-                                candidate_vector = mc.model().word_rep(label)
-                                max_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
-                            else:
-                                candidate_vector = mc.model().word_rep(label)
-                                new_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
-                                if new_sim > max_sim:
-                                    max_sim = new_sim
-                                    max_label = label
 
                         # Only add if a certain threshold is met:
                         if ranking_threshold < max_sim:
@@ -77,8 +70,8 @@ class DataDisambiguator:
                     # Sort by similiarty
                     ranked_candidates.sort(key=lambda rank: rank["similarity"], reverse=True)
                     ranking.append({
-                        "label": candidate["label"],
-                        "type": candidate["type"],
+                        "label": entity["label"],
+                        "type": entity["type"],
                         "ranked_candidates": ranked_candidates
                     })
             except Exception as e:
@@ -108,7 +101,7 @@ class DataDisambiguator:
         def checkRelation(sparql_query, kb_path):
             url = 'http://{0}/sparql'.format(kb_path)
             response = None
-            for _ in range(10):
+            for _ in range(30):
                 try:
                     response = requests.post(url, data={'print': True, 'query': sparql_query})
                     break
