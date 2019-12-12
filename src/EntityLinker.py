@@ -66,24 +66,19 @@ class EntityLinker:
 
             try:
                 for candidate in row["linked_candidates"]:
-                    label_vector = mc.model().word_rep(candidate["label"])
+                    label_vector = mc.model().word_rep(candidate["label"].lower())
                     ranked_candidates = []
                     for freebase_id, freebase_labels in candidate["ids"].items():
                         # freebase_label can contain multiple labels
                         # use max sim:
-                        max_sim = None
+                        max_sim = 0
                         max_label = None
                         for label in freebase_labels:
-                            if max_sim is None:
+                            candidate_vector = mc.model().word_rep(label.lower())
+                            new_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
+                            if new_sim > max_sim or max_label is None:
+                                max_sim = new_sim
                                 max_label = label
-                                candidate_vector = mc.model().word_rep(label)
-                                max_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
-                            else:
-                                candidate_vector = mc.model().word_rep(label)
-                                new_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
-                                if new_sim > max_sim:
-                                    max_sim = new_sim
-                                    max_label = label
 
                         # Only add if a certain threshold is met:
                         if ranking_threshold < max_sim:
