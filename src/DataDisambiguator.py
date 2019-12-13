@@ -80,7 +80,7 @@ class DataDisambiguator:
         def getLabelList(sparql_query, kb_path):
             url = 'http://{0}/sparql'.format(kb_path)
             response = None
-            for _ in range(30):
+            for _ in range(50):
                 try:
                     response = requests.post(url, data={'print': True, 'query': sparql_query})
                     break
@@ -88,9 +88,12 @@ class DataDisambiguator:
                     time.sleep(0.1)
             
             labelList = []
-            response = response.json()
-            for objects in response["results"]["bindings"]:
-                labelList.append(objects["object"]["value"].strip('\"').replace("_", " "))
+            try:
+                response = response.json()
+                for objects in response["results"]["bindings"]:
+                    labelList.append(objects["object"]["value"].strip('\"').replace("_", " "))
+            except Exception as e:
+                print(e)
             return labelList
                 
         def getTridentLabels(freebase_id, kb_path):
@@ -145,5 +148,3 @@ class DataDisambiguator:
         self.linked_rdd = self.linked_rdd.map(
             lambda row: rank_candidates(row, ModelCache(model_path), ranking_threshold, kb_path))
         return self.linked_rdd
-
-    
