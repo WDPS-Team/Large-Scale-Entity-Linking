@@ -1,5 +1,13 @@
 # Large Scale Entity Linking
 
+## Description
+
+### Architecture
+
+![image](https://github.com/WDPS-Team/2019-WDPS/blob/architecture/docs/architecture/architectue2.0.png)
+
+##TODO: to be continued 
+
 ## DAS4 Execution
 
 ### DAS4 Setup
