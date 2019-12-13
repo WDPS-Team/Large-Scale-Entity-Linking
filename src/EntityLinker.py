@@ -23,7 +23,7 @@ class EntityLinker:
                     "query": {
                         "match": {"label": query}
                     },
-                    "size": 30
+                    "size": 70
                 }
                 json_qry = json.dumps(data)
 
