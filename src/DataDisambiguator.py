@@ -71,9 +71,9 @@ class DataDisambiguator:
 
         kb_path = self.kb_path
         lambda_map = lambda doc : disambiguate_doc(doc, kb_path)
-        self.type_rdd = self.linked_rdd.map(lambda_map)
+        self.linked_rdd = self.linked_rdd.map(lambda_map)
 
-        return self.type_rdd
+        return self.linked_rdd
 
     def disambiguate_label(self):
 
@@ -142,8 +142,8 @@ class DataDisambiguator:
         model_path        = self.model_root_path
         ranking_threshold = self.ranking_threshold
         
-        self.label_rdd = self.type_rdd.map(
+        self.linked_rdd = self.linked_rdd.map(
             lambda row: rank_candidates(row, ModelCache(model_path), ranking_threshold, kb_path))
-        return self.label_rdd
+        return self.linked_rdd
 
     
