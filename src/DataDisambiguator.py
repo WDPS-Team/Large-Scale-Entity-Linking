@@ -34,12 +34,12 @@ class DataDisambiguator:
             if(sparql_id[0]=="."):
                 sparql_id = sparql_id[1:]
             
-            q_subject   = "<http://rdf.freebase.com/ns/" + sparql_id + ">"
-            q_predicate = "<http://rdf.freebase.com/key/wikipedia.en>"      # TODO: add <http://rdf.freebase.com/key/en> also??
+            q_subject     = "<http://rdf.freebase.com/ns/" + sparql_id + ">"
+            default_query = "SELECT * { ?subject ?predicate ?object } LIMIT 30"
+            sparql_query  = default_query.replace("?subject", q_subject).replace("?predicate", "<http://rdf.freebase.com/key/wikipedia.en>")
+            sparql_query2 = default_query.replace("?subject", q_subject).replace("?predicate", "<http://rdf.freebase.com/key/en>")  #TODO: Combine the separate queries to one query
 
-            sparql_query = "SELECT * { ?subject ?predicate ?object } LIMIT 30".replace("?subject", q_subject).replace("?predicate", q_predicate)
-
-            return getLabelList(sparql_query, kb_path)
+            return getLabelList(sparql_query, kb_path) + getLabelList(sparql_query2, kb_path)
 
 
         def rank_candidates(row, mc, ranking_threshold, kb_path):
