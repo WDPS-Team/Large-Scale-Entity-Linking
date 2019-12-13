@@ -82,9 +82,9 @@ class DataDisambiguator:
         model_path        = self.model_root_path
         ranking_threshold = self.ranking_threshold
         
-        self.ranked_entities = self.linked_rdd.map(
+        self.linked_rdd = self.linked_rdd.map(
             lambda row: rank_candidates(row, ModelCache(model_path), ranking_threshold, kb_path))
-        return self.ranked_entities
+        return self.linked_rdd
 
     def disambiguate_type(self):
 
@@ -134,18 +134,17 @@ class DataDisambiguator:
                 for candidate in entity["ranked_candidates"]:
                     freebase_id = candidate["freebase_id"]
                     if(validate(freebase_id, entity["type"], kb_path)):   #validate the id with type using Trident
-                        valid_ids.append(freebase_id)
-                        break
+                        valid_ids.append({ "freebase_id" : freebase_id })
                 if len(valid_ids) == 0 and len(entity["ranked_candidates"]) > 0:   #add the id with the best score incase Trident is unable to come up with a best match
-                    valid_ids.append(entity["ranked_candidates"][0]["freebase_id"])
-                valid_candidates.append({"label": entity["label"], "ids": valid_ids })
+                    valid_ids = entity["ranked_candidates"]
+                valid_candidates.append({"label": entity["label"], "ranked_candidates": valid_ids })
             
 
-            return {"_id": doc["_id"], "entities": valid_candidates}
+            return {"_id": doc["_id"], "entities_ranked_candidates": valid_candidates}
         
 
         kb_path = self.kb_path
         lambda_map = lambda doc : disambiguate_doc(doc, kb_path)
-        valid_entities = self.ranked_entities.map(lambda_map)
+        self.linked_rdd = self.linked_rdd.map(lambda_map)
 
-        return valid_entities
+        return self.linked_rdd
