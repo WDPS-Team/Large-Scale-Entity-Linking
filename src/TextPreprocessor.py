@@ -3,7 +3,7 @@ from lxml import etree
 import lxml.html as lh
 from lxml.html.clean import Cleaner
 import re
-from dragnet import extract_content, extract_content_and_comments
+import dragnet
 
 
 class TextPreprocessor:
@@ -50,13 +50,27 @@ class TextPreprocessor:
         return self.fit_cleaned_warc_responses
 
     def extract_text_from_document(self):
-        def extract(row):
+
+        class DragnetCache:
+            def __init__(self):
+                # warm model import extract_content, extract_content_and_comments
+                self.warm = False
+                pass
+
+            def extract(self, html):
+                if self.warm is False:
+                    string = dragnet.extract_content("test")
+                    print("warmed")
+                    self.warm = True
+                return dragnet.extract_content(html)
+
+        def extract(row, extractor):
             html = row["html"]
             soup = bs4.BeautifulSoup(html, features="lxml")
             soup.prettify()
 
             # get article and comments
-            content_comments =  extract_content(soup.prettify())
+            content_comments =  extractor.extract(soup.prettify())
 
             # Get Title
             qry_title = soup.find_all("title")
@@ -69,6 +83,6 @@ class TextPreprocessor:
             row["sentences"] = row["text"].split("\n")
             return row
 
-        extract_rdd = self.cleaned_warc_responses.map(extract)
+        extract_rdd = self.cleaned_warc_responses.map(lambda row: extract(row, DragnetCache()))
         self.extracted_text_doc_records = extract_rdd
         return self.extracted_text_doc_records
