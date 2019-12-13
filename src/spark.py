@@ -106,20 +106,8 @@ el_stage_2_rdd.cache()
 
 print("STAGE 6 - Data Disambiguation")
 dd = DataDisambiguator(el_stage_2_rdd, kb_path, ranking_threshold, model_root_path)
-dd_stage_rdd = dd.disambiguate_label()
-
-# for row in dd_stage_rdd.collect():
-#     print("---------------------")
-#     print(row["_id"])
-#     for e in row["entities_ranked_candidates"]:
-#         print(e["label"])
-#         print(e["type"])
-#         for c in e["ranked_candidates"]:
-#             print(c["freebase_id"])
-#             print(c["similarity"])
-#             print(c["trident_label"])
-
-dd_stage_2_rdd = dd.disambiguate_type()
+dd_stage_rdd = dd.disambiguate_type()
+dd_stage_2_rdd = dd.disambiguate_label()
 
 print("STAGE 7 - Writing Output")
 ow = OutputWriter(dd_stage_2_rdd)
