@@ -3,6 +3,7 @@ from lxml import etree
 import lxml.html as lh
 from lxml.html.clean import Cleaner
 import re
+from dragnet import extract_content, extract_content_and_comments
 
 
 class TextPreprocessor:
@@ -49,52 +50,20 @@ class TextPreprocessor:
         return self.fit_cleaned_warc_responses
 
     def extract_text_from_document(self):
-        # Not sure: main_meta -> flickr img title -> sometimes might be useful
-        text_remove_css_classes = ["navbar", "submenu", "info", "comment-author", "vcard" ,"post-details", re.compile('^.*button.*'), re.compile('^.*widget.*'), "main_meta", "feeds", "copyright"]
-        text_remove_ids = ["menu", "respond", "copyright", re.compile('^.*footer.*'), re.compile('^nav.*'), re.compile('^.*widget.*'), "topnav", re.compile('^.*sidebar.*'), "search", "search-bar", re.compile('^header.*'), re.compile('^cat-bar.*')]
-        text_remove_tags = ["script", "head", "code", "form", "option", "label"]
-
         def extract(row):
             html = row["html"]
-            soup = bs4.BeautifulSoup(html, "html.parser")
+            soup = bs4.BeautifulSoup(html, features="lxml")
             soup.prettify()
+
+            # get article and comments
+            content_comments =  extract_content(soup.prettify())
+
             # Get Title
             qry_title = soup.find_all("title")
             if len(qry_title) != 0:
                 row["title"] = str(qry_title[0].string)
 
-            # Remove CSS classes:
-            for css_class in text_remove_css_classes:
-                removable_tags = soup.find_all(attrs={"class": css_class})
-                for tag_with_css_class in removable_tags:
-                    tag_with_css_class.decompose()
-            # Remove IDs:
-            for id in text_remove_ids:
-                removable_tags = soup.find_all(id=id)
-                for tag in removable_tags:
-                    tag.decompose()
-            # Remove Non-relevant tags i.e. <script>
-            for htmltag in text_remove_tags:
-                removable_tags = soup.find_all(htmltag)
-                for tag in removable_tags:
-                    tag.decompose()
-
-            # Only Select Body if available:
-            if (soup.body is not None):
-                soup = soup.body
-
-            VALID_TAGS = ['p']
-            # Select only relevant tags:
-            for tag in soup.findAll('p'):
-                if tag.name not in VALID_TAGS:
-                    tag.replaceWith("")
-
-            row["text"] = soup.get_text()
-
-            # Replace multiple newlines
-            row["text"] = re.sub(r"([\n])+", "\\n", row["text"])
-            # Replace tabs to spaces
-            row["text"] = re.sub(r"([\t])+", " ", row["text"])
+            row["text"] = content_comments
 
             # Split text into different sentences
             row["sentences"] = row["text"].split("\n")
