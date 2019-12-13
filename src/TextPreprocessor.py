@@ -76,7 +76,6 @@ class TextPreprocessor:
             # Remove Non-relevant tags i.e. <script>
             for htmltag in text_remove_tags:
                 removable_tags = soup.find_all(htmltag)
-                print(removable_tags)
                 for tag in removable_tags:
                     tag.decompose()
 
