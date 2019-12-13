@@ -16,9 +16,9 @@ class OutputWriter():
             #     if len(candidate["ranked_candidates"]) > 0:
             #         freebase_entity = candidate["ranked_candidates"][0]
             #         result.append({"_id": row["_id"], "id": freebase_entity["freebase_id"], "label": candidate["label"]})
-            for candidate in row["entities"]:
-                for id in candidate["ids"]:
-                    result.append({"_id": row["_id"], "id": id, "label": candidate["label"]})
+            for candidate in row["entities_ranked_candidates"]:
+                if len(candidate["ranked_candidates"]) > 0:
+                    result.append({"_id": row["_id"], "id": candidate["ranked_candidates"][0]["freebase_id"], "label": candidate["label"]})   #only include the best ranked freebase ID
             return result
 
         self.expanded = self.linked_entities.flatMap(expand)
