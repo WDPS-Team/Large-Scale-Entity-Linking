@@ -64,7 +64,7 @@ mkdir tmp
 hdfs dfs -rm -r output
 
 # submit spark job
-prun -v -1 -np 1 -t 3600 sh run_das.sh $ES_PATH $INPUT_FILE $KB_PATH
+prun -v -1 -np 1 -t 21600 sh run_das.sh $ES_PATH $INPUT_FILE $KB_PATH
 
 # Copying Output File from HDFS
 hdfs dfs -get output/predictions.tsv/* tmp/
