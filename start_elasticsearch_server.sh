@@ -12,7 +12,7 @@ ES_PORT=9200
 export ES_PATH=""
 ES_BIN=$SCR_PATH/elasticsearch-2.4.1/bin/elasticsearch
 
-prun -v -np 1 -t 3600 ESPORT=$ES_PORT $ES_BIN </dev/null 2> .es_node > /dev/null &
+prun -v -np 1 -t 21600 ESPORT=$ES_PORT $ES_BIN </dev/null 2> .es_node > /dev/null &
 echo "waiting for elasticsearch to set up..."
 until [ -n "$ES_NODE" ]; do ES_NODE=$(cat .es_node | grep '^:' | grep -oP '(node...)'); done
 ES_PID=$!
