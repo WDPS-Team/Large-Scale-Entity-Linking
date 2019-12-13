@@ -53,7 +53,8 @@ if debug:
     ]
     warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
 
-warc_stage_rdd.saveAsTextFile("output/warc.tsv")
+if debug:
+    warc_stage_rdd.saveAsTextFile("output/warc.tsv")
 
 print("STAGE 2 - Preprocessing Text")
 text_prepro = TextPreprocessor(warc_stage_rdd)
@@ -62,8 +63,9 @@ text_prepro.extract_text_from_document()
 txtprepro_stage_rdd = text_prepro.filter_unfit_records()
 txtprepro_stage_rdd.cache()
 
-for row in txtprepro_stage_rdd.collect():
-    print(row["text"])
+if debug:
+    for row in txtprepro_stage_rdd.collect():
+        print(row["text"])
 
 print("STAGE 3 - NLP Preprocessing")
 
@@ -81,8 +83,9 @@ else:
     nlp_subset = nlpprepro_stage_rdd.take(83)
 nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
 
-for row in nlpprepro_stage_rdd.collect():
-    print(row)
+if debug:
+    for row in nlpprepro_stage_rdd.collect():
+        print(row)
 
 print("STAGE 4 - Entity Extraction")
 ee = EntityExtractor(nlpprepro_stage_rdd)
@@ -91,8 +94,9 @@ ee_stage_rdd.cache()
 ee_stage_rdd = ee.join_sentences()
 ee_stage_rdd.cache()
 
-for row in ee_stage_rdd.collect():
-    print(row)
+if debug:
+    for row in ee_stage_rdd.collect():
+        print(row)
 
 print("STAGE 5 - Entity Linking")
 # STAGE 4 - Entity Linking
