@@ -50,9 +50,9 @@ class TextPreprocessor:
 
     def extract_text_from_document(self):
         # Not sure: main_meta -> flickr img title -> sometimes might be useful
-        text_remove_css_classes = ["navbar", "post-details", re.compile('^.*button.*'), re.compile('^.*widget.*'), "main_meta", "feeds", "copyright"]
+        text_remove_css_classes = ["navbar", "submenu", "info", "comment-author", "vcard" ,"post-details", re.compile('^.*button.*'), re.compile('^.*widget.*'), "main_meta", "feeds", "copyright"]
         text_remove_ids = ["menu", "respond", "copyright", re.compile('^.*footer.*'), re.compile('^nav.*'), re.compile('^.*widget.*'), "topnav", re.compile('^.*sidebar.*'), "search", "search-bar", re.compile('^header.*'), re.compile('^cat-bar.*')]
-        text_remove_tags = ["script", "head", "code", "form"]
+        text_remove_tags = ["script", "head", "code", "form", "option", "label"]
 
         def extract(row):
             html = row["html"]
@@ -83,11 +83,11 @@ class TextPreprocessor:
             if (soup.body is not None):
                 soup = soup.body
 
-            VALID_TAGS = ['div', 'p']
+            VALID_TAGS = ['p']
             # Select only relevant tags:
             for tag in soup.findAll('p'):
                 if tag.name not in VALID_TAGS:
-                    tag.replaceWith(tag.renderContents())
+                    tag.replaceWith("")
 
             row["text"] = soup.get_text()
 
