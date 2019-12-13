@@ -126,7 +126,7 @@ class DataDisambiguator:
                             max_label = label
 
                     # Only add if a certain threshold is met:
-                    if ranking_threshold < max_sim:
+                    if ranking_threshold <= max_sim:
                         ranked_candidates.append({
                             "similarity": max_sim,
                             "freebase_id": freebase_id,
