@@ -1,9 +1,12 @@
 warcio==1.7.1
+Cython==0.21.1
+ftfy==4.1.
+numpy==1.12.2
+scikit-learn==0.15.2
+scipy==0.17.0
 lxml==4.4.2
-cython==0.21.1
 spacy==2.2.2
 beautifulsoup4==4.8.1
 nltk==3.4.5
 stop-words==2018.7.23
 dragnet==2.0.4
-
