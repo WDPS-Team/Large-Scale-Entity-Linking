@@ -1,9 +1,9 @@
-
 warcio==1.7.1
 lxml==4.4.2
-numpy==1.17.4
+cython==0.21.1
 spacy==2.2.2
 beautifulsoup4==4.8.1
 nltk==3.4.5
 stop-words==2018.7.23
 dragnet==2.0.4
+
