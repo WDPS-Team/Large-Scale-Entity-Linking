@@ -62,7 +62,11 @@ class TextPreprocessor:
                     string = dragnet.extract_content("test")
                     print("warmed")
                     self.warm = True
-                return dragnet.extract_content(html)
+                try:
+                    a = dragnet.extract_content(html)
+                except:
+                    return "" 
+                return a
 
         def extract(row, extractor):
             html = row["html"]
