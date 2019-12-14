@@ -1,9 +1,9 @@
 warcio==1.7.1
 Cython==0.21.1
 ftfy==4.1.
-numpy==1.12.2
-scikit-learn==0.15.2
-scipy==0.17.0
+numpy==1.17.4
+# scikit-learn==0.15.2
+# scipy==0.17.0
 lxml==4.4.2
 spacy==2.2.2
 beautifulsoup4==4.8.1
