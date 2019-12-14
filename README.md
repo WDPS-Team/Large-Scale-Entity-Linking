@@ -6,6 +6,18 @@
 
 ![image](https://github.com/WDPS-Team/2019-WDPS/blob/architecture/docs/architecture/architectue2.0.png)
 
+- This project is to perform Entity Linking on a collection of web pages using entities from Freebase. 
+- The **Input** is a set of pages in WARC format, stored information that crawled from web. The final goal is to link the 'entity mention' in WARCfile to 'entities' in Freebase, and **Output** format is : [Document ID, Entity Mention, Freebase ID] 
+- This project consists of following steps: 
+    1. Reading and splitting the WARCfile into lines and proccessing in parallel. Filtering the invalid data. 
+    2. Cleaning the result from the last step, removing useless and non-essential data (css, ids, tags). Using 'beautifulsoup' to extract text data in HTML. And finally reformat the result as split the text into sentences. 
+    3. Processing the sentences with different NLP techniques. In this step we use 'nltk' to do the NLP preprocessing. First tokenize these sentences, then lemmatize the tokens, after that remove all stop words in it. Finally combine the words as strings. 
+    4.
+    5.
+    6.
+    7.
+    
+
 ##TODO: to be continued 
 
 ## DAS4 Execution
