@@ -9,9 +9,10 @@ mkdir -p $VENV_PATH
 cd $VENV_PATH
 rm -rf venv VENV venv.zip   #delete actual files
 pip3 install --user virtualenv
-python3 ~/.local/lib/python3.6/site-packages/virtualenv.py -p python3 venv
+python3 -m virtualenv venv
 source venv/bin/activate
-pip3 install -r $PWD_PATH/requirements.txt
+pip --version
+pip install -r $PWD_PATH/requirements.txt
 python3 -m spacy download en_core_web_md
 python3 -m nltk.downloader stopwords -d venv/nltk_data
 python3 -m nltk.downloader punkt -d venv/nltk_data
@@ -26,3 +27,4 @@ cd $PWD_PATH
 ln -s $VENV_PATH/venv.zip venv.zip
 ln -s $VENV_PATH/venv venv
 ln -s $VENV_PATH/VENV VENV
+
