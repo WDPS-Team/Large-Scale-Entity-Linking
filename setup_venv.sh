@@ -1,6 +1,7 @@
 PWD_PATH=$(pwd)
 VENV_DIR=`basename $PWD_PATH`
 VENV_PATH="/var/scratch2/wdps1936/$VENV_DIR"
+TMPDIR="/var/scratch2/wdps1936/tmp/"
 
 echo "Building virtual environment"
 rm -rf venv VENV venv.zip   #delete soft links
