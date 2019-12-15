@@ -60,28 +60,39 @@ class TextPreprocessor:
             def extract(self, html):
                 if self.warm is False:
                     string = dragnet.extract_content("test")
-                    print("warmed")
+                    print("Warmed DrageNet Model")
                     self.warm = True
-                try:
-                    a = dragnet.extract_content(html)
-                except:
-                    return "" 
-                return a
+                return dragnet.extract_content(html)
 
         def extract(row, extractor):
             html = row["html"]
             soup = bs4.BeautifulSoup(html, features="lxml")
             soup.prettify()
 
-            # get article and comments
-            content_comments =  extractor.extract(soup.prettify())
-
             # Get Title
             qry_title = soup.find_all("title")
             if len(qry_title) != 0:
                 row["title"] = str(qry_title[0].string)
+            
+            # Get Main Text From Webpage
+            text = ""
+            try:
+                # get article
+                text =  extractor.extract(soup.prettify())
+            except:
+                # Fallback to Beaufitful Soup Extraction:
+                # Only Select Body if available:
+                if (soup.body is not None):
+                    soup = soup.body
 
-            row["text"] = content_comments
+                VALID_TAGS = ['div', 'p']
+                # Select only relevant tags:
+                for tag in soup.findAll('p'):
+                    if tag.name not in VALID_TAGS:
+                        tag.replaceWith(tag.renderContents())
+                text = soup.get_text()
+
+            row["text"] = text
 
             # Split text into different sentences
             row["sentences"] = row["text"].split("\n")
