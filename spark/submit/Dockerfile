@@ -13,7 +13,7 @@ RUN apt install -y libxml2
 RUN ldconfig
 RUn pip3 install Cython==0.29.14
 RUN pip3 install scikit-learn==0.18.2
-RUn pip3 install dragnet==2.0.4
+RUN pip3 install dragnet==2.0.4
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 RUN python3 -m nltk.downloader stopwords
