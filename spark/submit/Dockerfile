@@ -2,7 +2,7 @@ FROM wdps_spark_base:v1
 
 RUN apt update
 RUN apt install -y zip
-RUn apt install -y libeccodes-dev
+RUN apt install -y libeccodes-dev
 RUN apt install -y libxml2-dev
 RUN apt install -y python3-pip
 RUN pip3 install virtualenv
@@ -11,7 +11,7 @@ RUN pip3 install lxml
 RUN pip3 install numpy==1.17.4
 RUN apt install -y libxml2
 RUN ldconfig
-RUn pip3 install Cython==0.29.14
+RUN pip3 install Cython==0.29.14
 RUN pip3 install scikit-learn==0.18.2
 RUN pip3 install dragnet==2.0.4
 COPY requirements.txt requirements.txt
