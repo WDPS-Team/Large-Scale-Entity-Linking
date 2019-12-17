@@ -6,12 +6,12 @@ import re
 import dragnet
 
 
-class TextPreprocessor:
+class TextExtraction:
     def __init__(self, warc_records_rdd):
         self.warc_records = warc_records_rdd
 
     def clean_warc_responses(self):
-        # Alot taken from https://lxml.de/lxmlhtml.html#really-broken-pages
+
         def process(row):
 
             def clean_html(html):
@@ -19,11 +19,10 @@ class TextPreprocessor:
                 clean_html = cleaner.clean_html(html)
                 return clean_html
 
-            # TODO: Error handling?
             raw_data = row["data"]
             cleaned_result = {"_id": row["_id"], "title": "", "text": "", "html": "", "raw": raw_data}
 
-            # Only if document is empty
+            # Only clean document when data available
             if row["data"].strip() == "":
                 return cleaned_result
 
