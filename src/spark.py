@@ -1,13 +1,14 @@
 from pyspark import SparkContext, SparkFiles, SparkConf
 from WARCSplitReader import WARCSplitReader
-from TextPreprocessor import TextPreprocessor
-from EntityExtractor import EntityExtractor
-from EntityLinker import EntityLinker
+from TextExtraction import TextExtraction
+from EntityRecognition import EntityRecognition
+from ELCandidateGeneration import ELCandidateGeneration
 from OutputWriter import OutputWriter
-from NLPPreprocessor import NLPPreprocessor
-from DataDisambiguator import DataDisambiguator
+from ELCandidateRanking import ELCandidateRanking
+from ELMappingSelection import ELMappingSelection
 import argparse
 
+# Set Default Paramter for Entity Linking Pipeline
 parser = argparse.ArgumentParser()
 parser.add_argument("--es", help="Elastic Search instance.")
 parser.add_argument("--kb", help="Trident instance.")
@@ -31,6 +32,7 @@ if args.debug == "True":
     debug = True
     model_root_path = "/data"
 
+# Initialization Messages
 print("Elastic Search Server:",es_path)
 print("Trident Server:",kb_path)
 print("Input file:", input_path)
@@ -38,9 +40,9 @@ print("Input file:", input_path)
 conf = SparkConf().set("spark.ui.showConsoleProgress", "true")
 sc = SparkContext(conf=conf)
 
+print("STAGE 1 - Reading Input WARC")
 input_file = sc.textFile(input_path)
 
-print("STAGE 1 - Reading Input WARC")
 wsr = WARCSplitReader(sc, input_file.collect())
 wsr.parse_warc_records()
 wsr.process_warc_records()
@@ -53,11 +55,8 @@ if debug:
     ]
     warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
 
-if debug:
-    warc_stage_rdd.saveAsTextFile("output/warc.tsv")
-
-print("STAGE 2 - Preprocessing Text")
-text_prepro = TextPreprocessor(warc_stage_rdd)
+print("STAGE 2 - Extracting Text")
+text_prepro = TextExtraction(warc_stage_rdd)
 text_prepro.clean_warc_responses()
 text_prepro.extract_text_from_document()
 txtprepro_stage_rdd = text_prepro.filter_unfit_records()
@@ -65,30 +64,14 @@ txtprepro_stage_rdd.cache()
 
 if debug:
     for row in txtprepro_stage_rdd.collect():
-        print(row["text"])
+        print(row["sentences"])
 
-print("STAGE 3 - NLP Preprocessing")
+# TODO: Currently Limiting: REMOVE LATER!
+nlp_subset = txtprepro_stage_rdd.take(83)
+txtprepro_stage_rdd = sc.parallelize(nlp_subset)
 
-nlpp = NLPPreprocessor(txtprepro_stage_rdd)
-nlpp.tokenization()
-nlpp.lemmatize()
-nlpp.stop_words()
-nlpprepro_stage_rdd = nlpp.words_to_str()
-nlpprepro_stage_rdd.cache()
-
-# LIMIT the records for dev:
-if debug:
-    nlp_subset = nlpprepro_stage_rdd.take(5)
-else:
-    nlp_subset = nlpprepro_stage_rdd.take(83)
-nlpprepro_stage_rdd = sc.parallelize(nlp_subset)
-
-if debug:
-    for row in nlpprepro_stage_rdd.collect():
-        print(row)
-
-print("STAGE 4 - Entity Extraction")
-ee = EntityExtractor(nlpprepro_stage_rdd)
+print("STAGE 3 - Entity Recognition incl. NLP-Preprocessing")
+ee = EntityRecognition(txtprepro_stage_rdd)
 ee_stage_rdd = ee.extract()
 ee_stage_rdd.cache()
 ee_stage_rdd = ee.join_sentences()
@@ -98,38 +81,23 @@ if debug:
     for row in ee_stage_rdd.collect():
         print(row)
 
-print("STAGE 5 - Entity Linking")
-# STAGE 4 - Entity Linking
-el = EntityLinker(ee_stage_rdd, es_path, ranking_threshold, model_root_path)
-el_stage_rdd = el.get_entity_linking_candidates()
-el_stage_rdd.cache()
+print("STAGE 4 - Entity Linking - Candidate Generation")
+el_cg = ELCandidateGeneration(ee_stage_rdd, es_path, ranking_threshold, model_root_path)
+candidates_rdd = el_cg.get_candidates_from_elasticsearch()
+candidates_rdd.cache()
 
-el_stage_2_rdd = el.rank_entity_candidates()
-el_stage_2_rdd.cache()
+print("STAGE 5 - Entity Linking - Candidate Ranking")
+el_cr = ELCandidateRanking(candidates_rdd, kb_path, ranking_threshold, model_root_path)
+el_cr.rank_entity_candidates()
+el_cr.disambiguate_type()
+ranked_candidates_rdd = el_cr.disambiguate_label()
 
-# TODO: Fetch Trident And Do The Magic Stuff
-# if debug:
-#     for row in el_stage_2_rdd.collect():
-#         print("---------------------")
-#         print(row["_id"])
-#         for e in row["entities_ranked_candidates"]:
-#             print(e["label"])
-#             print(e["type"])
-#             for c in e["ranked_candidates"]:
-#                 print(c["similarity"])
-#                 print(c["freebase_label"])
-#                 print(c["freebase_id"])
-
-print("STAGE 6 - Data Disambiguation")
-dd = DataDisambiguator(el_stage_2_rdd, kb_path, ranking_threshold, model_root_path)
-dd_stage_rdd = dd.disambiguate_type()
-dd_stage_2_rdd = dd.disambiguate_label()
+print("STAGE 6 - Entity Linking - Mapping Selection")
+el_ms = ELMappingSelection(ranked_candidates_rdd)
+selected_entities_rdd = el_ms.select()
 
 print("STAGE 7 - Writing Output")
-ow = OutputWriter(dd_stage_2_rdd)
-ow.transform()
+ow = OutputWriter(selected_entities_rdd)
 ow_stage_rdd = ow.convert_to_tsv()
 ow_stage_rdd.cache()
-if debug:
-    ow_stage_rdd = ow_stage_rdd.coalesce(1)
-ow_stage_rdd.saveAsTextFile("output/predictions.tsv") #TODO: Investigate why freebase returns empty IDs (sometimes)
+ow_stage_rdd.saveAsTextFile("output/predictions.tsv")

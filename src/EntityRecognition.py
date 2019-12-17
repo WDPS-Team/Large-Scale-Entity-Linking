@@ -3,7 +3,7 @@ import os
 import spacy
 
 
-class EntityExtractor:
+class EntityRecognition:
 
     def __init__(self, warc_docs):
         self.warc_docs = warc_docs
@@ -21,7 +21,7 @@ class EntityExtractor:
                         entity = dict(type=element.label_, text=text)
                         entity_list.append(entity)
                 return entity_list
-            entities = [spacy_extract(sentence) for sentence in row["npl_text"]]
+            entities = [spacy_extract(sentence) for sentence in row["sentences"]]
             return {"_id": row["_id"], "sentences_entities": entities}
 
         self.docs_with_sentences_entities = self.warc_docs.map(process)
