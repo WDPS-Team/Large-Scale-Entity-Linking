@@ -14,7 +14,7 @@
     3. EntityRecognition - Processing the sentences `spacy`. Select the entities from text with certain types. We only interedted in this three types: `PERSON`,`ORGANIZATION` and `LOCATION`.  
     4. ELCandidateGeneration - we use `elasticsearch` to search candidate entities in freebase and link the mention to all possible candidate entities. 
     5. ELCandidateRanking - Rank candidate entities by the latent meaning using `LexVec` to calculate the cosine similarity between an mention and candidate entity. Using threshold on similiarity to reduce candidates. If more labels are present, pick the label similarity with the highest value and combine `Trident` for disambiguation and finally rank the result according to similarity. 
-    6.ELMappingSelection & OutputWriter - Select the valid candidate entities and output the result as .tsv format with columns [Document ID, Entity Mention, Freebase ID].
+    6. ELMappingSelection & OutputWriter - Select the valid candidate entities and output the result as .tsv format with columns [Document ID, Entity Mention, Freebase ID].
 
 ## DAS4 Execution
 
