@@ -25,4 +25,4 @@ if [ ! -f "/var/scratch2/wdps1936/lib/model.bin" ]; then
 fi
 
 # Build venv in cluster node
-prun -v -np 1 -t 3600 sh setup_venv.sh
+prun -v -np 1 -t 3600 sh venv_setup.sh
