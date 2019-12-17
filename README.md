@@ -10,14 +10,11 @@
 - The **Input** is a set of pages in WARC format, stored information that crawled from web. The final goal is to link the 'entity mention' in WARCfile to 'entities' in Freebase, and **Output** format is : [Document ID, Entity Mention, Freebase ID] 
 - This project consists of following steps: 
     1. WARCSplitReader - Reading and splitting the WARCfile into lines and proccessing in parallel. Filtering the invalid data. 
-    2. TextPreprocessor - Cleaning the result from the last step, removing useless and non-essential data (css, ids, tags). Using `beautifulsoup` to extract text data in HTML. And finally reformat the result as split the text into sentences. 
-    3. NLPPreprocessor - Processing the sentences with different NLP techniques. In this step we use `nltk` to do the NLP preprocessing. First tokenize these sentences, then lemmatize the tokens, after that remove all stop words in it. Finally combine the words as strings. 
-    4. EntityExtractor - We use `spacy` to do the NER part and only extract entities that are in type of `PERSON`,`ORGANIZATION` and `LOCATION`. 
-    5. EntityLinker - we use `elasticsearch` to link the mention to all possible candidate entities in Freebase. Then use `LexVec` to calculate cosine similarity between an mention and an candidate entity and sort the result by similarity. 
-    6. DataDisambiguator - 
-    7.
-    
-##TODO: to be continued 
+    2. TextExtraction - Cleaning the result from the last step, and then using `beautifulsoup` to extract title, main text  from webpages. And finally reformat the result as split the text into sentences. 
+    3. EntityRecognition - Processing the sentences `spacy`. Select the entities from text with certain types. We only interedted in this three types: `PERSON`,`ORGANIZATION` and `LOCATION`.  
+    4. ELCandidateGeneration - we use `elasticsearch` to search candidate entities in freebase and link the mention to all possible candidate entities. 
+    5. ELCandidateRanking - Rank candidate entities by the latent meaning using `LexVec` to calculate the cosine similarity between an mention and candidate entity. Using threshold on similiarity to reduce candidates. If more labels are present, pick the label similarity with the highest value and combine `Trident` for disambiguation and finally rank the result according to similarity. 
+    6.ELMappingSelection & OutputWriter - Select the valid candidate entities and output the result as .tsv format with columns [Document ID, Entity Mention, Freebase ID].
 
 ## DAS4 Execution
 
@@ -123,4 +120,11 @@ python3 sparql.py localhost:9090 "SELECT ?subject ?predicate ?object WHERE {?sub
     Now Spark UI should be accessible via `localhost:8080`
 - Query Trident on local:
     `python3 sparql.py 'localhost:9090' "select * where {<http://rdf.freebase.com/ns/m.0d0xs> ?p ?o} limit 1000"`
+    
+- Connect to DAS4 from Uni and home:
+    From home:
+    `ssh -o preferredauthentications=password <VUNET-ID>@ssh.data.vu.nl`
+    `ssh <GROUP-NAME>@fs0.das4.cs.vu.nl`
+    From Uni:
+    `ssh <GROUP-NAME>@fs0.das4.cs.vu.nl`
 
