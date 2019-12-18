@@ -63,23 +63,28 @@ class ELCandidateRanking:
 
     def disambiguate_type(self):
 
-        def getTridentClass(type):
-            class_type = "common.topic"
-            if(type == "PERSON"):
-                class_type = "people.person"
-            elif(type == "GPE" or type == "LOC"):
-                class_type = "location.location"
-            elif(type == "ORG"):
-                class_type = "organization.organization"
-            return class_type
+        def getTridentClassList(e_type):    #TODO: Add more classes to this
+            switcher = {
+                "PERSON"        : ["people.person", "celebrities.celebrity", "common.topic", "book.author", "base.litcentral.named_person", "people.family_member", "government.politician", "business.board_member", "organization.board_member", "organization.leader", "award.award_winner", "business.company_founder", "organization.organization_founder", "education.school_founder"],
+                "NORP"          : ["location.location", "location.country", "people.ethnicity", "people.ethnicity.geographic_distribution", "people.ethnicity.languages_spoken", "common.topic"],    # Nationalities or religious or political groups
+                "FAC"           : ["architecture.building", "travel.transport_terminus", "aviation.airport", "transportation.road", "transportation.bridge"],    # Buildings, airports, highways, bridges, etc.'
+                "ORG"           : ["organization.organization", "business.business_operation", "organization.non_profit_organization", "venture_capital.venture_funded_company"],
+                "GPE"           : ["location.location", "location.country", "location.citytown", "location.statistical_region"], # Countries, cities, states
+                "LOC"           : ["location.location", "geography.mountain_range", "common.topic", "geography.body_of_water"],    # Non-GPE locations, mountain ranges, bodies of water
+                "PRODUCT"       : ["business.consumer_product", "business.brand", "base.tagit.man_made_thing", "base.popstra.product"],
+                "EVENT"         : ["common.topic"],
+                "WORK_OF_ART"   : ["common.topic"],
+                "LAW"           : ["common.topic"], # Named documents made into laws.
+                "LANGUAGE"      : ["common.topic", "language.human_language"]
+            }
+            return switcher.get(e_type, ["common.topic"])
 
         def checkRelation(sparql_query, kb_path):
             url = 'http://{0}/sparql'.format(kb_path)
             response = None
             for _ in range(30):
                 try:
-                    response = requests.post(
-                        url, data={'print': True, 'query': sparql_query})
+                    response = requests.post(url, data={'print': True, 'query': sparql_query})
                     break
                 except:
                     time.sleep(0.1)
@@ -87,44 +92,50 @@ class ELCandidateRanking:
             try:
                 response = response.json()
                 res = response["results"]["bindings"][0]["predicate"]
-                return True
+                return 1
             except:
-                return False
+                return 0
+            
 
-        def validate(id, type, kb_path):
-            # modify freebase ID for Trident format
-            sparql_id = id.replace("/", ".")
-            if(sparql_id[0] == "."):
+        def validateType(f_id, t_class, kb_path):
+            sparql_id = f_id.replace("/",".")     #modify freebase ID for Trident format
+            if(sparql_id[0]=="."):
                 sparql_id = sparql_id[1:]
-
+            
             q_subject = "<http://rdf.freebase.com/ns/" + sparql_id + ">"
-            q_object = "<http://rdf.freebase.com/ns/" + \
-                getTridentClass(type) + ">"
+            q_object  = "<http://rdf.freebase.com/ns/" + t_class + ">"
 
-            sparql_query = "SELECT * { ?subject ?predicate ?object } LIMIT 1".replace(
-                "?subject", q_subject).replace("?object", q_object)
+            sparql_query = "SELECT * { ?subject ?predicate ?object } LIMIT 1".replace("?subject", q_subject).replace("?object", q_object)
             return checkRelation(sparql_query, kb_path)
+            
+        def calculate_type_score(f_id, e_type, kb_path):
+            trident_class_list = getTridentClassList(e_type)
+            score = 0
+            for t_class in trident_class_list:
+                score = score + validateType(f_id, t_class, kb_path)
+
+            return score
 
         def disambiguate_doc(doc, kb_path):
             valid_candidates = []
             for entity in doc["entities_ranked_candidates"]:
-                type_validated_ids = []
-                non_type_validated_ids = []
+                type_scored_ids = []
                 for candidate in entity["ranked_candidates"]:
                     freebase_id = candidate["freebase_id"]
-                    # validate the id with type using Trident
-                    if(validate(freebase_id, entity["type"], kb_path)):
-                        type_validated_ids.append({"freebase_id": freebase_id})
-                    else:
-                        non_type_validated_ids.append(
-                            {"freebase_id": freebase_id})
-                valid_candidates.append(
-                    {"label": entity["label"], "ranked_candidates": type_validated_ids + non_type_validated_ids})
-
+                    type_score = calculate_type_score(freebase_id, entity["type"], kb_path)   #calculate type score using Trident
+                    if type_score > 0:
+                        type_scored_ids.append({ 
+                            "freebase_id" : freebase_id,
+                            "score"       : type_score
+                        })
+                type_scored_ids.sort(key=lambda rank: rank["score"], reverse=True)
+                valid_candidates.append({"label": entity["label"], "type": entity["type"], "ranked_candidates": type_scored_ids })
+            
             return {"_id": doc["_id"], "entities_ranked_candidates": valid_candidates}
+        
 
         kb_path = self.kb_path
-        def lambda_map(doc): return disambiguate_doc(doc, kb_path)
+        lambda_map = lambda doc : disambiguate_doc(doc, kb_path)
         self.ranked_entities = self.ranked_entities.map(lambda_map)
 
         return self.ranked_entities
@@ -136,36 +147,32 @@ class ELCandidateRanking:
             response = None
             for _ in range(50):
                 try:
-                    response = requests.post(
-                        url, data={'print': True, 'query': sparql_query})
+                    response = requests.post(url, data={'print': True, 'query': sparql_query})
                     break
                 except:
                     time.sleep(0.1)
-
+            
             labelList = []
             try:
                 response = response.json()
                 for objects in response["results"]["bindings"]:
-                    labelList.append(objects["object"]["value"].strip(
-                        '\"').replace("_", " "))
+                    labelList.append(objects["object"]["value"].strip('\"').replace("_", " "))
             except Exception as e:
                 print(e)
             return labelList
-
+                
         def getTridentLabels(freebase_id, kb_path):
-            # modify freebase ID for Trident format
-            sparql_id = freebase_id.replace("/", ".")
-            if(sparql_id[0] == "."):
+            sparql_id = freebase_id.replace("/",".")     #modify freebase ID for Trident format
+            if(sparql_id[0]=="."):
                 sparql_id = sparql_id[1:]
-
-            q_subject = "<http://rdf.freebase.com/ns/" + sparql_id + ">"
+            
+            q_subject     = "<http://rdf.freebase.com/ns/" + sparql_id + ">"
             default_query = "SELECT * { ?subject ?predicate ?object } LIMIT 30"
-            sparql_query = default_query.replace("?subject", q_subject).replace(
-                "?predicate", "<http://rdf.freebase.com/key/wikipedia.en>")
-            sparql_query2 = default_query.replace("?subject", q_subject).replace(
-                "?predicate", "<http://rdf.freebase.com/key/en>")  # TODO: Combine the separate queries to one query
+            sparql_query  = default_query.replace("?subject", q_subject).replace("?predicate", "<http://rdf.freebase.com/key/wikipedia.en>")
+            sparql_query2 = default_query.replace("?subject", q_subject).replace("?predicate", "<http://rdf.freebase.com/key/en>")  #TODO: Combine the separate queries to one query
 
             return getLabelList(sparql_query, kb_path) + getLabelList(sparql_query2, kb_path)
+
 
         def rank_candidates(row, mc, ranking_threshold, kb_path):
             ranking = []
@@ -192,18 +199,18 @@ class ELCandidateRanking:
                         })
 
                 # Sort by similiarty
-                ranked_candidates.sort(
-                    key=lambda rank: rank["similarity"], reverse=True)
+                ranked_candidates.sort(key=lambda rank: rank["similarity"], reverse=True)
                 ranking.append({
                     "label": entity["label"],
+                    "type" : entity["type"],
                     "ranked_candidates": ranked_candidates
                 })
             return {"_id": row["_id"], "entities_ranked_candidates": ranking}
 
-        kb_path = self.kb_path
-        model_path = self.model_root_path
+        kb_path           = self.kb_path
+        model_path        = self.model_root_path
         ranking_threshold = self.ranking_threshold
-
+        
         self.ranked_entities = self.ranked_entities.map(
             lambda row: rank_candidates(row, ModelCache(model_path), ranking_threshold, kb_path))
         return self.ranked_entities
