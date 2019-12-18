@@ -37,7 +37,9 @@ done
 if [ -f $INPUT_PATH ]; then
     echo "Copying input file: $INPUT_PATH"
     INPUT_FILE=`basename $INPUT_PATH`
-    hdfs dfs -copyFromLocal $INPUT_PATH $INPUT_FILE
+    FULL_INPUT_PATH="$(basename $PWD)/$INPUT_FILE"
+    hdfs dfs -copyFromLocal -p $INPUT_PATH $FULL_INPUT_PATH
+    echo "Copied Input To HDFS $FULL_INPUT_PATH"
 else
     echo "ERROR: $INPUT_PATH does not exist."
     exit 1
@@ -61,13 +63,14 @@ fi
 rm $OUTPUT_FILE
 rm -rf tmp
 mkdir tmp
-hdfs dfs -rm -r output
+HDFS_TMP_OUTPUT="$(basename $PWD)/output"
+hdfs dfs -rm -r $HDFS_TMP_OUTPUT
 
 # submit spark job
-prun -v -1 -np 1 -t 21600 sh spark_submit.sh $ES_PATH $INPUT_FILE $KB_PATH
+prun -v -1 -np 1 -t 21600 sh spark_submit.sh $ES_PATH $FULL_INPUT_PATH $KB_PATH $HDFS_TMP_OUTPUT
 
 # Copying Output File from HDFS
-hdfs dfs -get output/predictions.tsv/* tmp/
+hdfs dfs -get "$HDFS_TMP_OUTPUT/predictions.tsv/*" tmp/
 cat tmp/* > $OUTPUT_FILE
 
 #copying all intermediate files for debugging
