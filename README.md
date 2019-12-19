@@ -10,12 +10,13 @@ This repository showcases the Large Scale Entity Linking assignment from the Web
 [2. Our Solution](#2-our-solution)  
 [2.1. Architecture Overview](#21-architecture-overview)  
 [2.2. WARC Reading](#22-warc-reading)  
-[2.3. Text Extraction](#23-text-extraction)  
-[2.4. Entity Linking](#24-entity-linking)  
-[2.4.1 Candidate Generation](#241-candidate-generation)  
-[2.4.2 Candidate Ranking](#242-candidate-ranking)  
-[2.4.3 Mapping Selection](#243-mapping-selection)  
-[2.5. Output Write](#25-output-write)  
+[2.3. Text Extraction](#23-text-extraction)
+[2.4. Entity Recognition](#24-entity-recognition)    
+[2.5. Entity Linking](#25-entity-linking)  
+[2.5.1 Candidate Generation](#251-candidate-generation)  
+[2.5.2 Candidate Ranking](#252-candidate-ranking)  
+[2.5.3 Mapping Selection](#253-mapping-selection)  
+[2.6. Output Write](#26-output-write)  
 [3. DAS4 Execution](#3-das4-execution)  
 [4. Discussion](#4-discussion)  
 [5. References](#5-references)  
@@ -61,17 +62,21 @@ After serveral iterations, testing, and reading relevant resources (compare [[4]
 
 However, in situations where DragNet fails to obtain any text we still use BeautifulSoup and points 1. & 2. as a fallback.
 
-### 2.4. Entity Linking
+### 2.4. Entity Recognition
+
+Based on initial research on neuralnetwork-based Entity Recognition (NeuroNER), we decided to use the NLP-framework Spacy [[6](#c6)] to do entity recognition. We evaluated other NER frameworks, but found that Spacy already provides a sophistiacted NLP-Preprocessing (including Tokenization, Stemming etc.) and also provides good accuracy compared to StandfordNER and other Entity Recognition frameworks.
+
+### 2.5. Entity Linking
 
 This section is split into three subsections, as the Entity Linking task is also splitted into three stages. First, the Candidate Generation, then the Candidate Ranking and finally the Mapping Selection is being discussed.
 
-#### 2.4.1 Candidate Generation
+#### 2.5.1 Candidate Generation
 
-#### 2.4.2 Candidate Ranking
+#### 2.5.2 Candidate Ranking
 
-#### 2.4.3 Mapping Selection
+#### 2.5.3 Mapping Selection
 
-### 2.5. Output Write
+### 2.6. Output Write
 
 ## 3. DAS4 Execution
 
@@ -120,6 +125,10 @@ Eg: `sh run.sh -f input.warc.gz -o out.tsv -es node007:9200`
 
 <p id="c5">
 [5] Batchkarov, M., 2017, A Benchmark Comparison Of Content Extraction From HTML Pages, viewed 19 Dec 2019, <https://medium.com/@mbatchkarov/a-benchmark-comparison-of-extraction-from-html-pages-98d7c1229f51/>
+</p>
+
+<p id="c6">
+[6] n.a., n.d., spaCy · Industrial-strength Natural Language Processing in Python, viewed 19 Dec 2019, <https://spacy.io/>
 </p>
 
 
