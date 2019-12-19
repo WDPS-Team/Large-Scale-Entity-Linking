@@ -1,7 +1,7 @@
 source venv/bin/activate
 
 # Run Spark Job
-PYSPARK_PYTHON=./VENV/venv/bin/python3 PYTHONPATH=./VENV/venv/build-python ../spark/spark-2.4.0-bin-hadoop2.7/bin/spark-submit \
+PYSPARK_PYTHON=./VENV/venv/bin/python3 PYTHONPATH=./VENV/venv/build-python /var/scratch2/wdps1936/spark/spark-2.4.0-bin-hadoop2.7/bin/spark-submit \
 --master yarn \
 --conf spark.pyspark.virtualenv.enabled=true \
 --conf spark.pyspark.virtualenv.type=native \
@@ -15,6 +15,6 @@ PYSPARK_PYTHON=./VENV/venv/bin/python3 PYTHONPATH=./VENV/venv/build-python ../sp
 --num-executors 14 --executor-cores 6 --executor-memory 24GB \
 --archives venv.zip#VENV \
 --py-files src/LexVec.py,src/ELCandidateRanking.py \
-src/spark.py --es "$1" --f "$2" --kb "$3" --hdfsout "$4"
+src/spark.py --es "$1" --f "$2" --hdfsout "$3"
 
 deactivate
