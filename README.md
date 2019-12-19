@@ -1,5 +1,7 @@
 # Large Scale Entity Linking
 
+> [Jump to Setup And Running (DAS4)](#3-das4-execution)
+
 This repository showcases the Large Scale Entity Linking assignment from the Web Data Processing Course 2019 at VU Amsterdam. The solution presented here recognizes, extracts and links relevant entities from Web pages and links them to the Freebase Knowledge Base. All technologies and frameworks used, such as DragNet, LexVec, Trident and Spark, are freely available and should run (with minor changes) on any YARN-capable cluster. In the following sections we describe the motivation behind Entity Linking and how we solved the challenge of linking entities at large scale.
 
 ## Table Of Contents
@@ -19,6 +21,8 @@ This repository showcases the Large Scale Entity Linking assignment from the Web
 [5. Appendix](#5-appendix)  
 
 ## 1. Motivation
+
+
 
 ## 2. Our Solution
 
