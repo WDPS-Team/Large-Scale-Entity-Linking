@@ -22,13 +22,16 @@ This repository showcases the Large Scale Entity Linking assignment from the Web
 
 ## 1. Motivation
 
-
-
 ## 2. Our Solution
+
+This section describes the architecture by introducing an overall overview and subsequent detailled description on each component.
 
 ### 2.1. Architecture Overview
 
-![image](/docs/overview.svg)
+Our Solution is built on the Big Data Framework Apache Spark [TODO] to allow scaling out with increasing document sizes and is divided into overall seven stages, as displayed in Figure [1](#link-sf). , which are described in more detail in the designated sections. The Entity Linking pipeline can be triggered by the [`run.sh`](./run.sh) bash script. The script reads the given input WARC file, copies it to HDFS (to allow Spark's worker nodes to access the file), and then submits the Python pipeline code ([`src/spark.py`](./src/spark.py)) to the YARN cluster. After job execution the output files are collected and copied to the local file system.
+
+![image](/docs/overview.svg){#link-sf}
+<center>Figure 1. Architecture Overview</center>
 
 ### 2.2. WARC Reading
 ### 2.3. Text Extraction
