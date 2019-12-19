@@ -38,6 +38,7 @@ if [ -f $INPUT_PATH ]; then
     echo "Copying input file: $INPUT_PATH"
     INPUT_FILE=`basename $INPUT_PATH`
     FULL_INPUT_PATH="$(basename $PWD)/$INPUT_FILE"
+    hdfs dfs -mkdir -p `basename $PWD`
     hdfs dfs -copyFromLocal -p $INPUT_PATH $FULL_INPUT_PATH
     echo "Copied Input To HDFS $FULL_INPUT_PATH"
 else
@@ -53,11 +54,11 @@ if [ $response -ne 200 ] || [ -z $ES_PATH ] ; then
 fi
 
 #Trident server check
-response=$(curl --write-out %{http_code} --silent --output /dev/null $KB_PATH)
-if [ $response -ne 200 ] || [ -z $KB_PATH ] ; then
-    echo "ERROR: Trident on node $KB_PATH is not running."
-    exit 1
-fi
+# response=$(curl --write-out %{http_code} --silent --output /dev/null $KB_PATH)
+# if [ $response -ne 200 ] || [ -z $KB_PATH ] ; then
+#     echo "ERROR: Trident on node $KB_PATH is not running."
+#     exit 1
+# fi
 
 #Delete output files prior run
 rm $OUTPUT_FILE
@@ -77,4 +78,4 @@ cat tmp/* > $OUTPUT_FILE
 #hdfs dfs -copyToLocal output/* ./tmp/   
 
 #Deleting copied input file from HDFS
-hdfs dfs -rm -r $INPUT_FILE > /dev/null
+hdfs dfs -rm -r $FULL_INPUT_PATH > /dev/null

@@ -1,8 +1,20 @@
 import requests
 import json
 import time
-from LexVec import ModelCache, TridentCache
+from LexVec import ModelCache
+
 import trident
+
+class TridentCache:
+    def __init__(self, kb_path):
+        self.kb_path = kb_path 
+        self._kb = None
+
+    def db(self):
+        if self._kb is None:
+            self._kb = trident.Db(self.kb_path)
+            return self._kb
+        return self._kb
 
 class ELCandidateRanking:
     def __init__(self, candidates_rdd, kb_path, ranking_threshold, model_root_path):
@@ -65,12 +77,12 @@ class ELCandidateRanking:
 
         def getTridentClassList(e_type):    #TODO: Add more classes and tags to this
             switcher = {
-                "PERSON"        : ["people.person", "celebrities.celebrity", "common.topic", "book.author", "base.litcentral.named_person", "people.family_member", "government.politician", "business.board_member", "organization.board_member", "organization.leader", "award.award_winner", "business.company_founder", "organization.organization_founder", "education.school_founder", "person"],
-                "NORP"          : ["location.location", "location.country", "people.ethnicity", "people.ethnicity.geographic_distribution", "people.ethnicity.languages_spoken", "common.topic", "location"],    # Nationalities or religious or political groups
+                "PERSON"        : ["people.person", "celebrities.celebrity", "book.author", "base.litcentral.named_person", "people.family_member", "government.politician", "business.board_member", "organization.board_member", "organization.leader", "award.award_winner", "business.company_founder", "organization.organization_founder", "education.school_founder", "person"],
+                "NORP"          : ["location.location", "location.country", "location"],    # Nationalities or religious or political groups
                 "FAC"           : ["architecture.building", "travel.transport_terminus", "aviation.airport", "transportation.road", "transportation.bridge", "location"],    # Buildings, airports, highways, bridges, etc.'
                 "ORG"           : ["organization.organization", "business.business_operation", "organization.non_profit_organization", "venture_capital.venture_funded_company", "organization", "organisation"],
                 "GPE"           : ["location.location", "location.country", "location.citytown", "location.statistical_region", "location", "region", "country"], # Countries, cities, states
-                "LOC"           : ["location.location", "geography.mountain_range", "common.topic", "geography.body_of_water", "location", "region", "ocean", "sea", "lake"],    # Non-GPE locations, mountain ranges, bodies of water
+                "LOC"           : ["location.location", "geography.mountain_range", "geography.body_of_water", "location", "region", "ocean", "sea", "lake"],    # Non-GPE locations, mountain ranges, bodies of water
                 "PRODUCT"       : ["business.consumer_product", "business.brand", "base.tagit.man_made_thing", "base.popstra.product", "product", "man_made"],
                 "EVENT"         : ["common.topic", "event", "festival", "meeting", "exhibition"],
                 "WORK_OF_ART"   : ["common.topic", "visual_art.artwork", "exhibitions.exhibit", "movie", "album", "music", "artist", "artwork"],

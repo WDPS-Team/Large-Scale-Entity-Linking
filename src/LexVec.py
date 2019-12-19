@@ -145,20 +145,6 @@ class ModelCache:
             return self._model
         return self._model
 
-import trident
-
-class TridentCache:
-    def __init__(self, kb_path):
-        self.kb_path = kb_path 
-        self._kb = None
-
-    def db(self):
-        if self._kb is None:
-            self._kb = trident.Db(self.kb_path)
-            return self._kb
-        return self._kb
-
-
 if __name__ == '__main__':
     path = sys.argv[1]
     m = ModelCache(path)

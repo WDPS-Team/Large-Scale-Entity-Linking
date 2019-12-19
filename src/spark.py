@@ -54,10 +54,10 @@ warc_stage_rdd = wsr.filter_invalid_records()
 
 # Filter to intersting records:
 #if debug:
-# recs=[
-#     "clueweb12-0000tw-00-00019"
-# ]
-# warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
+recs=[
+    "clueweb12-0000tw-00-00053"
+]
+warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
 
 print("STAGE 2 - Extracting Text")
 text_prepro = TextExtraction(warc_stage_rdd)
