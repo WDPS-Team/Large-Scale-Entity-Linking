@@ -1,5 +1,7 @@
 # Large Scale Entity Linking
 
+This repository showcases the Large Scale Entity Linking assignment from the Web Data Processing Course 2019 at VU Amsterdam. The solution presented here recognizes, extracts and links relevant entities from Web pages and links them to the Freebase Knowledge Base. All technologies and frameworks used, such as DragNet, LexVec, Trident and Spark, are freely available and should run (with minor changes) on any YARN-capable cluster. In the following sections we describe the motivation behind Entity Linking and how we solved the challenge of linking entities at large scale.
+
 ## Table Of Contents
 
 [1. Motivation](#1-motivation)  
@@ -13,6 +15,8 @@
 [2.4.3 Mapping Selection](#243-mapping-selection)  
 [2.5. Output Write](#25-output-write)  
 [3. DAS4 Execution](#3-das4-execution)  
+[4. References](#4-references)  
+[5. Appendix](#5-appendix)  
 
 ## 1. Motivation
 
@@ -54,26 +58,36 @@ Run `sh setup.sh` to build virtual environment and download the dependencies.
 By default, `data/sample.warc.gz` will be taken as input and output will be in `output.tsv`. Job submission can be customized using the options -f, -o and -es.
 Eg: `sh run.sh -f input.warc.gz -o out.tsv -es node007:9200`
 
-## Local Development
+## 4. References
 
-### Prerequsites
+[1]  Salle, A. and Villavicencio, A., 2018. Incorporating subword information into matrix factorization word embeddings. arXiv preprint arXiv:1805.03710.
+
+[X]
+
+Bojanowski, P., Grave, E., Joulin, A. and Mikolov, T., 2017. Enriching word vectors with subword information. Transactions of the Association for Computational Linguistics, 5, pp.135-146.
+
+## 5. Appendix
+
+### Local Development
+
+#### Prerequsites
 
 Ideally you use Docker for local development (esp. on Windows), thus you need:
 - Docker (for Windows/Mac)
 - docker-compose
 
-### Setup Local Components:
+#### Setup Local Components:
 
-#### Building Base Image:
+##### Building Base Image:
 
 1. Execute `docker-compose -f docker-compose.base.yml build` to build the Spark base images.
 2. Execute `docker-compose build` to build the relevant images for running the local development.
 
-#### Install Dependencies for Development:
+##### Install Dependencies for Development:
 
 1. `pip3 install elasticsearch==7.1.0` for loading data into Elasticsearch
 
-#### Loading Data into Elastic Search
+##### Loading Data into Elastic Search
 
 1. Start Elasticsearch with `docker-compose up es01`
 2. Run the following commands (given Python used python3):
@@ -82,7 +96,7 @@ Ideally you use Docker for local development (esp. on Windows), thus you need:
 **Testing Elasticsearch**
 Test with `curl "http://localhost:9200/freebase/label/_search?q=obama"`. Expect a freebase id linking to Obama.
 
-#### Load Data into Trident
+##### Load Data into Trident
 
 **Option 1 - Index Data**
 1. Download and place KB data (alternatively copy an existing already indexed KB, see option 2)
@@ -104,17 +118,17 @@ python3 sparql.py localhost:9090 "SELECT DISTINCT ?class WHERE {?s a ?class .} L
 python3 sparql.py localhost:9090 "SELECT ?subject ?predicate ?object WHERE {?subject ?predicate ?object} LIMIT 100"
 ```
 
-### Setup & Handling Spark
+#### Setup & Handling Spark
 
-#### Setup
+##### Setup
 
 - Run `docker-compose run spark-submit /setup.sh`
 
-### Run Spark Job
+#### Run Spark Job
 
 - Run `docker-compose run spark-submit /submit.sh`
 
-### Reset the Local Development Enviroment
+#### Reset the Local Development Enviroment
 
 - Run `docker-compose down`, then load data back into Elasticsearch and redo Spark Setup.
 
