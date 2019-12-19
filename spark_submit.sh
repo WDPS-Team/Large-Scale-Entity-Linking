@@ -15,6 +15,6 @@ PYSPARK_PYTHON=./VENV/venv/bin/python3 PYTHONPATH=./VENV/venv/build-python ../sp
 --num-executors 14 --executor-cores 6 --executor-memory 24GB \
 --archives venv.zip#VENV \
 --py-files src/LexVec.py \
-src/spark.py --es "$1" --f "$2" --kb "$3"
+src/spark.py --es "$1" --f "$2" --kb "$3" --hdfsout "$4"
 
 deactivate
