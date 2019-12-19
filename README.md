@@ -1,20 +1,23 @@
-# Large Scale Entity Linking
+# Large Scale Entity Linking - Group 1936
+
+This repository contains assignment of course Web Data Processing System (2019 - 2020)
 
 ## Description
 
 ### Architecture
 
 ![image](https://github.com/WDPS-Team/2019-WDPS/blob/architecture/docs/architecture/architectue2.0.png)
+#### TODO: need to change 
 
 - This project is to perform Entity Linking on a collection of web pages using entities from Freebase. 
 - The **Input** is a set of pages in WARC format, stored information that crawled from web. The final goal is to link the 'entity mention' in WARCfile to 'entities' in Freebase, and **Output** format is : [Document ID, Entity Mention, Freebase ID] 
 - This project consists of following steps: 
-    1. WARCSplitReader - Reading and splitting the WARCfile into lines and proccessing in parallel. Filtering the invalid data. 
-    2. TextExtraction - Cleaning the result from the last step, and then using `beautifulsoup` to extract title, main text  from webpages. And finally reformat the result as split the text into sentences. 
-    3. EntityRecognition - Processing the sentences `spacy`. Select the entities from text with certain types. We only interedted in this three types: `PERSON`,`ORGANIZATION` and `LOCATION`.  
+    1. WARCSplitReader - Reading and splitting the WARCfile into lines and proccessing in parallel, extracting context in HTML and filtering the invalid data. 
+    2. TextExtraction - Cleaning the result from the last step by using `Cleaner` from `lxml` to remove the `Javascript` and `HTML` part in context, and convert the data in context into `html` and `lxml` format. And then using `Dragnet` for text extraction, and `Beautifulsoup` as a fallback if `Dragnet` is not able to blockify the html. Fnally reformat the result as split the text into sentences. 
+    3. EntityRecognition - Processing the sentences with using `spacy`to do the named entity recognition part. Select the entities from text with those types. We only interedted in this three types: `PERSON`,`ORGANIZATION` and `LOCATION`.  
     4. ELCandidateGeneration - we use `elasticsearch` to search candidate entities in freebase and link the mention to all possible candidate entities. 
-    5. ELCandidateRanking - Rank candidate entities by the latent meaning using `LexVec` to calculate the cosine similarity between an mention and candidate entity. Using threshold on similiarity to reduce candidates. If more labels are present, pick the label similarity with the highest value and combine `Trident` for disambiguation and finally rank the result according to similarity. 
-    6. ELMappingSelection & OutputWriter - Select the valid candidate entities and output the result as .tsv format with columns [Document ID, Entity Mention, Freebase ID].
+    5. ELCandidateRanking - In this stage, we do the ranking and disambiguation part. First, rank candidate entities by the latent meaning using `LexVec` to calculate the cosine similarity between an mention and candidate entity. And using threshold on similiarity to reduce candidate entities. If more labels are present, pick the label similarity with the highest value. Then, using `Trident` for disambiguation, get and check the type of candidate entities in Trident and modify the ID for Trident format. Finally calculate cosine similarity again, set threshold and rank the result according to similarity. 
+    6. ELMappingSelection & OutputWriter - Based on previous results, select the valid and most similar candidate entity as the matched one and output the result as .tsv format with columns [Document ID, Entity Mention, Freebase ID].
 
 ## DAS4 Execution
 
