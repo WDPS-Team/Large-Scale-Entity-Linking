@@ -7,7 +7,7 @@ This repository contains assignment of course Web Data Processing System (2019 -
 ### Architecture
 
 ![image](https://github.com/WDPS-Team/2019-WDPS/blob/architecture/docs/architecture/architectue2.0.png)
-#### TODO: need to change 
+#### TODO: pic need to change 
 
 - This project is to perform Entity Linking on a collection of web pages using entities from Freebase. 
 - The **Input** is a set of pages in WARC format, stored information that crawled from web. The final goal is to link the 'entity mention' in WARCfile to 'entities' in Freebase, and **Output** format is : [Document ID, Entity Mention, Freebase ID] 
