@@ -28,9 +28,9 @@ This section describes the architecture by introducing an overall overview and s
 
 ### 2.1. Architecture Overview
 
-Our Solution is built on the Big Data Framework Apache Spark [TODO] to allow scaling out with increasing document sizes and is divided into overall seven stages, as displayed in Figure [1](#link-sf). , which are described in more detail in the designated sections. The Entity Linking pipeline can be triggered by the [`run.sh`](./run.sh) bash script. The script reads the given input WARC file, copies it to HDFS (to allow Spark's worker nodes to access the file), and then submits the Python pipeline code ([`src/spark.py`](./src/spark.py)) to the YARN cluster. After job execution the output files are collected and copied to the local file system.
+Our Solution is built on the Big Data Framework Apache Spark [TODO] to allow scaling out with increasing document sizes and is divided into overall seven stages, as displayed in Figure [1](#img-architecture-overview). , which are described in more detail in the designated sections. The Entity Linking pipeline can be triggered by the [`run.sh`](./run.sh) bash script. The script reads the given input WARC file, copies it to HDFS (to allow Spark's worker nodes to access the file), and then submits the Python pipeline code ([`src/spark.py`](./src/spark.py)) to the YARN cluster. After job execution the output files are collected and copied to the local file system.
 
-![image](/docs/overview.svg){#link-sf}
+<img src="docs/overview.svg" id="img-architecture-overview"/>
 <center>Figure 1. Architecture Overview</center>
 
 ### 2.2. WARC Reading
