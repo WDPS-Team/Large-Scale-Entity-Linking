@@ -28,7 +28,8 @@ This section describes the architecture by introducing an overall overview and s
 
 ### 2.1. Architecture Overview
 
-Our Solution is built on the Big Data Framework Apache Spark [TODO] to allow scaling out with increasing document sizes and is divided into overall seven stages, as displayed in Figure [1](#img-architecture-overview). , which are described in more detail in the designated sections. The Entity Linking pipeline can be triggered by the [`run.sh`](./run.sh) bash script. The script reads the given input WARC file, copies it to HDFS (to allow Spark's worker nodes to access the file), and then submits the Python pipeline code ([`src/spark.py`](./src/spark.py)) to the YARN cluster. After job execution the output files are collected and copied to the local file system.
+Our Solution is built on the Big Data Framework Apache Spark [[1](#c1)] to allow scaling out with increasing document sizes and is divided into overall seven stages, as displayed in Figure [1](#img-architecture-overview). , which are described in more detail in the designated sections. The Entity Linking pipeline can be triggered by the [`run.sh`](./run.sh) bash script. The script reads the given input WARC file, copies it to HDFS (to allow Spark's worker nodes to access the file), and then submits the Python pipeline code ([`src/spark.py`](./src/spark.py)) to the YARN cluster. After job execution the output files are collected and copied to the local file system.
+More information on how to run the pipeline can be found in Chapter [3. DAS4 Execution](#3-das4-execution).
 
 <p align="center">
     <img src="docs/overview.svg" id="img-architecture-overview"/>
@@ -36,11 +37,18 @@ Our Solution is built on the Big Data Framework Apache Spark [TODO] to allow sca
 </p>
 
 ### 2.2. WARC Reading
+
+
 ### 2.3. Text Extraction
+
 ### 2.4. Entity Linking
+
 #### 2.4.1 Candidate Generation
+
 #### 2.4.2 Candidate Ranking
+
 #### 2.4.3 Mapping Selection
+
 ### 2.5. Output Write
 
 ## 3. DAS4 Execution
@@ -69,9 +77,14 @@ Eg: `sh run.sh -f input.warc.gz -o out.tsv -es node007:9200`
 
 ## 4. References
 
-[1]  Salle, A. and Villavicencio, A., 2018. Incorporating subword information into matrix factorization word embeddings. arXiv preprint arXiv:1805.03710.
+<p id="c1">
+[1] The Apache Software Foundation, n.d., Apache Spark™ - Unified Analytics Engine for Big Data, viewed 19 Dec 2019, <https://spark.apache.org/>
+</p>
 
-[X]
+
+<p id="c2">
+[2]  Salle, A. and Villavicencio, A., 2018. Incorporating subword information into matrix factorization word embeddings. arXiv preprint arXiv:1805.03710.
+</p>
 
 Bojanowski, P., Grave, E., Joulin, A. and Mikolov, T., 2017. Enriching word vectors with subword information. Transactions of the Association for Computational Linguistics, 5, pp.135-146.
 
