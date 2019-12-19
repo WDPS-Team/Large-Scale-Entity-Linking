@@ -2,24 +2,35 @@
 
 ## Table Of Contents
 
-1. [Motivation](#1.Motivation) 
-2. [Our Solution](#Solution)
-
-    2.1. [Architecture Overview](#Overview)
-
-    2.2. [WARC Split Reader](#Overview)
+[1. Motivation](#1-motivation)  
+[2. Our Solution](#2-our-solution)  
+[2.1. Architecture Overview](#21-architecture-overview)  
+[2.2. WARC Reading](#22-warc-reading)  
+[2.3. Text Extraction](#23-text-extraction)  
+[2.4. Entity Linking](#24-entity-linking)  
+[2.4.1 Candidate Generation](#241-candidate-generation)  
+[2.4.2 Candidate Ranking](#242-candidate-ranking)  
+[2.4.3 Mapping Selection](#243-mapping-selection)  
+[2.5. Output Write](#25-output-write)  
+[3. DAS4 Execution](#3-das4-execution)  
 
 ## 1. Motivation
 
-## Solution
+## 2. Our Solution
 
-### Architecture Overview
+### 2.1. Architecture Overview
 
-![image](/docs/architecture/architectue2.0.png)
+![image](/docs/overview.svg)
 
-### WARC Split Reader
+### 2.2. WARC Reading
+### 2.3. Text Extraction
+### 2.4. Entity Linking
+#### 2.4.1 Candidate Generation
+#### 2.4.2 Candidate Ranking
+#### 2.4.3 Mapping Selection
+### 2.5. Output Write
 
-## DAS4 Execution
+## 3. DAS4 Execution
 
 ### Prerequisistes
 
