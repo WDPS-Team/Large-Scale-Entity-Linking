@@ -38,6 +38,7 @@ if [ -f $INPUT_PATH ]; then
     echo "Copying input file: $INPUT_PATH"
     INPUT_FILE=`basename $INPUT_PATH`
     FULL_INPUT_PATH="$(basename $PWD)/$INPUT_FILE"
+    hdfs dfs -mkdir -p `basename $PWD`
     hdfs dfs -copyFromLocal -p $INPUT_PATH $FULL_INPUT_PATH
     echo "Copied Input To HDFS $FULL_INPUT_PATH"
 else
