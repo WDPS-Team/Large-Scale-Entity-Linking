@@ -17,8 +17,9 @@ This repository showcases the Large Scale Entity Linking assignment from the Web
 [2.4.3 Mapping Selection](#243-mapping-selection)  
 [2.5. Output Write](#25-output-write)  
 [3. DAS4 Execution](#3-das4-execution)  
-[4. References](#4-references)  
-[5. Appendix](#5-appendix)  
+[4. Discussion](#4-discussion)  
+[5. References](#5-references)  
+[6. Appendix](#6-appendix)  
 
 ## 1. Motivation
 
@@ -38,8 +39,27 @@ More information on how to run the pipeline can be found in Chapter [3. DAS4 Exe
 
 ### 2.2. WARC Reading
 
+The first stage (see [src/WARCSplitReader](src/WARCSplitReader.py)) is designated to read, parse, and preprocess the input file so that it can be further processed using the Spark's Resilient Distributed Dataset (RDD).
+
+First, the entire file (which can contain multiple records) is reduced into chunks of lines by checking each line of the specific WARC line that indicates a new record (`WARC/1.0`).
+
+These chunks are then parallelized by distributing them across the Spark Workers. Each Spark worker now parses the records into WARCRecord objects from the `warcio` library. Next, the content from each record that matches the `response` type from WARC's specification is fetched and added to the RDD. Finally, all records which could not be processed correctly (e.g., missing the record id) are being filtered out.
+
+The advantage of this process is, that our pipeline should scale very well when the amount of documents in the WARC file is being increased. Using a single row for each document enables Spark to distribute the documents across the cluster, therefore it is argued that scalability is almost guaranteed. We could add workers until every worker is only responsible for a single document (most extreme case). However, we currently assume that ElasticSearch and Trident also scale well. While we are using Trident's Python bindings, we would need to run ElasticSearch in cluster mode. However, due to the scope of this assignment we did not test this.
 
 ### 2.3. Text Extraction
+
+After the WARC Reading stage has converted the input into separate HTML documents, this stage is responsible for extracting the main text from each HTML document.
+
+During the development, we realized that the subsequent stages are heavily influenced by how well the main text of a document is extracted. During development we tried three mayor methods:
+
+1. Remove HTML boilerplate code by regular expressions
+2. Only include content from `<p>` tags in combination with 1.
+3. Use 
+
+https://moz.com/devblog/benchmarking-python-content-extraction-algorithms-dragnet-readability-goose-and-eatiht
+https://medium.com/@mbatchkarov/a-benchmark-comparison-of-extraction-from-html-pages-98d7c1229f51
+https://github.com/dragnet-org/dragnet
 
 ### 2.4. Entity Linking
 
@@ -75,7 +95,9 @@ Run `sh setup.sh` to build virtual environment and download the dependencies.
 By default, `data/sample.warc.gz` will be taken as input and output will be in `output.tsv`. Job submission can be customized using the options -f, -o and -es.
 Eg: `sh run.sh -f input.warc.gz -o out.tsv -es node007:9200`
 
-## 4. References
+## 4. Discussion
+
+## 5. References
 
 <p id="c1">
 [1] The Apache Software Foundation, n.d., Apache Spark™ - Unified Analytics Engine for Big Data, viewed 19 Dec 2019, <https://spark.apache.org/>
@@ -88,7 +110,7 @@ Eg: `sh run.sh -f input.warc.gz -o out.tsv -es node007:9200`
 
 Bojanowski, P., Grave, E., Joulin, A. and Mikolov, T., 2017. Enriching word vectors with subword information. Transactions of the Association for Computational Linguistics, 5, pp.135-146.
 
-## 5. Appendix
+## 6. Appendix
 
 ### Local Development
 
