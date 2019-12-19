@@ -1,14 +1,27 @@
 # Large Scale Entity Linking
 
-## Description
+## Table Of Contents
 
-### Architecture
+1. [Motivation](#1.Motivation) 
+2. [Our Solution](#Solution)
 
-![image](https://github.com/WDPS-Team/2019-WDPS/blob/master/docs/architecture/architectue2.0.png)
+    2.1. [Architecture Overview](#Overview)
 
-##TODO: to be continued 
+    2.2. [WARC Split Reader](#Overview)
+
+## 1. Motivation
+
+## Solution
+
+### Architecture Overview
+
+![image](/docs/architecture/architectue2.0.png)
+
+### WARC Split Reader
 
 ## DAS4 Execution
+
+### Prerequisistes
 
 ### DAS4 Setup
 
@@ -29,7 +42,6 @@ Run `sh setup.sh` to build virtual environment and download the dependencies.
 
 By default, `data/sample.warc.gz` will be taken as input and output will be in `output.tsv`. Job submission can be customized using the options -f, -o and -es.
 Eg: `sh run.sh -f input.warc.gz -o out.tsv -es node007:9200`
-
 
 ## Local Development
 
