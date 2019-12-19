@@ -14,10 +14,12 @@ parser.add_argument("--es", help="Elastic Search instance.")
 parser.add_argument("--kb", help="Trident instance.")
 parser.add_argument("--f", help="Input file.")
 parser.add_argument("--debug", help="Output some debug data.")
+parser.add_argument("--hdfsout", help="Add some HDFS Outputdir")
 args = parser.parse_args()
 es_path = "localhost:9200"
 kb_path = "localhost:9090"
 input_path = "sample.warc.gz"
+output_path = "output"
 debug = False
 ranking_threshold = 0.5
 model_root_path = "/var/scratch2/wdps1936/lib"
@@ -27,7 +29,8 @@ if args.kb:
     kb_path = args.kb
 if args.f:
     input_path = args.f
-
+if args.hdfsout:
+    output_path = args.hdfsout
 if args.debug == "True":
     debug = True
     model_root_path = "/data"
@@ -36,6 +39,7 @@ if args.debug == "True":
 print("Elastic Search Server:",es_path)
 print("Trident Server:",kb_path)
 print("Input file:", input_path)
+print("HDFS Out:", output_path)
 
 conf = SparkConf().set("spark.ui.showConsoleProgress", "true")
 sc = SparkContext(conf=conf)
@@ -110,4 +114,4 @@ ow = OutputWriter(selected_entities_rdd)
 ow_stage_rdd = ow.convert_to_tsv()
 ow_stage_rdd.cache()
 print("Processed: {0}".format(ow_stage_rdd.count()))
-ow_stage_rdd.saveAsTextFile("output/predictions.tsv")
+ow_stage_rdd.saveAsTextFile(output_path +"/predictions.tsv")

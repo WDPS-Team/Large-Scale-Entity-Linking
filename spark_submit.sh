@@ -14,6 +14,6 @@ PYSPARK_PYTHON=./VENV/venv/bin/python3 ../spark/spark-2.4.0-bin-hadoop2.7/bin/sp
 --num-executors 38 --executor-cores 2 --executor-memory 6GB \
 --archives venv.zip#VENV \
 --py-files src/LexVec.py \
-src/spark.py --es "$1" --f "$2" --kb "$3"
+src/spark.py --es "$1" --f "$2" --kb "$3" --hdfsout "$4"
 
 deactivate
