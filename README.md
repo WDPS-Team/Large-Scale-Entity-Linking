@@ -54,13 +54,13 @@ The advantage of this process is, that our pipeline should scale very well when 
 
 ### 2.3. Text Extraction
 
-After the WARC Reading stage has converted the input into separate HTML documents, this stage is responsible for extracting the main text from each HTML document.
+After the WARC Reading stage has converted the input into separate HTML documents, this stage is responsible for extracting the main text from each HTML document (see [src/TextExtraction](src/TextExtraction.py)).
 
 During the development, we realized that the subsequent stages are heavily influenced by how well the main text of a document is extracted. During development we tried three mayor methods:
 
-1. Remove HTML boilerplate code by regular expressions
-2. Only include content from `<p>` tags in combination with 1.
-3. Use Machine Learning Model DragNet [[3](#c3)]
+1. Remove HTML boilerplate code by regular expressions (see [commit 533a378](https://github.com/WDPS-Team/2019-WDPS/blob/5858544732ab08322e8081e36023227c89a06117/src/TextPreprocessor.py#L57-L97))
+2. Only include content from `<p>` tags in combination with 1. (see [commit a99d49](https://github.com/WDPS-Team/2019-WDPS/blob/a99d49bdd04151150e6a397f23a537d906fdfea7/src/TextPreprocessor.py#L86-L90))
+3. Use Machine Learning Model DragNet [[3](#c3)] (see [commit 93acb64](https://github.com/WDPS-Team/2019-WDPS/blob/93acb64c8e831a1c040bb8d82c3556041213308d/src/TextPreprocessor.py#L67-L99))
 
 After serveral iterations, testing, and reading relevant resources (compare [[4](#c4), [5](#c5)]) we decided that DragNet would be the best choice. Mainly because fine tuning rules on some training data brings the risk of fitting the rules too strict and specific for the given data. We acknowledged the fact that our the pipeline should be as generalized as possible. In fact, during validating our assumptions DragNet seemed most of the time return more relevant text than our handwritten rules.
 
@@ -76,19 +76,33 @@ This section is split into three subsections, as the Entity Linking task is also
 
 #### 2.5.1 Candidate Generation
 
+@Abi TODO > Add candidate generation
+
 #### 2.5.2 Candidate Ranking
+
+@Abi TODO > Add ranking, also indicate which ranking methods we tried :-) -> doc2vec
+ -> Other?
 
 #### 2.5.3 Mapping Selection
 
+@Abi TODO > Add ranking
+
 ### 2.6. Output Write
+
+The output writing stage (see [src/OutputWriter](src/OutputWriter.py)), being the last stage of the Spark program, converts the RDD into a valid tab-separated representation, which can be saved by Spark's File API.
+Afterwards these files can be copied from HDFS, as it is done in the [run.sh](run.sh).
 
 ## 3. DAS4 Execution
 
 ### Prerequisistes
 
+@Abi TODO > what modules do need to be loaded on das?
+
 ### DAS4 Setup
 
 Run `sh setup.sh` to build virtual environment and download the dependencies.
+
+@Abi TODO > is that still true? do we load all models, if so -> remove!
 
 ### Quickrun:
 
@@ -108,7 +122,7 @@ Eg: `sh run.sh -f input.warc.gz -o out.tsv -es node007:9200`
 
 ## 4. Discussion and Conclusion
 
-Overall, we believe that our entity linking, given the current limitations that we only use context-independent ranking methods, scores very well. Over the last iterations we were able to improve, precision, recall and as a result the F1 score significantly, especially due to using the latent meaning and Wikipedia-based data in entity ranking and DragNet in text extraction.
+Overall, we believe that our entity linking, given the current limitations that we only use context-independent ranking methods, scores very well. Over the last iterations we were able to improve, precision, recall and as a result the F1 score significantly, especially due to using the latent meaning and Wikipedia-based data in entity ranking and DragNet in text extraction. Furthermore, we believe that adding additional context-dependent features and coherence measurements to the pipeline would provide even better scores, but could not be implemented in such way that it would improve the scores due to the given time limit. 
 
 <p align="center">
     <img src="docs/score_development.svg" id="img-score_development"/>
@@ -116,7 +130,12 @@ Overall, we believe that our entity linking, given the current limitations that 
     <span style>Figure 2. Score Development</span>
 </p>
 
-To conclude, ..
+Addtionally, we identified a few examples which are currently disambiguated even better than the provided gold standard. These are, for example:
+
+- @Abi TODO
+- 
+
+To conclude, our Spark-based pipeline evidently scales well with the amount of documents being processed. Furthermore, we currently acheive good results for the F1 score on the given gold standard. We argue to a certain extent, that this gold standard does actually provide not the correct entity links, but we also acknowledge that our pipeline still requires some work to acheive results as good as the gold standard file.
 
 ## 5. References
 
