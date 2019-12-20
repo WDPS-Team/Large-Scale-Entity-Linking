@@ -10,12 +10,13 @@ This repository showcases the Large Scale Entity Linking assignment from the Web
 [2. Our Solution](#2-our-solution)  
 [2.1. Architecture Overview](#21-architecture-overview)  
 [2.2. WARC Reading](#22-warc-reading)  
-[2.3. Text Extraction](#23-text-extraction)  
-[2.4. Entity Linking](#24-entity-linking)  
-[2.4.1 Candidate Generation](#241-candidate-generation)  
-[2.4.2 Candidate Ranking](#242-candidate-ranking)  
-[2.4.3 Mapping Selection](#243-mapping-selection)  
-[2.5. Output Write](#25-output-write)  
+[2.3. Text Extraction](#23-text-extraction)
+[2.4. Entity Recognition](#24-entity-recognition)    
+[2.5. Entity Linking](#25-entity-linking)  
+[2.5.1 Candidate Generation](#251-candidate-generation)  
+[2.5.2 Candidate Ranking](#252-candidate-ranking)  
+[2.5.3 Mapping Selection](#253-mapping-selection)  
+[2.6. Output Write](#26-output-write)  
 [3. DAS4 Execution](#3-das4-execution)  
 [4. Discussion](#4-discussion)  
 [5. References](#5-references)  
@@ -55,21 +56,27 @@ During the development, we realized that the subsequent stages are heavily influ
 
 1. Remove HTML boilerplate code by regular expressions
 2. Only include content from `<p>` tags in combination with 1.
-3. Use 
+3. Use Machine Learning Model DragNet [[3](#c3)]
 
-https://moz.com/devblog/benchmarking-python-content-extraction-algorithms-dragnet-readability-goose-and-eatiht
-https://medium.com/@mbatchkarov/a-benchmark-comparison-of-extraction-from-html-pages-98d7c1229f51
-https://github.com/dragnet-org/dragnet
+After serveral iterations, testing, and reading relevant resources (compare [[4](#c4), [5](#c5)]) we decided that DragNet would be the best choice. Mainly because fine tuning rules on some training data brings the risk of fitting the rules too strict and specific for the given data. We acknowledged the fact that our the pipeline should be as generalized as possible. In fact, during validating our assumptions DragNet seemed most of the time return more relevant text than our handwritten rules.
 
-### 2.4. Entity Linking
+However, in situations where DragNet fails to obtain any text we still use BeautifulSoup and points 1. & 2. as a fallback.
 
-#### 2.4.1 Candidate Generation
+### 2.4. Entity Recognition
 
-#### 2.4.2 Candidate Ranking
+Based on initial research on neuralnetwork-based Entity Recognition (NeuroNER), we decided to use the NLP-framework Spacy [[6](#c6)] to do entity recognition. We evaluated other NER frameworks, but found that Spacy already provides a sophistiacted NLP-Preprocessing (including Tokenization, Stemming etc.) and also provides good accuracy compared to StandfordNER and other Entity Recognition frameworks.
 
-#### 2.4.3 Mapping Selection
+### 2.5. Entity Linking
 
-### 2.5. Output Write
+This section is split into three subsections, as the Entity Linking task is also splitted into three stages. First, the Candidate Generation, then the Candidate Ranking and finally the Mapping Selection is being discussed.
+
+#### 2.5.1 Candidate Generation
+
+#### 2.5.2 Candidate Ranking
+
+#### 2.5.3 Mapping Selection
+
+### 2.6. Output Write
 
 ## 3. DAS4 Execution
 
@@ -108,7 +115,24 @@ Eg: `sh run.sh -f input.warc.gz -o out.tsv -es node007:9200`
 [2]  Salle, A. and Villavicencio, A., 2018. Incorporating subword information into matrix factorization word embeddings. arXiv preprint arXiv:1805.03710.
 </p>
 
-Bojanowski, P., Grave, E., Joulin, A. and Mikolov, T., 2017. Enriching word vectors with subword information. Transactions of the Association for Computational Linguistics, 5, pp.135-146.
+<p id="c3">
+[3] n.a., n.d., dragnet-org/dragnet: Just the facts -- web page content extraction, viewed 19 Dec 2019, <https://github.com/dragnet-org/dragnet/>
+</p>
+
+<p id="c4">
+[4] McDonnell, M., 2015, Benchmarking Python Content Extraction Algorithms: Dragnet, Readability, Goose, and Eatiht, viewed 19 Dec 2019, <https://moz.com/devblog/benchmarking-python-content-extraction-algorithms-dragnet-readability-goose-and-eatiht/>
+</p>
+
+<p id="c5">
+[5] Batchkarov, M., 2017, A Benchmark Comparison Of Content Extraction From HTML Pages, viewed 19 Dec 2019, <https://medium.com/@mbatchkarov/a-benchmark-comparison-of-extraction-from-html-pages-98d7c1229f51/>
+</p>
+
+<p id="c6">
+[6] n.a., n.d., spaCy · Industrial-strength Natural Language Processing in Python, viewed 19 Dec 2019, <https://spacy.io/>
+</p>
+
+
+
 
 ## 6. Appendix
 
