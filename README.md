@@ -58,9 +58,9 @@ After the WARC Reading stage has converted the input into separate HTML document
 
 During the development, we realized that the subsequent stages are heavily influenced by how well the main text of a document is extracted. During development we tried three mayor methods:
 
-1. Remove HTML boilerplate code by regular expressions (see [commit 533a378](https://github.com/WDPS-Team/2019-WDPS/blob/5858544732ab08322e8081e36023227c89a06117/src/TextPreprocessor.py#L57-L97))
-2. Only include content from `<p>` tags in combination with 1. (see [commit a99d49](https://github.com/WDPS-Team/2019-WDPS/blob/a99d49bdd04151150e6a397f23a537d906fdfea7/src/TextPreprocessor.py#L86-L90))
-3. Use Machine Learning Model DragNet [[3](#c3)] (see [commit 93acb64](https://github.com/WDPS-Team/2019-WDPS/blob/93acb64c8e831a1c040bb8d82c3556041213308d/src/TextPreprocessor.py#L67-L99))
+1. Remove HTML boilerplate code by regular expressions (see [commit 533a378](https://github.com/WDPS-Team/Large-Scale-Entity-Linking/blob/5858544732ab08322e8081e36023227c89a06117/src/TextPreprocessor.py#L57-L97))
+2. Only include content from `<p>` tags in combination with 1. (see [commit a99d49](https://github.com/WDPS-Team/Large-Scale-Entity-Linking/blob/a99d49bdd04151150e6a397f23a537d906fdfea7/src/TextPreprocessor.py#L86-L90))
+3. Use Machine Learning Model DragNet [[3](#c3)] (see [commit 93acb64](https://github.com/WDPS-Team/Large-Scale-Entity-Linking/blob/93acb64c8e831a1c040bb8d82c3556041213308d/src/TextPreprocessor.py#L67-L99))
 
 After serveral iterations, testing, and reading relevant resources (compare [[4](#c4), [5](#c5)]) we decided that DragNet would be the best choice. Mainly because fine tuning rules on some training data brings the risk of fitting the rules too strict and specific for the given data. We acknowledged the fact that our the pipeline should be as generalized as possible. In fact, during validating our assumptions DragNet seemed most of the time return more relevant text than our handwritten rules.
 
@@ -82,9 +82,9 @@ After recognizing each candidate entity's type, in this stage, our main goal is 
 
 After retrieving the possible entity candidates for a given mention from ElasticSearch, we do employ different ranking methods. However, for all mentions and the candidates ranked we do not use any context-dependent features. We do rank using the following steps:
 
-1. We compare each candidate entity and it's different labels provided by ElastichSearch using LexVec calculating the cosine similarity. We are using LexVec instead of Word2Vec, as it allows to compare Out-Of-Vocabulary words, which occur quite often (see [src/ELCandidateRanking (Line 23->71)](https://github.com/WDPS-Team/2019-WDPS/blob/master/src/ELCandidateRanking.py#L23-L71)).
+1. We compare each candidate entity and it's different labels provided by ElastichSearch using LexVec calculating the cosine similarity. We are using LexVec instead of Word2Vec, as it allows to compare Out-Of-Vocabulary words, which occur quite often (see [src/ELCandidateRanking (Line 23->71)](https://github.com/WDPS-Team/Large-Scale-Entity-Linking/blob/master/src/ELCandidateRanking.py#L23-L71)).
 
-2. In the second ranking method, that leverages Trident to obtain Wikipedia's entity label and the entities' associations, we compute a type-score and a similarity score. The type-score is calculated based on how many types match for a given entity candidate. The similarity score is computed between the mention and the labels from Wikipedia (see [src/ELCandidateRanking (Line 23->71)](https://github.com/WDPS-Team/2019-WDPS/blob/f2d08c7ad5194aea77fb95b38372f9534b9c8d42/src/ELCandidateRanking.py#L73-L154))
+2. In the second ranking method, that leverages Trident to obtain Wikipedia's entity label and the entities' associations, we compute a type-score and a similarity score. The type-score is calculated based on how many types match for a given entity candidate. The similarity score is computed between the mention and the labels from Wikipedia (see [src/ELCandidateRanking (Line 23->71)](https://github.com/WDPS-Team/Large-Scale-Entity-Linking/blob/f2d08c7ad5194aea77fb95b38372f9534b9c8d42/src/ELCandidateRanking.py#L73-L154))
 
 Furthermore, we tried other methods, such as doc2vec, that calculate a similarity between a sequence of text and not just a word. However, these results actually reduced all our scores. Thus, we removed these after evaluation.
 
