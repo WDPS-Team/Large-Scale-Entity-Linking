@@ -52,13 +52,6 @@ warc_stage_rdd = wsr.filter_invalid_records()
 warc_stage_rdd.cache()
 print("Processed: {0}".format(warc_stage_rdd.count()))
 
-# Filter to intersting records:
-#if debug:
-# recs=[
-#     "clueweb12-0000tw-00-00053"
-# ]
-# warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
-
 print("STAGE 2 - Extracting Text")
 text_prepro = TextExtraction(warc_stage_rdd)
 text_prepro.clean_warc_responses()
@@ -66,10 +59,6 @@ text_prepro.extract_text_from_document()
 txtprepro_stage_rdd = text_prepro.filter_unfit_records()
 txtprepro_stage_rdd.cache()
 print("Processed: {0}".format(txtprepro_stage_rdd.count()))
-
-# TODO: Currently Limiting: REMOVE LATER!
-nlp_subset = txtprepro_stage_rdd.take(83)
-txtprepro_stage_rdd = sc.parallelize(nlp_subset)
 
 print("STAGE 3 - Entity Recognition incl. NLP-Preprocessing")
 ee = EntityRecognition(txtprepro_stage_rdd)
