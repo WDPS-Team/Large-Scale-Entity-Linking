@@ -1,7 +1,4 @@
-import json
-import os
 import spacy
-
 
 class EntityRecognition:
 
