@@ -131,24 +131,24 @@ class ELCandidateRanking:
                     response = get_trident_information(freebase_id, kb)
                     type_score = calculate_type_score(response, entity["type"])   #calculate type score using Trident
                     
-                    if type_score > 0:
-                        label_list = get_label_list(response)
-                        max_label = None
-                        label_sim = 0
-                        for label in label_list:
-                            candidate_vector = mc.model().word_rep(label.lower())
-                            new_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
-                            if new_sim > label_sim or max_label is None:
-                                label_sim = new_sim
-                                max_label = label
-                        
-                        if label_sim > r_threshold:
-                            type_ranked_ids.append({ 
-                                "freebase_id" : freebase_id,
-                                "score"       : type_score,
-                                "sim"         : label_sim
-                            })
-                type_ranked_ids.sort(key=lambda rank: (rank["score"], rank["sim"]), reverse=True)
+                    #if type_score > 0:
+                    label_list = get_label_list(response)
+                    max_label = None
+                    label_sim = 0
+                    for label in label_list:
+                        candidate_vector = mc.model().word_rep(label.lower())
+                        new_sim = mc.model().vector_cos_sim(label_vector, candidate_vector)
+                        if new_sim > label_sim or max_label is None:
+                            label_sim = new_sim
+                            max_label = label
+                    
+                    if label_sim > r_threshold:
+                        type_ranked_ids.append({ 
+                            "freebase_id" : freebase_id,
+                            "score"       : type_score,
+                            "sim"         : label_sim
+                        })
+                type_ranked_ids.sort(key=lambda rank: (rank["sim"], rank["score"]), reverse=True)
                 valid_candidates.append({"label": entity["label"], "type": entity["type"], "ranked_candidates": type_ranked_ids })
             
             return {"_id": doc["_id"], "entities_ranked_candidates": valid_candidates}
