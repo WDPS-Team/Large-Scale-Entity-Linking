@@ -74,17 +74,17 @@ class ELCandidateRanking:
 
         def get_trident_class_list(e_type):
             switcher = {
-                "PERSON"        : ["people.person", "celebrities.celebrity", "book.author", "base.litcentral.named_person", "people.family_member", "government.politician", "business.board_member", "organization.board_member", "organization.leader", "award.award_winner", "business.company_founder", "organization.organization_founder", "education.school_founder", "person"],
-                "NORP"          : ["location.location", "location.country", "location"],    # Nationalities or religious or political groups
-                "FAC"           : ["architecture.building", "travel.transport_terminus", "aviation.airport", "transportation.road", "transportation.bridge", "location"],    # Buildings, airports, highways, bridges, etc.'
-                "ORG"           : ["organization.organization", "business.business_operation", "organization.non_profit_organization", "venture_capital.venture_funded_company", "organization", "organisation"],
-                "GPE"           : ["location.location", "location.country", "location.citytown", "location.statistical_region", "location", "region", "country"], # Countries, cities, states
-                "LOC"           : ["location.location", "geography.mountain_range", "geography.body_of_water", "location", "region", "ocean", "sea", "lake"],    # Non-GPE locations, mountain ranges, bodies of water
-                "PRODUCT"       : ["business.consumer_product", "business.brand", "base.tagit.man_made_thing", "base.popstra.product", "product", "man_made"],
-                "EVENT"         : ["common.topic", "event", "festival", "meeting", "exhibition"],
-                "WORK_OF_ART"   : ["common.topic", "visual_art.artwork", "exhibitions.exhibit", "movie", "album", "music", "artist", "artwork"],
-                "LAW"           : ["common.topic", "law", "rule"], # Named documents made into laws.
-                "LANGUAGE"      : ["common.topic", "language.human_language", "language"]
+                "PERSON"        : ["people.person", "celebrities.celebrity", "book.author", "base.litcentral.named_person", "people.family_member", "government.politician", "business.board_member", "organization.board_member", "organization.leader", "award.award_winner", "business.company_founder", "organization.organization_founder", "education.school_founder"],
+                "NORP"          : ["location.location", "location.country"],    # Nationalities or religious or political groups
+                "FAC"           : ["architecture.building", "travel.transport_terminus", "aviation.airport", "transportation.road", "transportation.bridge", "common.topic"],    # Buildings, airports, highways, bridges, etc.'
+                "ORG"           : ["organization.organization", "business.business_operation", "organization.non_profit_organization", "venture_capital.venture_funded_company"],
+                "GPE"           : ["location.location", "location.country", "location.citytown", "location.statistical_region"], # Countries, cities, states
+                "LOC"           : ["location.location", "geography.mountain_range", "geography.body_of_water"],    # Non-GPE locations, mountain ranges, bodies of water
+                "PRODUCT"       : ["business.consumer_product", "business.brand", "base.tagit.man_made_thing", "base.popstra.product", "common.topic"],
+                "EVENT"         : ["common.topic"],
+                "WORK_OF_ART"   : ["common.topic", "visual_art.artwork", "exhibitions.exhibit"],
+                "LAW"           : ["common.topic"], # Named documents made into laws.
+                "LANGUAGE"      : ["common.topic", "language.human_language"]
             }
             return switcher.get(e_type, ["common.topic"])
 
@@ -94,7 +94,8 @@ class ELCandidateRanking:
             score = 0
             for objects in response["results"]["bindings"]:
                 for t_class in class_list:
-                    if t_class in objects['object']['value'].lower():
+                    t_class_full = "http://rdf.freebase.com/ns/" + t_class
+                    if t_class_full == objects['object']['value'].lower():
                         score = score + 1
 
             return score
