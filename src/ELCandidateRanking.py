@@ -2,7 +2,8 @@ import requests
 import json
 import time
 from LexVec import ModelCache
-
+from gensim.models import doc2vec
+from scipy import spatial
 import trident
 
 class TridentCache:
@@ -62,11 +63,12 @@ class ELCandidateRanking:
                     ranking.append({
                         "label": candidate["label"],
                         "type": candidate["type"],
+                        "p_id": candidate["p_id"],
                         "ranked_candidates": ranked_candidates
                     })
             except Exception as e:
                 print(e)
-            return {"_id": row["_id"], "entities_ranked_candidates": ranking}
+            return {"_id": row["_id"], "entities_ranked_candidates": ranking, "sentences": row["sentences"] }
         model_path = self.model_root_path
         ranking_threshold = self.ranking_threshold
         self.ranked_entities = self.candidates_rdd.map(
@@ -155,9 +157,9 @@ class ELCandidateRanking:
                             "score"       : type_score
                         })
                 type_ranked_ids.sort(key=lambda rank: rank["score"], reverse=True)
-                valid_candidates.append({"label": entity["label"], "type": entity["type"], "ranked_candidates": type_ranked_ids })
+                valid_candidates.append({"label": entity["label"], "type": entity["type"], "p_id": entity["p_id"], "ranked_candidates": type_ranked_ids })
             
-            return {"_id": doc["_id"], "entities_ranked_candidates": valid_candidates}
+            return {"_id": doc["_id"], "entities_ranked_candidates": valid_candidates, "sentences": doc["sentences"] }
         
         kb_path = self.kb_path 
         lambda_map = lambda doc : disambiguate_doc(doc, TridentCache(kb_path))
@@ -224,27 +226,27 @@ class ELCandidateRanking:
         #         })
         #     return {"_id": row["_id"], "entities_ranked_candidates": ranking}
 
-        def getAbstractsList(freebase_id, kb):
-            sparql_id = freebase_id.replace("/",".")     #modify freebase ID for Trident format
-            if(sparql_id[0]=="."):
-                sparql_id = sparql_id[1:]
+        # def getAbstractsList(freebase_id, kb):
+        #     sparql_id = freebase_id.replace("/",".")     #modify freebase ID for Trident format
+        #     if(sparql_id[0]=="."):
+        #         sparql_id = sparql_id[1:]
             
-            q_subject     = "<http://rdf.freebase.com/ns/" + sparql_id + ">"
+        #     q_subject     = "<http://rdf.freebase.com/ns/" + sparql_id + ">"
             
-            default_query = "select distinct ?abstract where {  ?subject <http://www.w3.org/2002/07/owl#sameAs> ?freebaselabel . \
-                                    ?subject <http://www.w3.org/2002/07/owl#sameAs> ?object .\
-                                    ?object <http://dbpedia.org/ontology/abstract> ?abstract .} limit 10"
+        #     default_query = "select distinct ?abstract where {  ?subject <http://www.w3.org/2002/07/owl#sameAs> ?freebaselabel . \
+        #                             ?subject <http://www.w3.org/2002/07/owl#sameAs> ?object .\
+        #                             ?object <http://dbpedia.org/ontology/abstract> ?abstract .} limit 10"
 
-            sparql_query  = default_query.replace("?freebaselabel", q_subject)
+        #     sparql_query  = default_query.replace("?freebaselabel", q_subject)
 
-            db = kb.db()
-            response = db.sparql(sparql_query)
-            response = json.loads(response)
-            abstracts_list = []
-            if len(response["results"]["bindings"]) > 0:
-                for abstract in response["results"]["bindings"]:
-                    abstracts_list.append(abstract["abstract"]["value"])
-            return abstracts_list
+        #     db = kb.db()
+        #     response = db.sparql(sparql_query)
+        #     response = json.loads(response)
+        #     abstracts_list = []
+        #     if len(response["results"]["bindings"]) > 0:
+        #         for abstract in response["results"]["bindings"]:
+        #             abstracts_list.append(abstract["abstract"]["value"])
+        #     return abstracts_list
 
         # def rank_candidates(row, mc, ranking_threshold, kb):
         #     ranking = []
@@ -317,7 +319,7 @@ class ELCandidateRanking:
                     "type": entity["type"],
                     "ranked_candidates": ranked_candidates
                 })
-            return {"_id": row["_id"], "entities_ranked_candidates": ranking}
+            return {"_id": row["_id"], "entities_ranked_candidates": ranking, "sentences": row["sentences"] }
 
 
         kb_path           = self.kb_path
@@ -326,4 +328,64 @@ class ELCandidateRanking:
         
         self.ranked_entities = self.ranked_entities.map(
             lambda row: rank_candidates(row, ModelCache(model_path), ranking_threshold, TridentCache(kb_path)))
+        return self.ranked_entities
+
+    def disambiguate_doc(self):
+
+        def getAbstractsList(freebase_id, kb):
+            sparql_id = freebase_id.replace("/",".")     #modify freebase ID for Trident format
+            if(sparql_id[0]=="."):
+                sparql_id = sparql_id[1:]
+            
+            q_subject     = "<http://rdf.freebase.com/ns/" + sparql_id + ">"
+            
+            default_query = "SELECT * { ?subject ?predicate ?object } LIMIT 10"
+            sparql_query  = default_query.replace("?subject", q_subject).replace("?predicate", "<http://rdf.freebase.com/ns/common.topic.description>")
+
+            db = kb.db()
+            response = db.sparql(sparql_query)
+            response = json.loads(response)
+            abstracts_list = []
+            for abstract_obj in response["results"]["bindings"]:
+                abstract = abstract_obj["object"]["value"]
+                if '@en' in abstract:
+                    abstracts_list.append(abstract.rstrip('\"').lstrip('\"').rstrip('"@en'))
+            return abstracts_list
+
+        def disambiguate_doc(row, kb):
+            valid_candidates = []
+            d2v_model = doc2vec.Doc2Vec.load('/var/scratch2/wdps1936/lib/model/doc2vec.bin')
+            
+            for entity in row["entities_ranked_candidates"]:
+                type_ranked_ids = []
+                
+                doc_text = row["sentences"][entity["p_id"]]
+                doc_vec = d2v_model.infer_vector(doc_text.split())
+
+                for candidate in entity["ranked_candidates"]:
+                    freebase_id = candidate["freebase_id"]
+                    doc_score = 0
+
+                    abstracts_list = getAbstractsList(freebase_id, kb)
+                    for abstract in abstracts_list:
+                        abs_vec = d2v_model.infer_vector(abstract.split())
+                        new_sim = spatial.distance.cosine(doc_vec, abs_vec)
+                        if new_sim > doc_score:
+                            doc_score = new_sim
+
+                    if doc_score > 0:
+                        type_ranked_ids.append({
+                            "score": doc_score,
+                            "freebase_id": freebase_id
+                        })
+
+                type_ranked_ids.sort(key=lambda rank: rank["score"], reverse=True)
+                valid_candidates.append({"label": entity["label"], "type": entity["type"], "p_id": entity["p_id"], "ranked_candidates": type_ranked_ids })
+            
+            return {"_id": row["_id"], "entities_ranked_candidates": valid_candidates, "sentences": row["sentences"] }
+        
+        kb_path = self.kb_path 
+        lambda_map = lambda doc : disambiguate_doc(doc, TridentCache(kb_path))
+        self.ranked_entities = self.ranked_entities.map(lambda_map)
+
         return self.ranked_entities

@@ -54,10 +54,10 @@ warc_stage_rdd = wsr.filter_invalid_records()
 
 # Filter to intersting records:
 #if debug:
-recs=[
-    "clueweb12-0000tw-00-00053"
-]
-warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
+# recs=[
+#     "clueweb12-0000tw-00-00009"
+# ]
+# warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
 
 print("STAGE 2 - Extracting Text")
 text_prepro = TextExtraction(warc_stage_rdd)
@@ -67,9 +67,9 @@ txtprepro_stage_rdd = text_prepro.filter_unfit_records()
 # txtprepro_stage_rdd.cache()
 # print("Processed: {0}".format(txtprepro_stage_rdd.count()))
 
-if debug:
-    for row in txtprepro_stage_rdd.collect():
-        print(row["sentences"])
+#if debug:
+# for row in txtprepro_stage_rdd.collect():
+#     print(row["sentences"])
 
 # TODO: Currently Limiting: REMOVE LATER!
 nlp_subset = txtprepro_stage_rdd.take(83)
@@ -95,9 +95,10 @@ candidates_rdd = el_cg.get_candidates_from_elasticsearch()
 
 print("STAGE 5 - Entity Linking - Candidate Ranking")
 el_cr = ELCandidateRanking(candidates_rdd, kb_root_path, ranking_threshold, model_root_path)
-el_cr.rank_entity_candidates()
+t = el_cr.rank_entity_candidates()
+# print(t.collect())
 el_cr.disambiguate_type()
-ranked_candidates_rdd = el_cr.disambiguate_label()
+ranked_candidates_rdd = el_cr.disambiguate_doc()
 # el_cr.cache()
 # print("Processed: {0}".format(el_cr.count()))
 

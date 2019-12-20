@@ -52,8 +52,8 @@ class ELCandidateGeneration:
                 # candidate is a tupel of {'text': 'XML-RPC', 'type': 'ORG'}
                 ids = search(candidate["text"], es_path)
                 linked_candidates.append(
-                    {"label": candidate["text"], "type": candidate["type"], "ids": ids})
-            return {"_id": row["_id"], "linked_candidates": linked_candidates}
+                    {"label": candidate["text"], "type": candidate["type"], "ids": ids, "p_id": candidate["p_id"]})
+            return {"_id": row["_id"], "linked_candidates": linked_candidates, "sentences": row["sentences"] }
 
         lambda_es_path = self.es_path
         def query_lambda(row): return link_freebase(row, lambda_es_path)
