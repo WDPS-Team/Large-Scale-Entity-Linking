@@ -18,7 +18,7 @@ This repository showcases the Large Scale Entity Linking assignment from the Web
 [2.5.3 Mapping Selection](#253-mapping-selection)  
 [2.6. Output Write](#26-output-write)  
 [3. DAS4 Execution](#3-das4-execution)  
-[4. Discussion](#4-discussion)  
+[4. Discussion and Conclusion](#4-discussion-and-conclusion)  
 [5. References](#5-references)  
 [6. Appendix](#6-appendix)  
 
@@ -106,7 +106,17 @@ Run `sh setup.sh` to build virtual environment and download the dependencies.
 By default, `data/sample.warc.gz` will be taken as input and output will be in `output.tsv`. Job submission can be customized using the options -f, -o and -es.
 Eg: `sh run.sh -f input.warc.gz -o out.tsv -es node007:9200`
 
-## 4. Discussion
+## 4. Discussion and Conclusion
+
+Overall, we believe that our entity linking, given the current limitations that we only use context-independent ranking methods, scores very well. Over the last iterations we were able to improve, precision, recall and as a result the F1 score significantly, especially due to using the latent meaning and Wikipedia-based data in entity ranking and DragNet in text extraction.
+
+<p align="center">
+    <img src="docs/score_development.svg" id="img-score_development"/>
+    <br/>
+    <span style>Figure 2. Score Development</span>
+</p>
+
+To conclude, ..
 
 ## 5. References
 
