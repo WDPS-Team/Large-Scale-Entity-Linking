@@ -76,7 +76,7 @@ This section is split into three subsections, as the Entity Linking task is also
 
 #### 2.5.1 Candidate Generation
 
-@Abi TODO > Add candidate generation
+After recognizing each candidate entity's type, in this stage, our main goal is to link all possible matched candidate entities in Freebase to the given mention. By using `ElasticSearch`, we could get the candidate entities' label and ID. Each given mention has more than 10 relevant candidate entities, but we only take the top 10 which seems to be most revelant ones and output with the given mention ID and candidate entities and their ID in Freebase for later ranking and disambiguation part. 
 
 #### 2.5.2 Candidate Ranking
 
@@ -90,7 +90,7 @@ Furthermore, we tried other methods, such as doc2vec, that calculate a similarit
 
 #### 2.5.3 Mapping Selection
 
-@Abi TODO > Add ranking
+After CandidateGeneration and CandidateRanking, for each given mention, it's relevant candidate entities are list in order, and the top one would be the most relevant and matched one. In this stage, we chose the fisrt candidate entity in CandidateRanking as the matched one to the given mention and output the given mention's ID with the top one candidate entity and it's ID in Freebase. 
 
 ### 2.6. Output Write
 
