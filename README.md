@@ -6,7 +6,7 @@ This repository contains assignment of course Web Data Processing System (2019 -
 
 ### Architecture
 
-![image](https://github.com/WDPS-Team/2019-WDPS/blob/architecture/docs/architecture/architectue2.0.png)
+![image](https://github.com/WDPS-Team/2019-WDPS/blob/architecture/docs/architecture/architecture3.0.png)
 #### TODO: pic need to change 
 
 - This project is to perform Entity Linking on a collection of web pages using entities from Freebase. 
