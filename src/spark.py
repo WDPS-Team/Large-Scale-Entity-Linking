@@ -75,7 +75,7 @@ print("STAGE 3 - Entity Recognition incl. NLP-Preprocessing")
 ee = EntityRecognition(txtprepro_stage_rdd)
 ee_stage_rdd = ee.extract()
 ee_stage_rdd.cache()
-ee_stage_rdd = ee.join_sentences()
+ee_stage_rdd = ee.join_paragraphs()
 ee_stage_rdd.cache()
 print("Processed: {0}".format(ee_stage_rdd.count()))
 
