@@ -21,16 +21,16 @@ class EntityRecognition:
                         entity = dict(type=element.label_, text=text)
                         entity_list.append(entity)
                 return entity_list
-            entities = [spacy_extract(sentence) for sentence in row["sentences"]]
-            return {"_id": row["_id"], "sentences_entities": entities}
+            entities = [spacy_extract(paragraph) for paragraph in row["paragraphs"]]
+            return {"_id": row["_id"], "paragraph_entities": entities}
 
-        self.docs_with_sentences_entities = self.warc_docs.map(process)
-        return self.docs_with_sentences_entities
+        self.docs_with_paragraph_entities = self.warc_docs.map(process)
+        return self.docs_with_paragraph_entities
     
-    def join_sentences(self):
+    def join_paragraphs(self):
         def execute_join(row):
-            entities = [entity_result for sentence in row["sentences_entities"] for entity_result in sentence]
+            entities = [entity_result for paragraph in row["paragraph_entities"] for entity_result in paragraph]
             return {"_id": row["_id"], "entities": entities}
 
-        self.docs_with_entities = self.docs_with_sentences_entities.map(execute_join)
+        self.docs_with_entities = self.docs_with_paragraph_entities.map(execute_join)
         return self.docs_with_entities
