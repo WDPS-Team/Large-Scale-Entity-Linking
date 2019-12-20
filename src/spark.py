@@ -32,7 +32,6 @@ if args.hdfsout:
 if args.debug == "True":
     debug = True
     model_root_path = "/data"
-    #kb_root_path = "/trident/data"
 
 # Initialization Messages
 print("Elastic Search Server:",es_path)
