@@ -15,7 +15,6 @@ pip --version
 pip3 install -r $PWD_PATH/requirements.txt
 python3 -m spacy download en_core_web_md
 cp -r $TRIDENTDIR venv/
-cp $PY_LIBS venv/lib/
 virtualenv --relocatable venv
 zip -rq venv.zip venv
 mkdir VENV # Copy for Spark Driver Node:

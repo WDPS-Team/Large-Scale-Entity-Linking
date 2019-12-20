@@ -32,7 +32,7 @@ if [ ! -d "$SCRATCH_PATH/spark" ]; then
 fi
 
 if [ ! -f "$SCRATCH_PATH/lib/model.bin" ]; then
-    mkdir -p $$SCRATCH_PATH/lib
+    mkdir -p $SCRATCH_PATH/lib
     echo "Downloading lexvec OOV model"
     wget https://www.dropbox.com/s/buix0deqlks4312/lexvec.commoncrawl.ngramsubwords.300d.W.pos.bin.gz?dl=1 -O $SCRATCH_PATH/lib/model.bin.gz
     gzip -d $SCRATCH_PATH/lib/model.bin.gz
