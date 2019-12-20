@@ -80,8 +80,13 @@ This section is split into three subsections, as the Entity Linking task is also
 
 #### 2.5.2 Candidate Ranking
 
-@Abi TODO > Add ranking, also indicate which ranking methods we tried :-) -> doc2vec
- -> Other?
+After retrieving the possible entity candidates for a given mention from ElasticSearch, we do employ different ranking methods. However, for all mentions and the candidates ranked we do not use any context-dependent features. We do rank using the following steps:
+
+1. We compare each candidate entity and it's different labels provided by ElastichSearch using LexVec calculating the cosine similarity. We are using LexVec instead of Word2Vec, as it allows to compare Out-Of-Vocabulary words, which occur quite often (see [src/ELCandidateRanking (Line 23->71)](https://github.com/WDPS-Team/2019-WDPS/blob/master/src/ELCandidateRanking.py#L23-L71)).
+
+2. In the second ranking method, that leverages Trident to obtain Wikipedia's entity label and the entities' associations, we compute a type-score and a similarity score. The type-score is calculated based on how many types match for a given entity candidate. The similarity score is computed between the mention and the labels from Wikipedia (see [src/ELCandidateRanking (Line 23->71)](https://github.com/WDPS-Team/2019-WDPS/blob/f2d08c7ad5194aea77fb95b38372f9534b9c8d42/src/ELCandidateRanking.py#L73-L154))
+
+Furthermore, we tried other methods, such as doc2vec, that calculate a similarity between a sequence of text and not just a word. However, these results actually reduced all our scores. Thus, we removed these after evaluation.
 
 #### 2.5.3 Mapping Selection
 
@@ -129,11 +134,6 @@ Overall, we believe that our entity linking, given the current limitations that 
     <br/>
     <span style>Figure 2. Score Development</span>
 </p>
-
-Addtionally, we identified a few examples which are currently disambiguated even better than the provided gold standard. These are, for example:
-
-- @Abi TODO
-- 
 
 To conclude, our Spark-based pipeline evidently scales well with the amount of documents being processed. Furthermore, we currently acheive good results for the F1 score on the given gold standard. We argue to a certain extent, that this gold standard does actually provide not the correct entity links, but we also acknowledge that our pipeline still requires some work to acheive results as good as the gold standard file.
 
