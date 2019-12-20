@@ -10,7 +10,7 @@ This repository showcases the Large Scale Entity Linking assignment from the Web
 [2. Our Solution](#2-our-solution)  
 [2.1. Architecture Overview](#21-architecture-overview)  
 [2.2. WARC Reading](#22-warc-reading)  
-[2.3. Text Extraction](#23-text-extraction)
+[2.3. Text Extraction](#23-text-extraction)  
 [2.4. Entity Recognition](#24-entity-recognition)    
 [2.5. Entity Linking](#25-entity-linking)  
 [2.5.1 Candidate Generation](#251-candidate-generation)  
