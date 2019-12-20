@@ -1,22 +1,16 @@
 #!/bin/bash
 
-#default values
+# default input values
 ES_PATH=`cat .es_path`
-KB_PATH=`cat .kb_path`
 INPUT_PATH="data/sample.warc.gz"
 OUTPUT_FILE="output.tsv"
 
-# check for input parameters
+# check for custom input parameters
 while [[ $# -gt 0 ]]
 do
 case $1 in
     -es)
     ES_PATH="$2"
-    shift
-    shift
-    ;;
-    -kb)
-    KB_PATH="$2"
     shift
     shift
     ;;
@@ -53,13 +47,6 @@ if [ $response -ne 200 ] || [ -z $ES_PATH ] ; then
     exit 1
 fi
 
-#Trident server check
-response=$(curl --write-out %{http_code} --silent --output /dev/null $KB_PATH)
-if [ $response -ne 200 ] || [ -z $KB_PATH ] ; then
-    echo "ERROR: Trident on node $KB_PATH is not running."
-    exit 1
-fi
-
 #Delete output files prior run
 rm $OUTPUT_FILE
 rm -rf tmp
@@ -68,14 +55,11 @@ HDFS_TMP_OUTPUT="$(basename $PWD)/output"
 hdfs dfs -rm -r $HDFS_TMP_OUTPUT
 
 # submit spark job
-prun -v -1 -np 1 -t 21600 sh spark_submit.sh $ES_PATH $FULL_INPUT_PATH $KB_PATH $HDFS_TMP_OUTPUT
+prun -v -1 -np 1 -t 21600 sh spark_submit.sh $ES_PATH $FULL_INPUT_PATH $HDFS_TMP_OUTPUT
 
 # Copying Output File from HDFS
 hdfs dfs -get "$HDFS_TMP_OUTPUT/predictions.tsv/*" tmp/
 cat tmp/* > $OUTPUT_FILE
 
-#copying all intermediate files for debugging
-#hdfs dfs -copyToLocal output/* ./tmp/   
-
 #Deleting copied input file from HDFS
-hdfs dfs -rm -r $INPUT_FILE > /dev/null
+hdfs dfs -rm -r $FULL_INPUT_PATH > /dev/null

@@ -147,7 +147,8 @@ class ModelCache:
 
 if __name__ == '__main__':
     path = sys.argv[1]
-    m = Model(path)
+    m = ModelCache(path)
+    m = m.model()
     i = 0
     for line in sys.stdin:
         i += 1

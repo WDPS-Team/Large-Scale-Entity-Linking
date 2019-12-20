@@ -5,7 +5,7 @@ SCR_PATH="/var/scratch2/wdps1936/$SCR_DIR"
 if [ ! -d "$SCR_PATH/trident" ]; then
     echo "Copying Trident folder"    #copying allows creating multiple instances of Trident
     mkdir -p $SCR_PATH
-    cp -r /home/wdps1936/trident $SCR_PATH/
+    cp -r /var/scratch2/wdps1936/trident $SCR_PATH/
 fi
 
 KB_PORT=9090

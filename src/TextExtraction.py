@@ -93,8 +93,8 @@ class TextExtraction:
 
             row["text"] = text
 
-            # Split text into different sentences
-            row["sentences"] = row["text"].split("\n")
+            # Split text into different paragraphs
+            row["paragraphs"] = row["text"].split("\n")
             return row
 
         extract_rdd = self.cleaned_warc_responses.map(lambda row: extract(row, DragnetCache()))

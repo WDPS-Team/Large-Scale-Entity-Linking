@@ -5,7 +5,7 @@ SCR_PATH="/var/scratch2/wdps1936/$SCR_DIR"
 if [ ! -d "$SCR_PATH/elasticsearch-2.4.1" ]; then
     echo "Copying Elastic Search folder"    #copying allows creating multiple instances of working elastic search servers
     mkdir -p $SCR_PATH
-    cp -r /home/wdps1936/elasticsearch-2.4.1 $SCR_PATH/
+    cp -r /var/scratch2/wdps1936/elasticsearch-2.4.1 $SCR_PATH/
 fi
 
 ES_PORT=9200

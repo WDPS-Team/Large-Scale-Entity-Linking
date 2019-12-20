@@ -4,11 +4,15 @@ from lxml.html.clean import Cleaner
 import lxml.html as lh
 from lxml import etree
 import bs4
-from config import TMP_FOLDER, WARC_ID, WARC_PER_DOC
 
+WARC_ID = "WARC-TREC-ID"
 
 class WARCSplitReader:
-
+    """
+        Extracting warc records from the input file
+        - WARC-TREC-ID is used to uniquely identify each document
+        - Empty and corrupted warc records are filtered out
+    """
     def __init__(self, spark_session, lines_of_input_file):
         self.sc = spark_session
         self.raw_lines = lines_of_input_file
@@ -45,7 +49,7 @@ class WARCSplitReader:
             try:
                 html = record.content_stream().read()  # reads payload from the record
                 if len(html) == 0:
-                    result["status": "empty html"]
+                    result["status"] = "empty html"
                     return result
                 rec_id = record.rec_headers.get_header(WARC_ID)
                 data = html

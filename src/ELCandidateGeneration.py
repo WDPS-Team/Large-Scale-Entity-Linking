@@ -1,8 +1,6 @@
 import requests
 import time
 import json
-from LexVec import ModelCache
-
 
 class ELCandidateGeneration:
 
@@ -59,4 +57,3 @@ class ELCandidateGeneration:
         def query_lambda(row): return link_freebase(row, lambda_es_path)
         self.linked_candidate_entities = self.docs_with_entities.map(query_lambda)
         return self.linked_candidate_entities
-
