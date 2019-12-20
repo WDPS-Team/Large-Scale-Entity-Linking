@@ -4,8 +4,8 @@ from lxml.html.clean import Cleaner
 import lxml.html as lh
 from lxml import etree
 import bs4
-from config import TMP_FOLDER, WARC_ID, WARC_PER_DOC
 
+WARC_ID = "WARC-TREC-ID"
 
 class WARCSplitReader:
 
@@ -45,7 +45,7 @@ class WARCSplitReader:
             try:
                 html = record.content_stream().read()  # reads payload from the record
                 if len(html) == 0:
-                    result["status": "empty html"]
+                    result["status"] = "empty html"
                     return result
                 rec_id = record.rec_headers.get_header(WARC_ID)
                 data = html
