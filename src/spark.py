@@ -53,11 +53,11 @@ warc_stage_rdd.cache()
 print("Processed: {0}".format(warc_stage_rdd.count()))
 
 # Filter to intersting records:
-if debug:
-    recs=[
-        "clueweb12-0000tw-00-00053"
-    ]
-    warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
+#if debug:
+# recs=[
+#     "clueweb12-0000tw-00-00053"
+# ]
+# warc_stage_rdd = warc_stage_rdd.filter(lambda row: row["_id"] in recs)
 
 print("STAGE 2 - Extracting Text")
 text_prepro = TextExtraction(warc_stage_rdd)
@@ -88,8 +88,7 @@ print("Processed: {0}".format(candidates_rdd.count()))
 print("STAGE 5 - Entity Linking - Candidate Ranking")
 el_cr = ELCandidateRanking(candidates_rdd, kb_root_path, ranking_threshold, model_root_path)
 el_cr.rank_entity_candidates()
-el_cr.disambiguate_type()
-ranked_candidates_rdd = el_cr.disambiguate_label()
+ranked_candidates_rdd = el_cr.rank_entity_type()
 ranked_candidates_rdd.cache()
 print("Processed: {0}".format(ranked_candidates_rdd.count()))
 
