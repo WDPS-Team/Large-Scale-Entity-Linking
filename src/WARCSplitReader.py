@@ -8,7 +8,11 @@ import bs4
 WARC_ID = "WARC-TREC-ID"
 
 class WARCSplitReader:
-
+    """
+        Extracting warc records from the input file
+        - WARC-TREC-ID is used to uniquely identify each document
+        - Empty and corrupted warc records are filtered out
+    """
     def __init__(self, spark_session, lines_of_input_file):
         self.sc = spark_session
         self.raw_lines = lines_of_input_file
