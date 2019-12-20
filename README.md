@@ -24,6 +24,10 @@ This repository showcases the Large Scale Entity Linking assignment from the Web
 
 ## 1. Motivation
 
+Extracting knowledge from some corpus of data, be it audio, images, text or a similar medium, has been an important challenge in a lot of scenarios. May it be studying for an examniation, simply reading a book or computer-based knowledge acquisition from documents obtained from the Web. In this context Entity Linking is a common task, that can be used to acquire knowledge for the first time or aid other processing such as entity prediction.
+
+However, do to the ever growing size of the Web scalable solutions are required. Therefore, we developed a scaleable Spark-based Entity Linking pipeline. This pipeline  uses Machine Learning to extract text from web documents, Neural Networks to identify relevant entity mentions in text, and the entities latent meaning to disambiguate between multiple canidates.
+
 ## 2. Our Solution
 
 This section describes the architecture by introducing an overall overview and subsequent detailled description on each component.
