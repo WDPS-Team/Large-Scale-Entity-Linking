@@ -86,7 +86,7 @@ After retrieving the possible entity candidates for a given mention from Elastic
 
 2. In the second ranking method, that leverages Trident to obtain Wikipedia's entity label and the entities' associations, we compute a type-score and a similarity score. The type-score is calculated based on how many types match for a given entity candidate. The similarity score is computed between the mention and the labels from Wikipedia (see [src/ELCandidateRanking (Line 23->71)](https://github.com/WDPS-Team/Large-Scale-Entity-Linking/blob/f2d08c7ad5194aea77fb95b38372f9534b9c8d42/src/ELCandidateRanking.py#L73-L154))
 
-Furthermore, we tried other methods, such as doc2vec, that calculate a similarity between a sequence of text and not just a word. However, these results actually reduced all our scores (see [src/ELCandidateRanking (Line 355-385)](https://github.com/WDPS-Team/Large-Scale-Entity-Linking/blob/6330611fb0c0a473f6bf478af751b5731aae5802/src/ELCandidateRanking.py#L355-L385). Thus, we removed these after evaluation.
+Furthermore, we tried other methods, such as doc2vec, that calculate a similarity between a sequence of text and not just a word (see [src/ELCandidateRanking (Line 355-385)](https://github.com/WDPS-Team/Large-Scale-Entity-Linking/blob/6330611fb0c0a473f6bf478af751b5731aae5802/src/ELCandidateRanking.py#L355-L385). However, these results actually reduced all our scores. Thus, we removed these after evaluation.
 
 #### 2.5.3 Mapping Selection
 
